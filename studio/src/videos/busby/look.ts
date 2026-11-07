@@ -42,11 +42,16 @@ export const ov = <T extends object>(base: T, patch?: Record<string, unknown>): 
 /** WINCHESTER per-shot MOODS (each shot picks one; merged over the global INPUT_PROPS look):
  *  day = sunny exterior (Rick-measured palette, warm high key, blue-grey cast shadows, thinning ink),
  *  dayInt = bright interior, night = the moonlit exterior (Bell Witch night), candle = candlelit interior */
-export type Mood = "day" | "dayInt" | "night" | "candle";
+export type Mood = "day" | "dayInt" | "night" | "candle" | "pubDay";
 export const MOODS: Record<Mood, LookOv> = {
   day: {"night": {"lit": [1.55, 1.47, 1.33], "shade": [0.6, 0.68, 0.82], "lift": [0.04, 0.045, 0.06], "term": 0.35, "lambert": 0.55, "charTint": [1.0, 0.98, 0.95], "sideTint": [0.98, 0.98, 1.0], "fog": "#cfddf5", "fogNear": 45, "fogFar": 300}, "nightSat": 1.0, "nightSatDark": 1.2, "sky": ["#cfddf5", "#9fb8df", "#8da7d9", "#6b8fe0", "#4f74e3"], "fogNight": "#cfddf5", "shineNight": {"specCol": [1.2, 1.15, 1.05], "poolSpecCol": [1.2, 1.15, 1.05], "sheenCol": [0.35, 0.4, 0.5]}, "extPools": {"k": 0}, "gradeNight": {"ky": [0.047, 0.115, 0.29, 0.645, 0.935, 0.988, 1], "sat": [1.0, 1.04, 1.0], "tintS": [0, 0.012], "tintM": [0, 0], "tintH": [0, 0], "vig": [0.16, 0.5]}, "ink": {"night": {"color": "#231a10", "widthNear": 4.6, "widthFar": 1.7, "distNear": 6, "distFar": 60, "farOpacity": 0.55, "ao": 0.4, "aoRadius": 1.0}}},
   dayInt: {"candle": {"lit": [1.45, 1.4, 1.3], "shade": [0.7, 0.68, 0.68], "lift": [0.07, 0.07, 0.075], "term": 0.85, "lambert": 0.75, "charTint": [1.0, 0.99, 0.97], "sideTint": [0.98, 0.98, 1.0], "fog": "#fff4e2", "fogNear": 40, "fogFar": 300}, "pools": {"k": 0, "satDark": 1.0, "sat": 1.08}, "shineCandle": {"specCol": [1.2, 1.15, 1.05], "poolSpecCol": [1.2, 1.15, 1.05], "sheenCol": [0.3, 0.28, 0.25]}, "gradeCandle": {"ky": [0.056, 0.174, 0.3, 0.612, 0.894, 0.973, 1], "sat": [0.98, 1.0, 1.0], "tintS": [0, 0.01], "tintM": [0, 0], "tintH": [0, 0], "vig": [0.3, 0.35]}, "ink": {"candle": {"ao": 1.2, "aoRadius": 0.9}}},
   night: {},
+  // BUSBY pub by day: the warm room with SOME practical pools (lamps, fire) and a deeper shade, so the room has depth
+  pubDay: {"candle": {"lit": [1.55, 1.4, 1.18], "shade": [0.46, 0.44, 0.5], "lift": [0.05, 0.05, 0.055], "term": 0.45, "lambert": 0.7, "charTint": [1.0, 0.97, 0.93], "sideTint": [0.98, 0.97, 0.98], "fog": "#f4e2c8", "fogNear": 40, "fogFar": 300},
+    "pools": {"k": 0.6, "floor": 0.62, "floorCol": [0.55, 0.52, 0.56], "r": [0.8, 3.0], "col": [1.36, 1.24, 1.04], "cardK": 0.3, "sat": 1.12, "satDark": 0.85},
+    "shineCandle": {"specCol": [1.25, 1.12, 0.95], "poolSpecCol": [1.3, 1.1, 0.8], "sheenCol": [0.3, 0.26, 0.2]},
+    "gradeCandle": {"ky": [0.05, 0.16, 0.29, 0.6, 0.89, 0.972, 1], "sat": [1.0, 1.04, 1.0], "tintS": [0, 0.012], "tintM": [0, 0], "tintH": [0, 0], "vig": [0.32, 0.38]}, "ink": {"candle": {"ao": 1.25, "aoRadius": 0.9}}},
   candle: { pools: { k: 1, floor: 0.38, r: [0.6, 3.2], col: [1.9, 1.4, 0.75], cardK: 0.75, sat: 1.25 } },
 };
 const merge = (a: LookOv, b: LookOv): LookOv => {

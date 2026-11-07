@@ -16,12 +16,12 @@ import { parquetTex, stoneTex } from "./textures";
 export const BX = 600; // museum: back wall z = -3, the chair's seat top at y = SEAT_Y
 export const CX = 640; // forgers' bench: top at y = BENCH_Y, centred on z = 0
 export const SEAT_Y = 2.38, BENCH_Y = 0.9;
-const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
-const R01 = (seed: number) => { let s = seed >>> 0 || 1; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); };
+export const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+export const R01 = (seed: number) => { let s = seed >>> 0 || 1; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); };
 
 // ---------------------------------------------------------------- textures
 /** wood grain, streaks running along the texture's v axis (lathe parts: v = along the part) */
-const grainTex = (key: string, base: string, dark: string, light: string, knots = 3, size = 1024) => ctex(key, size, size, (g) => {
+export const grainTex = (key: string, base: string, dark: string, light: string, knots = 3, size = 1024) => ctex(key, size, size, (g) => {
   const r = R01(key.length * 977 + size);
   g.fillStyle = base; g.fillRect(0, 0, size, size);
   for (let i = 0; i < 10; i++) { // broad soft tone bands
@@ -51,10 +51,10 @@ const grainTex = (key: string, base: string, dark: string, light: string, knots 
 /** the seat: elm grain across, the dish polished pale by 300 years of sitters (the story told in one texture) */
 const seatTex = () => ctex("bzSeat", 2048, 2048, (g) => {
   const S = 2048, r = R01(4242);
-  g.fillStyle = "#6a3a20"; g.fillRect(0, 0, S, S);
+  g.fillStyle = "#7a4a22"; g.fillRect(0, 0, S, S);
   for (let i = 0; i < 160; i++) { // grain runs along x (side to side across the seat)
     const y0 = r() * S, amp = 4 + r() * 16, fr = 0.002 + r() * 0.006, ph = r() * 6, dark = r() < 0.72;
-    g.strokeStyle = dark ? "#2c150a" : "#9a6038"; g.globalAlpha = dark ? 0.16 + r() * 0.3 : 0.1 + r() * 0.15; g.lineWidth = 1.2 + r() * 4;
+    g.strokeStyle = dark ? "#341a0a" : "#b07a44"; g.globalAlpha = dark ? 0.16 + r() * 0.3 : 0.1 + r() * 0.15; g.lineWidth = 1.2 + r() * 4;
     g.beginPath(); for (let x = -10; x <= S + 10; x += 10) { const y = y0 + amp * Math.sin(x * fr + ph) + 30 * Math.exp(-(((x - S * 0.5) / 260) ** 2)) * Math.sin(y0 * 0.01); if (x === -10) g.moveTo(x, y); else g.lineTo(x, y); } g.stroke();
   }
   g.globalAlpha = 1;
@@ -164,7 +164,7 @@ const coinDraw = (g: CanvasRenderingContext2D, S: number, side: 0 | 1, height: b
 };
 const coinTex = (side: 0 | 1) => ctex(`bzCoin${side}`, 1024, 1024, (g) => coinDraw(g, 1024, side, false));
 /** normal map from a height drawing (Sobel), tangent space, +y up the texture */
-const normalFrom = (key: string, S: number, draw: (g: CanvasRenderingContext2D) => void, k = 2.2) => {
+export const normalFrom = (key: string, S: number, draw: (g: CanvasRenderingContext2D) => void, k = 2.2) => {
   const t = ctex(key, S, S, (g) => {
     draw(g);
     const src = g.getImageData(0, 0, S, S), d = src.data, out = g.createImageData(S, S), o = out.data;
@@ -183,7 +183,7 @@ const coinNrm = (side: 0 | 1) => normalFrom(`bzCoinN${side}`, 512, (g) => coinDr
 const reedTex = () => ctex("bzReed", 1024, 32, (g) => { g.fillStyle = "#c3c8d0"; g.fillRect(0, 0, 1024, 32); g.fillStyle = "#7e8590"; for (let x = 0; x < 1024; x += 8) g.fillRect(x, 0, 3, 32); });
 const reedNrm = () => normalFrom("bzReedN", 256, (g) => { g.fillStyle = "#000"; g.fillRect(0, 0, 256, 256); for (let x = 0; x < 256; x += 4) { const gr = g.createLinearGradient(x, 0, x + 4, 0); gr.addColorStop(0, "#000"); gr.addColorStop(0.5, "#fff"); gr.addColorStop(1, "#000"); g.fillStyle = gr; g.fillRect(x, 0, 4, 256); } }, 1.4);
 /** stylised reflection world for metal: warm floor, dark band, a hot white strip (the window), cool sky */
-const envTex = () => {
+export const envTex = () => {
   const t = ctex("bzEnv", 1024, 512, (g) => {
     const gr = g.createLinearGradient(0, 0, 0, 512);
     gr.addColorStop(0, "#9fb8c8"); gr.addColorStop(0.32, "#e9f2f6"); gr.addColorStop(0.4, "#ffffff"); gr.addColorStop(0.47, "#5d6470");
@@ -196,7 +196,7 @@ const envTex = () => {
 
 // ---------------------------------------------------------------- geometry helpers
 /** a turned part: lathe profile [radius m, t 0..1 along a->b], aligned from a to b */
-const turned = (prof: [number, number][], a: THREE.Vector3, b: THREE.Vector3, seg = 22) => {
+export const turned = (prof: [number, number][], a: THREE.Vector3, b: THREE.Vector3, seg = 22) => {
   const d = b.clone().sub(a), L = d.length();
   const g = new THREE.LatheGeometry(prof.map(([r, t]) => new THREE.Vector2(Math.max(r, 1e-4), t * L)), seg);
   g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.normalize())); g.translate(a.x, a.y, a.z);
@@ -211,8 +211,8 @@ const ARMPOST: [number, number][] = [[0, 0], [0.011, 0], [0.012, 0.06], [0.0175,
 /** THE CHAIR. Local frame: seat top centre at the origin, front = +z, feet at y = -0.44 */
 export const buildChair = () => {
   const grp = new THREE.Group(), b = new Batch();
-  const woodV = lam("bzWoodV", () => ({ map: rep(grainTex("bzGrainV", "#5e3420", "#2a1409", "#8a5432", 3), 1, 1) }));
-  const woodT = lam("bzWoodT", () => { const t = rep(grainTex("bzGrainV", "#5e3420", "#2a1409", "#8a5432", 3), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; });
+  const woodV = lam("bzWoodV", () => ({ map: rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1) }));
+  const woodT = lam("bzWoodT", () => { const t = rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; });
   const seatM = lam("bzSeatM", () => { const t = rep(seatTex(), 1, 1); t.offset.set(0.5, 0.5); return { map: t }; });
   // seat: a saddle outline, bevelled all round (rounded front edge reads as one soft ink line)
   const s = new THREE.Shape();
@@ -275,7 +275,7 @@ export const buildMuseum = (R: THREE.Object3D) => {
     wains: lam("bzWainsM", () => ({ map: rep(wainsTex(), 4, 1) })),
     trim: lam("bzTrim", () => ({ color: "#f1e6cf" })),
     panel: lam("bzPanel", () => ({ color: "#245652" })),
-    oak: lam("bzShelf", () => ({ map: rep(grainTex("bzGrainV", "#5e3420", "#2a1409", "#8a5432", 3), 1, 1) })),
+    oak: lam("bzShelf", () => ({ map: rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1) })),
     iron: lam("bzIron", () => ({ color: "#2e3036" })),
     brass: lam("bzBrass", () => ({ color: "#e0aa3e", envMap: envTex(), reflectivity: 0.35, combine: THREE.MixOperation })),
     gilt: lam("bzGilt", () => ({ color: "#d9a641", envMap: envTex(), reflectivity: 0.25, combine: THREE.MixOperation })),

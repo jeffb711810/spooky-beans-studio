@@ -5,8 +5,8 @@
 // impact kicks that flip sign every frame and decay over 7 f. Composition: head tops ~0.2-0.35 of the frame, eyes on the
 // upper third, no faces cut by the frame edge, focus (lens blur) on the eyes in close-ups, wides sharp.
 export const FPS = 30;
-export const TOTAL = 360; // BUSBY look-dev
-const BXv = 600, CXv = 640; // hero.ts BX / CX (story.ts must not import three-heavy modules)
+export const TOTAL = 480; // BUSBY look-dev
+const BXv = 600, CXv = 640, PXv = 680; // hero.ts BX / CX (story.ts must not import three-heavy modules)
 export type V3 = [number, number, number];
 export const X0 = 200; // bedroom centre x
 export const GRAVE: V3 = [-34, 0, -26];
@@ -28,7 +28,7 @@ export type Key = {
   cInf?: number;   // lens blur override for this key (glides with the move: blurred close-up -> sharp wide)
 };
 export type Shot = {
-  id: number; a: number; b: number; light: Light; keys: Key[]; mood?: "day" | "dayInt" | "night" | "candle";
+  id: number; a: number; b: number; light: Light; keys: Key[]; mood?: "day" | "dayInt" | "night" | "candle" | "pubDay";
   creep?: number;      // push-in per frame as a fraction of the camera-target distance (0.0025 = 0.25 %/f)
   cInf?: number;       // lens blur: CoC (px at 1080 wide) of things at infinity, 0 = sharp; keys may override it (cInfAt)
   focus?: V3;          // focus point (default: the key focus, else the look target)
@@ -62,6 +62,10 @@ export const SHOTS: Shot[] = [
     { f: 239, glide: 119, pos: [BXv + 0.28, 2.5, -1.68], look: [BXv, 2.7, -2.74], fov: 34 }] },
   { id: 903, a: 240, b: 360, light: "candle", mood: "candle", cInf: 16, keys: [{ f: 240, pos: [CXv + 0.16, 1.16, 0.42], look: [CXv + 0.02, 0.92, 0.03], fov: 32 },
     { f: 359, glide: 119, pos: [CXv + 0.12, 1.06, 0.3], look: [CXv + 0.06, 0.925, 0.05], fov: 32 }] },
+  // 904 the pub wide (from the door side, the chair's corner + bar + window)
+  { id: 904, a: 360, b: 420, light: "candle", mood: "pubDay", cInf: 0, keys: [{ f: 360, pos: [PXv + 1.7, 1.35, 1.6], look: [PXv - 1.0, 1.0, -1.7], fov: 50 }] },
+  // 905 the chair in its corner, low, the dare plaque above it
+  { id: 905, a: 420, b: 480, light: "candle", mood: "pubDay", cInf: 10, keys: [{ f: 420, pos: [PXv - 1.35, 0.85, -0.45], look: [PXv - 2.72, 0.95, -2.25], fov: 40 }] },
 ];
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 /** shot at f; in a TAIL render (tail = a DISSOLVES boundary) the shot that ENDS there keeps running through its dissolve */

@@ -270,6 +270,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
   switch (s.id) {
     case 901: case 902: props.pools = [[600, 2.75, -2.62], [600, 1.47, -2.9], [601.75, 2.42, -2.9]]; break; // BUSBY: the spot on the chair, the plaque, the portrait
     case 903: props.pools = [[639.55, 1.19, -0.25], [640.42, 1.03, 0.2]]; break; // BUSBY: candle + crucible
+    case 904: case 905: props.pools = [[677.4, 1.75, -1.8], [681.1, 2.0, -1.55], [683.3, 0.5, 0.9]]; break; // BUSBY pub: chair-corner lamp, bar pendants, fire
     case 1: { // the farmhouse; John on the porch with a lantern; lights go out on "didn't exist"
       // opening close-up (frame 0 stops the scroll): already uneasy, eyes cut hard off-screen left as if he heard
       // something, a bead of sweat; he glances back toward us as the camera pulls away

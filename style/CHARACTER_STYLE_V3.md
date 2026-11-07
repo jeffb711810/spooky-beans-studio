@@ -46,3 +46,5 @@ Unit: 1 D = head width. Everything measured in D.
 3. WHIP: fast move that STOPS IN 1 FRAME - no settle, no wobble, no ease-out at the end
 - example frame: low camera skimming along the rails/structure, strong perspective, warm low sun
 - the camera stands still in only ~4.5% of frames (e.g. ~105 of 2350): it is moving in ~95% of all frames
+- ORBIT size: looks like a 180 but is only ~98 degrees of arc around the subject (camera swings under/around the front,
+  so the face flip happens mid-orbit)

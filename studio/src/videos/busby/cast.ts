@@ -170,7 +170,7 @@ export const BZ = {
   old1: R_({ kerchief: "#f4efe2", jacket: "#3f6a3a", pants: "#4a3a2a", vest: "#d8b860", buttons: "#e8c060", hat: "tricorn", cap: "#3a2a1c", ribbon: "#c9a24a", hair: "#7a5a3a" }, "bz_old1", 76),
   old2: R_({ shape: { geo: "wide" }, build: "stout", jacket: "#8a4a2a", pants: "#3a3a40", hat: "tricorn", cap: "#2a2420", ribbon: "#9a8a6a", moustache: "#8a8a80" }, "bz_old2", 77),
   vic1: R_({ tie: "#a8322a", collar: "#f4efe2", jacket: "#2a3a5a", pants: "#3a3a40", vest: "#a8322a", hat: "tophat", cap: "#24201e", ribbon: "#5a4a3a", moustache: "#5a3a22" }, "bz_vic1", 78),
-  vic2: R_({ plaid: "#4f4230", jacket: "#6a5a3a", pants: "#4a4a40", hat: "brim", cap: "#3a3a3a", hair: "#b8a888" }, "bz_vic2", 79),
+  vic2: R_({ plaid: "#4f4230", jacket: "#6a5a3a", pants: "#4a4a40", hat: "cap", cap: "#4a4038", hair: "#b8a888" }, "bz_vic2", 79), // Victorian working man: a flat cap (the wide brim read as a cowboy hat)
   airman2: R_({ shape: { head: 0.95 }, jacket: "#5a3a22", collar: "#f2e8d6", pants: "#4a5a3a", hat: "flight", cap: "#4a2e1a" }, "bz_airman2", 80),
   pilot2: R_({ build: "stout", jacket: "#5a6f9a", pants: "#4a5a7a", shirt: "#cfd8e6", collar: "#cfd8e6", tie: "#1e2a40", buttons: "#e0b04a", hat: "peaked", cap: "#3e4f72", ribbon: "#1e2a40", moustache: "#6a3f22" }, "bz_pilot2", 81),
   landlord: R_({ shape: { head: 1.12, geo: "wide" }, build: "stout", jacket: "#efe6d2", pants: "#4e4438", apron: "#f4efe2", hat: "hair", hair: "#3a281c", hairdo: "parted", moustache: "#3a281c" }, "bz_landlord", 70),

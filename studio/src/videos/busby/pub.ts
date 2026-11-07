@@ -6,6 +6,7 @@
 //  - the fireplace (brick, logs, live flames), horse brasses, the dart board and the "DARES" chalk board
 //  - beams with a hop garland and pewter tankards on hooks
 // Era props switch per shot (PUB.era): 0 = candles (1700s), 1 = oil lamps (1800s), 2 = electric bulbs (1900s+).
+import { phMat } from "../bridge/phtex";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { Batch, lam } from "../bridge/build";
@@ -138,12 +139,13 @@ const plateTex = () => ctex("pbPlate", 512, 512, (g) => {
 export const buildPub = (R: THREE.Object3D) => {
   const x0 = PX, g = new THREE.Group(), b = new Batch(), r = R01(1971), env = envTex();
   const M = {
-    floor: lam("pbFloor", () => ({ map: rep(planksHD(true), 3.5, 3), color: "#f0d2aa" })),
-    plaster: lam("pbPlasterM", () => ({ map: rep(plasterWarm(), 3, 1.2) })), boards: lam("pbBoardsM", () => ({ map: rep(boardsTex(), 4, 1) })),
-    beam: lam("pbBeam", () => ({ map: rep(grainTex("pbGrainBeam", "#8a5a36", "#5a3820", "#a87448", 4, 1024), 1, 1) })),
-    beamT: lam("pbBeamT", () => { const t = rep(grainTex("pbGrainBeam", "#8a5a36", "#5a3820", "#a87448", 4, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; }),
-    mahog: lam("pbMahog", () => { const t = rep(grainTex("pbGrainMah", "#b0663a", "#7a3e1c", "#cc8250", 2, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; }),
-    mahogV: lam("pbMahogV", () => ({ map: rep(grainTex("pbGrainMah", "#b0663a", "#7a3e1c", "#cc8250", 2, 1024), 1, 1) })),
+    // REALISTIC WORLD: photo-scanned wood floor, rough plaster (tinted the pub's sage), oak panels, rough-hewn beams
+    floor: lam("pbFloor", () => phMat("old_wood_floor", 2.6, 2.2, "#f4e2cc", 1.4) ?? ({ map: rep(planksHD(true), 3.5, 3), color: "#f0d2aa" })),
+    plaster: lam("pbPlasterM", () => phMat("plastered_wall_02", 2.2, 0.9, "#b8dcc6", 1.2) ?? ({ map: rep(plasterWarm(), 3, 1.2) })), boards: lam("pbBoardsM", () => phMat("wooden_panels", 3, 0.75, "#f0d6b4", 1.3) ?? ({ map: rep(boardsTex(), 4, 1) })),
+    beam: lam("pbBeam", () => phMat("rough_wood", 1, 1, "#c89a70", 1.5) ?? ({ map: rep(grainTex("pbGrainBeam", "#8a5a36", "#5a3820", "#a87448", 4, 1024), 1, 1) })),
+    beamT: lam("pbBeamT", () => phMat("rough_wood", 1, 1, "#c89a70", 1.5, Math.PI / 2) ?? (() => { const t = rep(grainTex("pbGrainBeam", "#8a5a36", "#5a3820", "#a87448", 4, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; })()),
+    mahog: lam("pbMahog", () => phMat("wood_table_worn", 1, 1, "#e0a070", 1.2, Math.PI / 2) ?? (() => { const t = rep(grainTex("pbGrainMah", "#b0663a", "#7a3e1c", "#cc8250", 2, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; })()),
+    mahogV: lam("pbMahogV", () => phMat("wood_table_worn", 1, 1, "#e0a070", 1.2) ?? ({ map: rep(grainTex("pbGrainMah", "#b0663a", "#7a3e1c", "#cc8250", 2, 1024), 1, 1) })),
     brass: lam("pbBrass", () => ({ color: "#e2ac40", envMap: env, reflectivity: 0.35, combine: THREE.MixOperation })),
     pewter: lam("pbPewter", () => ({ color: "#a7abb4", envMap: env, reflectivity: 0.32, combine: THREE.MixOperation })),
     iron: lam("pbIron", () => ({ color: "#2c2e33" })), porc: lam("pbPorc", () => ({ color: "#f7f3ea" })),

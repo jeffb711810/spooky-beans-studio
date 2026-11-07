@@ -14,6 +14,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer } from "@react-three/postprocessing";
 import { BlendFunction, BloomEffect, Effect, EffectAttribute, EffectComposer as PPComposer, EffectPass, ToneMappingEffect, ToneMappingMode } from "postprocessing";
 import { loadKit } from "../bridge/world";
+import { loadPH } from "../bridge/phtex";
 import { Kit } from "../bridge/build";
 import { InkPass, InkOptions, noInkFallback } from "../bridge/ink";
 import { LensBlur } from "../bridge/lensblur";
@@ -33,8 +34,10 @@ const INK: InkOptions = { color: "#0a0706", widthNear: 11, widthFar: 3, distNear
 // contact shadows (look round 10, user: "his style makes the world seem more 3D while the characters are 2D paper"):
 // soft ambient occlusion in corners, under furniture and where props meet the ground (ink.ts; never on the cards)
 const INK_LIGHT: Record<"night" | "candle", InkOptions> = {
-  night: { ...INK, concaveGain: 0.6, ao: 0.7, aoRadius: 1.0 },                     // porch/fence/stones on the ground keep contact lines
-  candle: { ...INK, widthNear: 11, concaveGain: 0.3, ao: 0.75, aoRadius: 0.6 },  // rooms 1.5-6 m away: slightly finer, few shell folds
+  night: { ...INK, widthNear: 0.9, widthFar: 0.4, farOpacity: 0.35, concaveGain: 0.15, ao: 1.5, aoRadius: 1.0 }, // realistic world: no world ink outside either
+  // (user: "make our 3D world look more realistic like his, not just static toon"): his worlds are rendered, not inked -
+  // no black lines on walls / props, only soft contact shading in corners and under things; the characters keep their ink
+  candle: { ...INK, widthNear: 0.9, widthFar: 0.4, farOpacity: 0.35, concaveGain: 0.15, ao: 1.7, aoRadius: 0.9 },
 };
 
 const makeBloom = () => {
@@ -89,7 +92,7 @@ const whipVel = (f: number): [number, number, number] | null => {
 const useKit = () => {
   const [kit, setKit] = useState<Kit | null>(null);
   const [handle] = useState(() => delayRender("bell kit"));
-  useEffect(() => { loadKit().then((k) => { setKit(k); continueRender(handle); }); }, [handle]);
+  useEffect(() => { Promise.all([loadKit(), loadPH()]).then(([k]) => { setKit(k); continueRender(handle); }); }, [handle]);
   return kit;
 };
 

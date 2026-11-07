@@ -4,6 +4,7 @@
 // metal reads as metal (a bright moving reflection band + a hot spot), never one flat colour.
 //  - the museum wall (x = BX): the cursed Windsor chair on a high shelf, brass plaque, gilt frames, rope barrier, spot
 //  - the forgers' bench (x = CX, 1702): fake crowns with struck faces and reeded edges, a mould, a crucible, a candle
+import { phMat } from "../bridge/phtex";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { Batch, lam } from "../bridge/build";
@@ -224,8 +225,9 @@ const ARMPOST: [number, number][] = [[0, 0], [0.011, 0], [0.012, 0.06], [0.0175,
 /** THE CHAIR. Local frame: seat top centre at the origin, front = +z, feet at y = -0.44 */
 export const buildChair = () => {
   const grp = new THREE.Group(), b = new Batch();
-  const woodV = lam("bzWoodV", () => ({ map: rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1) }));
-  const woodT = lam("bzWoodT", () => { const t = rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; });
+  // REALISTIC WORLD: the chair in real old oak (photo-scanned, a dark stain so it never washes out)
+  const woodV = lam("bzWoodV", () => phMat("wood_table_worn", 0.6, 1.4, "#9a6a44", 1.3) ?? ({ map: rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1) }));
+  const woodT = lam("bzWoodT", () => phMat("wood_table_worn", 0.6, 1.4, "#9a6a44", 1.3, Math.PI / 2) ?? (() => { const t = rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; })());
   const seatM = lam("bzSeatM", () => { const t = rep(seatTex(), 1, 1); t.offset.set(0.5, 0.5); return { map: t }; });
   // seat: a saddle outline, bevelled all round (rounded front edge reads as one soft ink line)
   const s = new THREE.Shape();
@@ -283,12 +285,13 @@ export const buildChair = () => {
 export const buildMuseum = (R: THREE.Object3D) => {
   const g = new THREE.Group(), b = new Batch(), x0 = BX, zW = -3;
   const M = {
-    floor: lam("bzFloor", () => ({ map: rep(planksHD(true), 3, 2.5), color: "#c8a27c" })), // wide boards (the parquet aliased into stripes at distance)
-    wall: lam("bzWall", () => ({ map: rep(plasterTex(), 3, 1.5) })),
+    // REALISTIC WORLD: the museum gets a real herringbone parquet and real plaster in its teal
+    floor: lam("bzFloor", () => phMat("herringbone_parquet", 2.4, 2.0, "#f2dcc0", 1.2) ?? ({ map: rep(planksHD(true), 3, 2.5), color: "#c8a27c" })),
+    wall: lam("bzWall", () => phMat("plastered_wall_02", 2.2, 1.1, "#8cc8c4", 1.1) ?? ({ map: rep(plasterTex(), 3, 1.5) })),
     wains: lam("bzWainsM", () => ({ map: rep(wainsTex(), 4, 1) })),
     trim: lam("bzTrim", () => ({ color: "#f1e6cf" })),
     panel: lam("bzPanel", () => ({ color: "#245652" })),
-    oak: lam("bzShelf", () => ({ map: rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1) })),
+    oak: lam("bzShelf", () => phMat("wood_table_worn", 1, 1, "#9a6a44", 1.2) ?? ({ map: rep(grainTex("bzGrainV", "#74461f", "#3a1d0a", "#a0683a", 3), 1, 1) })),
     iron: lam("bzIron", () => ({ color: "#2e3036" })),
     brass: lam("bzBrass", () => ({ color: "#e0aa3e", envMap: envTex(), reflectivity: 0.35, combine: THREE.MixOperation })),
     gilt: lam("bzGilt", () => ({ color: "#d9a641", envMap: envTex(), reflectivity: 0.25, combine: THREE.MixOperation })),
@@ -297,7 +300,7 @@ export const buildMuseum = (R: THREE.Object3D) => {
     inn: lam("bzInn", () => ({ map: innTex() })), busby: lam("bzBusby", () => ({ map: busbyTex() })),
     lamp: lam("bzLamp", () => ({ color: "#1c1d22" })),
   };
-  Object.assign(GLOSS_OF, { bzWoodV: 0.7, bzWoodT: 0.7, bzSeatM: 0.8, bzShelf: 0.6, bzIron: 0.6, bzBrass: 1, bzGilt: 0.9, bzPlaqueM: 0.8, bzFloor: 0.75, bzTrim: 0.4, bzPanel: 0.55, bzLamp: 0.7, bzRope: 0.15 });
+  Object.assign(GLOSS_OF, { bzWoodV: 0.28, bzWoodT: 0.28, bzSeatM: 0.35, bzShelf: 0.6, bzIron: 0.6, bzBrass: 1, bzGilt: 0.9, bzPlaqueM: 0.8, bzFloor: 0.75, bzTrim: 0.4, bzPanel: 0.55, bzLamp: 0.7, bzRope: 0.15 });
   const rb = (ax: number, ay: number, az: number, bx: number, by: number, bz: number, r = 0.01) => { const w = bx - ax, h = by - ay, d = bz - az; return new RoundedBoxGeometry(w, h, d, 2, Math.min(r, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4)).translate(x0 + (ax + bx) / 2, (ay + by) / 2, (az + bz) / 2); };
   // room shell: parquet floor, plaster wall above a panelled dado, crown moulding, ceiling
   b.add(new THREE.PlaneGeometry(12, 10).rotateX(-Math.PI / 2).translate(x0, 0, 2), M.floor);

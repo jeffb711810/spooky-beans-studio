@@ -407,10 +407,13 @@ export const v3Hat = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: n
     case "tricorn": { // 1702: black felt, three brims turned up, a gold galloon on the edge
       sideHair(p, cx, hc, D, hair, f);
       const c = o.cap ?? "#2a2420";
-      cloth(p, [...B3(X, [-0.4, -0.3], [-0.42, -0.9], [0.42, -0.9], [0.4, -0.3], 30), X(0.4, -0.28), X(-0.4, -0.28)], c, light, D, 0.048, [X(-0.22, -0.7), X(0.0, -0.8)], 0.16);
-      const brim = [X(-0.74, -0.58), ...B2(X, [-0.66, -0.4], [-0.3, -0.22], [0, -0.17], 14), ...B2(X, [0, -0.17], [0.3, -0.22], [0.66, -0.4], 14), X(0.74, -0.58), ...B2(X, [0.6, -0.5], [0.3, -0.42], [0, -0.36], 12), ...B2(X, [0, -0.36], [-0.3, -0.42], [-0.6, -0.5], 12)];
+      // (user: "random cowboy hats"): a TRUE tricorn from the front - a broad inverted triangle, one corner pointing
+      // forward and down, the top edge high and nearly straight (never dipping in the middle like a cowboy brim)
+      cloth(p, [...B3(X, [-0.36, -0.34], [-0.4, -0.86], [0.4, -0.86], [0.36, -0.34], 30), X(0.36, -0.32), X(-0.36, -0.32)], c, light, D, 0.048, [X(-0.2, -0.68), X(0.0, -0.76)], 0.16);
+      const brim = [...B2(X, [-0.76, -0.58], [0, -0.72], [0.76, -0.58], 16), ...B2(X, [0.76, -0.58], [0.32, -0.36], [0, -0.17], 12), ...B2(X, [0, -0.17], [-0.32, -0.36], [-0.76, -0.58], 12)];
       cloth(p, brim, lighter(c, 1.12), light, D);
-      p.stroke([...B2(X, [-0.68, -0.48], [-0.3, -0.27], [0, -0.215], 14), ...B2(X, [0, -0.215], [0.3, -0.27], [0.68, -0.48], 14)], 0.026 * D, o.ribbon ?? "#d9a83a");
+      p.stroke([...B2(X, [-0.7, -0.555], [-0.3, -0.33], [0, -0.215], 12), ...B2(X, [0, -0.215], [0.3, -0.33], [0.7, -0.555], 12)], 0.026 * D, o.ribbon ?? "#d9a83a");
+      p.stroke(B2(X, [-0.7, -0.6], [0, -0.7], [0.7, -0.6], 16), 0.02 * D, o.ribbon ?? "#d9a83a");
       return true;
     }
     case "nightcap": { // a long soft cone flopping over to one side, a pompom on the tip

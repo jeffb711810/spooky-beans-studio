@@ -186,7 +186,7 @@ export class World {
     this.sky.renderOrder = -1; this.sky.frustumCulled = false; this.sky.layers.set(NOINK); R.add(this.sky);
     this.hemi = new THREE.HemisphereLight("#2a3550", "#16141c", 0.3);
     this.sun = new THREE.DirectionalLight("#a8bcff", 2.0);
-    this.sun.castShadow = true; this.sun.shadow.mapSize.set(4096, 4096); // smooth shadows: half the texel size (was 2048)
+    this.sun.castShadow = true; this.sun.shadow.mapSize.set(2048, 2048); // THE CHAIR: softer 6-12 px penumbra like the reference (was 4096) // smooth shadows: half the texel size (was 2048)
     // style C (user: "look at the shadows and how accurate they are"): the shadow camera must see the character layer,
     // or the cards (NOINK) never reach the shadow map and nobody casts a shadow (actorShadow did nothing until now).
     // Only meshes with castShadow = true cast (the actors); sky, fx cards, cobwebs and glass stay out.
@@ -954,7 +954,7 @@ export class World {
     // subject (story focus) but is shot through a 26 deg lens from further back along the same view line; the near plane
     // sits where the old camera stood, so walls behind the new position are cut away (his flat, telephoto diorama look)
     let cpos = c.pos as T3, cfov = c.fov, cnear = 0.1; this.lensD = 0; this.lensK = 1;
-    if (!LK && cfov > 40) { // close-ups (32-40 deg) are already long lenses: backing off there clips the walls beside them
+    if (!LK && cfov > (s.id >= 200 ? 27 : 40)) { // THE CHAIR: every shot through his 26 deg lens // close-ups (32-40 deg) are already long lenses: backing off there clips the walls beside them
       const F = focusAt(s, f), lx = c.look[0] - cpos[0], ly = c.look[1] - cpos[1], lz = c.look[2] - cpos[2], ll = Math.hypot(lx, ly, lz) || 1;
       const ux = lx / ll, uy = ly / ll, uz = lz / ll, ds = Math.max(0.6, (F[0] - cpos[0]) * ux + (F[1] - cpos[1]) * uy + (F[2] - cpos[2]) * uz);
       // the camera may back off at most LENS_MAX m (the sets end: a wide exterior would leave the ground); the lens then

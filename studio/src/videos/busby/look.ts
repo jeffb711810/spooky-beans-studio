@@ -52,11 +52,11 @@ export const MOODS: Record<Mood, LookOv> = {
     "pools": {"k": 1, "floor": 0.5, "floorCol": [0.16, 0.2, 0.34], "r": [1.0, 3.6], "col": [1.0, 1.12, 1.45], "cardK": 0.5, "sat": 0.95, "satDark": 0.55},
     "shineCandle": {"specCol": [0.8, 0.95, 1.3], "poolSpecCol": [0.8, 0.95, 1.4], "sheenCol": [0.15, 0.2, 0.35]}},
   // BUSBY pub by day: the warm room with SOME practical pools (lamps, fire) and a deeper shade, so the room has depth
-  pubDay: {"candle": {"lit": [1.95, 1.7, 1.36], "shade": [0.58, 0.68, 0.82], "lift": [0.05, 0.05, 0.055], "term": 0.45, "lambert": 0.7, "charTint": [1.0, 0.97, 0.93], "sideTint": [0.98, 0.97, 0.98], "fog": "#f4e2c8", "fogNear": 40, "fogFar": 300},
-    "pools": {"k": 0.6, "floor": 0.78, "floorCol": [0.62, 0.56, 0.58], "r": [0.9, 3.4], "col": [1.65, 1.36, 0.98], "cardK": 0.3, "sat": 1.38, "satDark": 1.05},
+  pubDay: {"candle": {"lit": [1.95, 1.72, 1.38], "shade": [0.56, 0.64, 0.8], "lift": [0.05, 0.05, 0.055], "term": 0.45, "lambert": 0.7, "charTint": [1.0, 0.97, 0.93], "sideTint": [0.98, 0.97, 0.98], "fog": "#f4e2c8", "fogNear": 40, "fogFar": 300},
+    "pools": {"k": 0.6, "floor": 0.78, "floorCol": [0.6, 0.64, 0.74], "r": [0.9, 3.4], "col": [1.6, 1.38, 1.04], "cardK": 0.3, "sat": 1.3, "satDark": 1.0},
     "shineCandle": {"k": 1.6, "sheen": 0.32, "specCol": [1.7, 1.5, 1.2], "poolSpecCol": [1.8, 1.45, 1.0], "sheenCol": [0.5, 0.4, 0.28]},
     "gradeCandle": {"ky": [0.06, 0.2, 0.37, 0.7, 0.95, 0.99, 1], "sat": [1.2, 1.3, 1.15], "tintS": [0, 0.012], "tintM": [0, 0], "tintH": [0, 0], "vig": [0.46, 0.3]}, "ink": {"candle": {"ao": 1.25, "aoRadius": 0.9}}},
-  candle: { pools: { k: 1, floor: 0.6, floorCol: [0.2, 0.3, 0.62], r: [1.0, 4.0], col: [2.35, 1.7, 0.85], cardK: 0.75, sat: 1.45 }, shineCandle: { k: 1.7, sheen: 0.3 }, gradeCandle: { ky: [0.07, 0.22, 0.38, 0.7, 0.94, 0.99, 1], sat: [1.2, 1.28, 1.15], vig: [0.48, 0.3] } },
+  candle: { candle: { lit: [1.9, 1.55, 1.0], shade: [0.5, 0.58, 0.74], lift: [0.03, 0.04, 0.06], term: 0.45 }, pools: { k: 1, floor: 0.66, floorCol: [0.42, 0.5, 0.66], r: [1.0, 4.0], col: [2.05, 1.6, 1.0], cardK: 0.6, sat: 1.22 }, shineCandle: { k: 1.7, sheen: 0.3 }, gradeCandle: { ky: [0.07, 0.22, 0.38, 0.7, 0.94, 0.99, 1], sat: [1.08, 1.14, 1.05], vig: [0.42, 0.3] } },
 };
 const merge = (a: LookOv, b: LookOv): LookOv => {
   const o: Record<string, unknown> = { ...a };

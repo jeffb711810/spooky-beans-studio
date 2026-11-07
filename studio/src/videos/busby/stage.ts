@@ -158,7 +158,8 @@ const trem = (f: number, a = 0.01) => (f % 2 ? a : -a);
 /** decay after an event: 1 at `at`, e-folding over `k` frames */
 const after = (f: number, at: number, k = 8) => (f >= at ? Math.exp(-(f - at) / k) : 0);
 /** head-centre height above the sole and head radius (m) of the bridge toon builds */
-const HEAD = { adult: { stand: 1.44, sit: 0.86, r: 0.255, chin: 0.24 }, kid: { stand: 1.07, sit: 0.7, r: 0.242, chin: 0.227 } };
+const HEAD = { adult: { stand: 1.62, sit: 1.27, r: 0.29, chin: 0.27 }, // THE CHAIR cast (bigger heads, chair seat 0.44)
+  _old: { stand: 1.44, sit: 0.86, r: 0.255, chin: 0.24 }, kid: { stand: 1.07, sit: 0.7, r: 0.242, chin: 0.227 } };
 type Build = keyof typeof HEAD;
 /** world point on a card: card-local (px right, py up) from the sole, with the card roll; nudged toward the camera */
 const onCard = (cam: CamInfo, x: number, y: number, z: number, px: number, py: number, roll = 0, toward = 0.06): V3 => {
@@ -293,7 +294,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       const u = s.id === 201 ? clamp01((f - 8) / 44) : 1 - clamp01((f - 1748) / 70); hoist(u);
       const up = u < 0.97;
       add(BZ.worker2, 599.82, 0, -2.05, { f, expr: up ? "pained" : "relief", look: 0, pose: up ? "up" : "hips", pa: up ? 1 : poseIn(f, 56, 6), sy: up ? 1 - 0.02 * Math.sin(f * 0.9) : 1, tilt: up ? -3 : 0 });
-      add(BZ.worker1, 600.62, 0.9, -2.6, { f, expr: u > 0.5 ? "grin" : "nervous", look: -1, pose: "reach", pa: 1 });
+      add(BZ.worker1, 600.62, 0.9 + (s.id === 201 ? hop(f, 54, 0.05, 8) : 0), -2.6, { f, expr: u > 0.95 ? "laugh" : u > 0.5 ? "grin" : "nervous", look: -1, pose: u > 0.95 && s.id === 201 ? "up" : "reach", pa: u > 0.95 && s.id === 201 ? poseIn(f, 54, 4) : 1, sy: s.id === 201 ? stretch(f, 54, 0.08) : 1 });
             if (s.id === 201 && f >= 48 && f < 64) F.push(fx(`bzdust${qt((f - 48) / 16, 8)}`, 300, 300, (p) => fxSoot(p, qt((f - 48) / 16, 8) * 0.6), 600.0, 2.0, -2.5, 0.6, 0.6, { soft: true }));
       break;
     }
@@ -311,11 +312,11 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       if (s.id === 207) {
         sitOn(BZ.auty, f >= 330 ? "shock" : "smug", { pose: f >= 330 ? "cheeks" : "belly", pa: f >= 330 ? poseIn(f, 330, 3) : 1 });
         F.push(fx("bzmug", 160, 220, (p) => fxPint(p), CHX + 0.2, 0.86, CHZ + 0.1, 0.12, 0.17, {}));
-        add(BZ.busby, 679.05, 0, -0.45, { f, side: true, so: { mode: "stand", expr: "angry" }, mirror: true, scale: 1.0 });
+        add(BZ.busby, 679.05 + trem(f, 0.006), 0, -0.45, { f, side: true, so: { mode: "stand", expr: "angry" }, mirror: true, scale: 1.0, roll: -0.06 * smooth((f - 300) / 10) });
         if (f >= 330) emoteFx({ x: CHX, y: 0, z: CHZ, b: "adult", sit: true }, "bang", 330, 16, 1);
       }
       if (s.id === 208) {
-        add(BZ.busby, 678.8, 0, -0.55, { f, expr: f >= 362 ? "scream" : "angry", look: 1, pose: "fists", pa: 1, talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.1) });
+        add(BZ.busby, 678.8, hop(f, 360, 0.04, 6), -0.55, { f, expr: f >= 362 ? "scream" : "angry", look: 1, pose: f >= 362 ? "fists" : "point", pa: poseIn(f, 356, 4), talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.14), headTilt: f >= 362 ? 7 * Math.sin((f - 362) * 0.9) * Math.exp(-(f - 362) / 14) : 0 });
         if (f >= 368) { const u = qt(((f - 368) % 14) / 14, 8); F.push(fx(`bzsteam${u}`, 240, 300, (p) => bzSteam(p, u), 678.85, 2.0, -0.55, 0.45, 0.56, { soft: true })); }
       }
       if (s.id === 209) {
@@ -334,8 +335,8 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     }
     case 205: { BENCH.t = clamp01((f - 200) / 26); props.pools = [[639.55, 1.19, -0.25], [640.42, 1.03, 0.2]]; break; }
     case 206: { props.pools = [[639.55, 1.19, -0.25], [640.42, 1.03, 0.2]]; BENCH.t = 1;
-      add(BZ.busby, 639.75, 0, -0.55, { f, expr: "evil", look: 1, pose: "fists", pa: 1, headTilt: 4 * Math.sin(f * 0.25) });
-      add(BZ.auty, 640.38, 0, -0.55, { f, expr: "grin", look: -1, pose: "hold", pa: 1, sy: 1 + 0.015 * Math.sin(f * 0.6) }); break; }
+      add(BZ.busby, 639.85, bounce(f, 9, 0.012), -0.55, { f, expr: "evil", look: 1, pose: Math.floor(f / 6) % 2 ? "fists" : "hold", pa: 1, headTilt: 5 * Math.sin(f * 0.35), sy: 1 + 0.025 * Math.abs(Math.sin(f * 0.35)) });
+      add(BZ.auty, 640.28, bounce(f, 8, 0.014, 3), -0.62, { f, expr: f >= 250 ? "laugh" : "grin", look: -1, pose: "hold", pa: 1, headTilt: -5 * Math.sin(f * 0.4), sy: 1 + 0.03 * Math.abs(Math.sin(f * 0.4)) }); break; }
     case 211: { // 200 years in one orbit: candles -> oil lamps -> bulbs, tricorns -> top hats -> flat caps, everyone laughing at it
       const era = f < 640 ? 0 : f < 690 ? 1 : 2; PUB.era = era; props.pools = era === 0 ? CPOOLS : PPOOLS;
       const C = era === 0 ? [BZ.old1, BZ.old2] : era === 1 ? [BZ.vic1, BZ.vic2] : [BZ.local1, BZ.local2];
@@ -396,7 +397,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     case 226: { props.pools = MPOOLS; MUS.ladder = 1;
       add(BZ.expert, 600.62, 1.2, -2.58, { f, expr: f >= 1546 ? "shock" : "suspicious", look: -1, pose: f >= 1546 ? "cheeks" : "hold", pa: f >= 1546 ? poseIn(f, 1546, 3) : 1, sy: stretch(f, 1546, 0.14) });
       if (f >= 1546) { emoteFx({ x: 600.62, y: 1.2, z: -2.58, b: "adult" }, "bang", 1546, 18, -1); sweatFx({ x: 600.62, y: 1.2, z: -2.58, b: "adult" }, 1556, -1, 20); }
-      if (f >= 1548) { const u = clamp01((f - 1548) / 60); F.push(fx(`bzdate${qt(u, 30)}`, 720, 420, (p) => fxDate(p, qt(u, 30)), 599.92, 2.62, -1.95, 0.52, 0.3, {})); }
+      if (f >= 1548) { const u = clamp01((f - 1548) / 60); F.push(fx(`bzdate${qt(u, 30)}`, 720, 420, (p) => fxDate(p, qt(u, 30)), 600.18, 2.66, -1.95, 0.46, 0.27, {})); }
       break; }
     case 227: { props.pools = MPOOLS; // who owns it? one big shrug
       const sh = f >= 1688, L = [[BZ.curator, 599.0], [BZ.guard, 599.5], [BZ.expert, 600.0], [BZ.visitor, 600.5], [BZ.landlord, 601.0]] as const;

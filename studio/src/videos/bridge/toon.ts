@@ -380,13 +380,13 @@ export const blobPts = (cx: number, cy: number, B: Blob, n = 72): P2[] => {
 };
 
 /** reference cast: each person's outline is heavier on ONE side, low on the left or low on the right (seeded) */
-const rickHeavy = (seed: number) => rad(rnd(seed, 9) < 0.5 ? 140 : 40);
+const rickHeavy = (_seed: number) => rad(158); // reference: the heavy side of the brush is the LEFT, always
 /** measured head: H/W 0.94, slightly pointed crown (1.75), fuller jaw (2.3), chin taper -0.12, 8 % bulge to the facing side */
 export const headBlob = (seed: number, a = 118, facing = 0, pale = false, rick = false): Blob => STYLE.v3 ? (rick ? {
   // reference cast, MEASURED on his standing character (outer ink edge, 680 px frame): 238 px wide x 220 px tall
   // (H/W 0.925), widest at mid-height, a round crown (n ~2.1) and a jaw that narrows a little toward the chin (n ~1.9,
   // egg -0.045). Each person varies a little around that (seeded), so no two heads are the same ball.
-  a, b: a * (0.925 + 0.04 * (rnd(seed, 1) - 0.5)), nTop: 2.08 + 0.16 * (rnd(seed, 2) - 0.5), nBot: 1.88 + 0.2 * (rnd(seed, 3) - 0.5),
+  a, b: a * (1.03 + 0.04 * (rnd(seed, 1) - 0.5)), nTop: 2.05 + 0.16 * (rnd(seed, 2) - 0.5), nBot: 1.95 + 0.2 * (rnd(seed, 3) - 0.5),
   egg: -0.045 + 0.04 * (rnd(seed, 4) - 0.5), asym: 0.012 * (facing || 1) + 0.03 * (rnd(seed, 5) - 0.5), rot: rad(6 * (rnd(seed, 7) - 0.5)),
   noise: 0.01, seed, lobe: 0.02, lobeAt: rad(100 + 60 * rnd(seed, 8)),
 } : { a, b: a, nTop: 2, nBot: 2, egg: 0, asym: 0, rot: 0, noise: 0, seed }) : STYLE.paper ? {
@@ -1191,7 +1191,7 @@ const V3BUILD: Record<Build, { a: number; torso: number; legs: number; tw: numbe
 /** reference cast (measured on his standing characters): body ~0.55 of the head's width, 1.15 head heights tall, legs
  *  ~1.7 head heights, a slightly smaller head so hats still fit on the card */
 const RICKBUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
-  adult: { a: 106, torso: 1.12, legs: 1.66, tw: 0.53 }, stout: { a: 110, torso: 1.12, legs: 1.45, tw: 0.72 }, kid: { a: 104, torso: 0.84, legs: 1.05, tw: 0.52 },
+  adult: { a: 122, torso: 0.98, legs: 1.42, tw: 0.47 }, stout: { a: 124, torso: 0.98, legs: 1.26, tw: 0.64 }, kid: { a: 118, torso: 0.76, legs: 0.92, tw: 0.47 },
 };
 const shaped = (o: Outfit) => { const b = (STYLE.v3 ? (o.rick ? RICKBUILD : V3BUILD) : BUILD)[o.build ?? "adult"], s = o.shape;
   return s ? { a: b.a * (s.head ?? 1), torso: b.torso * (s.torso ?? 1), legs: b.legs * (s.legs ?? 1), tw: b.tw * (s.tw ?? 1) } : b; };
@@ -1470,7 +1470,7 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   else if (STYLE.paper) p.paperFill(hp, skin, light, H.a, 300, hc);
   else p.sphereFill(hp, skin, light, H.a, 300, hc, mul(skin, isPale(skin) ? SH_PALE : SH_SKIN), SHEEN, cover && cover[1] >= 0.7 ? -0.08 : 0.12); // under a hat the shine sits lower
   if (!STYLE.v3) hatShadow(p, o, hp, H, 300, hc, light, seed, facing, skin);
-  if (STYLE.v3) p.inkRing(hp, (o.rick ? 2.9 : 5) * u, o.rick ? rickHeavy(seed) : thick, o.rick ? 0.6 : 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
+  if (STYLE.v3) p.inkRing(hp, (o.rick ? 3.0 : 5) * u, o.rick ? rickHeavy(seed) : thick, o.rick ? 0.75 : 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
   p.mark("head", 300, hc, H.a, H.b);
   if (o.beard && !STYLE.v3) beardFront(p, o, H, 300, hc, light, thick, ow, facing);
   if (!(STYLE.v3 && v3Hat(p, o, 300, hc, W, facing, light))) hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
@@ -1610,7 +1610,7 @@ const bodySide0 = (p: Pen, o: Outfit, opts: SideOpts) => {
   if (STYLE.v3) v3HeadFill(p, hp, hx, hc, H.a, light, undefined, o.rick ? 1.35 : 1);
   else if (STYLE.paper) p.paperFill(hp, skin, light, H.a, hx, hc);
   else p.sphereFill(hp, skin, light, H.a, hx, hc, mul(skin, isPale(skin) ? SH_PALE : SH_SKIN));
-  if (STYLE.v3) p.inkRing(hp, (o.rick ? 2.9 : 5) * u, o.rick ? rickHeavy(seed) : thick, o.rick ? 0.6 : 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
+  if (STYLE.v3) p.inkRing(hp, (o.rick ? 3.0 : 5) * u, o.rick ? rickHeavy(seed) : thick, o.rick ? 0.75 : 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
   p.mark("head", hx, hc, H.a, H.b);
   if (!(STYLE.v3 && v3Hat(p, o, hx, hc, W, 1, light))) hatOn(p, o, hp, H, hx, hc, light, seed, 1, true);
   const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap";

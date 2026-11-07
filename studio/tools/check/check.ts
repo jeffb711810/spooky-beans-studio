@@ -19,7 +19,7 @@ const ROOMS = [[676.65, 683.35, -2.8, 3.0], [594.2, 605.8, -2.85, 9.0], [636.0, 
 const v = new THREE.Vector3(), cam = new THREE.PerspectiveCamera(38, 1080 / 1920, 0.1, 2000);
 type C3 = { pos: [number, number, number]; look: [number, number, number]; fov: number; roll?: number };
 const lens = (sh: typeof SHOTS[number], f: number, c: C3): C3 & { near: number } => {
-  if (c.fov <= 40) return { ...c, near: 0.1 };
+  if (c.fov <= 27) return { ...c, near: 0.1 };
   const F = focusAt(sh, f), l = [c.look[0] - c.pos[0], c.look[1] - c.pos[1], c.look[2] - c.pos[2]], ll = Math.hypot(...l) || 1, u = l.map((x) => x / ll);
   const ds = Math.max(0.6, (F[0] - c.pos[0]) * u[0] + (F[1] - c.pos[1]) * u[1] + (F[2] - c.pos[2]) * u[2]);
   const t0 = Math.tan((c.fov * Math.PI) / 360), k = t0 / Math.tan((26 * Math.PI) / 360), D = Math.min(ds * (k - 1), 4.5), t1 = (t0 * ds) / (ds + D);
@@ -34,8 +34,8 @@ for (let f = 0; f < TOTAL; f++) {
   const st = stage(f, s, { pos: cam.position.clone(), right, sun: new THREE.Vector3(0, 1, 0), fov: c.fov });
   for (const p of st.places) {
     const sc = p.scale ?? 1, name = (p.key.split("|")[1] ?? "?").replace("bz_", "");
-    const sit = p.key.includes('"mode":"sit"');
-    const headY = p.y + (sit ? 0.86 : 1.43) * sc, hr = 0.27 * sc, hatTop = headY + hr + 0.2 * sc;
+    const sit = p.key.includes('"mode":"sit"'), hs = (p.who?.o?.shape?.head ?? 1);
+    const headY = p.y + ((sit ? 1.27 : 1.62) + (hs - 1) * 0.29) * sc, hr = 0.3 * hs * sc, hatTop = headY + hr + 0.24 * sc;
     const pts = [[0, hatTop], [-hr, headY], [hr, headY], [0, headY - hr]].map(([dx, y]) => v.set(p.x + right.x * dx, y, p.z + right.z * dx).clone().project(cam));
     const inside = pts.map((q) => q.z < 1 && q.z > -1 && Math.abs(q.x) <= 1 && Math.abs(q.y) <= 1);
     const anyIn = inside.some(Boolean), allIn = inside.every(Boolean);
@@ -60,8 +60,8 @@ for (const sh of SHOTS) {
     const c = camAt(sh, f) as C3; setCam({ ...c, near: 0.1 });
     const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0), inv = cam.matrixWorldInverse;
     const st = stage(f, sh, { pos: cam.position.clone(), right, sun: new THREE.Vector3(0, 1, 0), fov: c.fov });
-    for (const p of st.places) { const sc = p.scale ?? 1, sit = p.key.includes('"mode":"sit"'), hy = p.y + (sit ? 0.86 : 1.43) * sc, hr = 0.27 * sc;
-      for (const [dx, y] of [[0, hy + hr + 0.2 * sc], [-hr, hy], [hr, hy], [0, hy - hr]]) { const q = v.set(p.x + right.x * dx, y, p.z + right.z * dx).applyMatrix4(inv); const z = -q.z; if (z < 0.3) continue;
+    for (const p of st.places) { const sc = p.scale ?? 1, sit = p.key.includes('"mode":"sit"'), hs = (p.who?.o?.shape?.head ?? 1), hy = p.y + ((sit ? 1.27 : 1.62) + (hs - 1) * 0.29) * sc, hr = 0.3 * hs * sc;
+      for (const [dx, y] of [[0, hy + hr + 0.24 * sc], [-hr, hy], [hr, hy], [0, hy - hr]]) { const q = v.set(p.x + right.x * dx, y, p.z + right.z * dx).applyMatrix4(inv); const z = -q.z; if (z < 0.3) continue;
         const t = Math.max(Math.abs(q.y) / z, (Math.abs(q.x) / z) * (1920 / 1080)) / 0.92, fv = (2 * Math.atan(t) * 180) / Math.PI;
         if (fv > need) { need = fv; who = `${(p.key.split("|")[1] ?? "?").replace("bz_", "")} @f${f}`; } } }
   }

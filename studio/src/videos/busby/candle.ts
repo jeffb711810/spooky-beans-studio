@@ -18,7 +18,7 @@ export const CANDLE: LightPreset = {
 };
 // LOOK ROUND 10 (his candle bedroom / burglar room: golden light at the source, deep blue away from it, colourfulness
 // .33): a gold key over a deep blue shade; with the pools below, far corners go blue, the candle side gold
-Object.assign(CANDLE, { lit: [1.85, 1.45, 0.85], shade: [0.1, 0.21, 0.52], term: 0.35, lambert: 0.55, charTint: [1.0, 0.78, 0.55], charGrad: 0.03, bodyGrad: 0.08, sideTint: [0.97, 0.95, 0.94] }); // flat paper cards
+Object.assign(CANDLE, { lit: [1.85, 1.45, 0.85], shade: [0.1, 0.21, 0.52], term: 0.35, lambert: 0.55, charTint: [1.0, 0.93, 0.84], charGrad: 0.03, bodyGrad: 0.08, sideTint: [0.97, 0.95, 0.94] }); // flat paper cards
 export const RIM_CANDLE: [number, [number, number, number]] = [0, [1.0, 0.76, 0.46]]; // off (see RIM_NIGHT)
 /** key light per interior shot id: [azimuth deg from the shot's view axis (+ = screen right, >90 = from the camera
  *  side), elevation deg]. From the candle / hearth side, raised to 36-44 deg so shadows fall short and soft. */

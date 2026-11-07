@@ -168,72 +168,86 @@ def mbx(m, t, vel=0.3, p=0.2): mb(m, t, vel, p, 1.8)
 def vbx(m, t, vel=0.26, p=-0.2): vb(m, t, vel, p, 1.6)
 def glk(m, t, vel=0.26, p=0.3): gl(m, t, vel, p, 1.2)
 
-# ===================================================== THE CHAIR: score (catchy, bouncy-mysterious, D minor / F major)
-MIN = [[81, 77, 74], [77, 81, 84, 81], [74, 77, 81, 86], [84, 81, 77, 74], [81, None, 86, 84], [74, 76, 77, 81]]
-MAJ = [[77, 81, 84], [84, 81, 77, 81], [72, 77, 81, 84], [89, 84, 81], [81, 84, 86, 84]]
-SPK = [[74, 73, 74], [77, 76, 74], [69, 70, 69], [81, 80, 77]]
-CURSE = [62, 65, 64, 57]   # the chair's own 4 notes: D F E A (every time somebody sits, or the curse is named)
-SECT = [
-    (0, 270, ["Dm", "A", "Dm", "Gm"], 0.44, True, True, False, None, cel, MIN, 0.3),
-    (270, 393, ["Dm", "Gm", "A", "Dm"], 0.3, False, True, False, [[50, 57, 62, 65]], vbx, SPK, 0.24),
-    (456, 594, None, 0, False, False, False, [[38, 50, 57], [38, 50, 58], [38, 49, 57]], vbx, SPK, 0.24),
-    (594, 820, ["F", "C7", "F", "Bb", "F", "C7", "F", "C7"], 0.5, True, True, True, None, glk, MAJ, 0.28),
-    (900, 1257, ["Dm", "Gm", "A", "Dm"], 0.42, True, True, False, None, cel, MIN, 0.28),
-    (1383, 1494, ["F", "C7", "F", "Bb"], 0.42, True, True, True, None, glk, MAJ, 0.26),
-    (1494, 1548, None, 0, False, False, False, [[38, 45, 50, 53]], vbx, SPK, 0.22),
-    (1560, 1826, ["Dm", "A", "Dm", "Gm", "Dm", "A"], 0.44, True, True, False, None, cel, MIN, 0.3),
+# ===================================================== THE CHAIR: a NEW score (not the Winchester sneak): a spooky waltz
+# 3/4 at 144 BPM in E minor / G major. Harpsichord pluck + bassoon on 1, pizzicato chord stabs + snaps on 2 and 3, celesta
+# and music box answering Aiden in his pauses, the curse as a tritone hook (E F B E). Silence for the scares.
+BW = 60 / 144; WBAR = 3 * BW
+VO_ = {"Em": (40, [52, 55, 59]), "B7": (35, [51, 54, 57]), "Am": (45, [57, 60, 64]), "C": (36, [52, 55, 60]), "G": (43, [55, 59, 62]),
+       "D7": (38, [54, 57, 60]), "Cm": (36, [51, 55, 60]), "F#dim": (42, [54, 57, 60])}
+def hpsi(m, t, vel=0.3, p=0.15, dur=0.9): put(pluck(m2f(m), vel, r, dur, 0.85), hum(t), 1.0, p, "str")
+def waltz_bar(t0, ch, vel, snaps=True, bassoon=True):
+    root, tri = VO_[ch]
+    pz(root, t0, 0.52 * vel / 0.45, 0.5); put(pluck(m2f(root + 12), 0.3 * vel / 0.45, r, 0.6, 0.5), hum(t0), 1.0, -0.2, "str")
+    if bassoon: bsn(root + 12, t0, 0.26, 0.32 * vel / 0.45)
+    for k in (1, 2):
+        for i, m in enumerate(tri): pz(m + 12, t0 + k * BW + i * 0.006, 0.2 * vel / 0.45, 0.16, 0.5, 0.1 + 0.1 * i)
+        if snaps: put(snap(0.26 * vel / 0.45), hum(t0 + k * BW), 1.0, 0.35 if k == 1 else -0.35, "perc")
+    put(shaker(0.09), hum(t0 + 2.5 * BW), 1.0, 0.4, "perc")
+WMIN = [[76, 79, 78, 75], [83, 82, 79, None, 76], [71, 72, 75, 76], [79, 78, 76, 75, 76], [88, 87, 83]]
+WMAJ = [[79, 83, 86, 83], [86, 84, 83, 81, 79], [74, 79, 83], [83, 86, 91, 86]]
+WSPK = [[76, 77, 83], [71, 77, 76], [88, 89, 83]]
+CURSE = [64, 65, 71, 76]   # E F B E: the chair's tritone hook
+SECT = [  # frame a, b, chords per bar (None = no waltz), groove vel, snaps, pad, responder, motif pool, resp vel
+    (0, 270, ["Em", "B7", "Em", "Am", "C", "B7", "Em", "B7"], 0.46, True, None, hpsi, WMIN, 0.32),
+    (270, 393, ["Am", "B7", "Em", "B7"], 0.3, False, [[40, 47, 52, 55]], cel, WSPK, 0.26),
+    (456, 594, None, 0, False, [[40, 46, 52], [40, 47, 52], [39, 46, 51]], vbx, WSPK, 0.24),
+    (594, 826, ["G", "D7", "G", "C", "G", "D7", "C", "D7"], 0.52, True, None, cel, WMAJ, 0.3),
+    (900, 1257, ["Em", "Am", "B7", "Em", "C", "Am", "B7", "B7"], 0.42, True, None, hpsi, WMIN, 0.3),
+    (1383, 1494, ["G", "D7", "G", "C"], 0.44, True, None, cel, WMAJ, 0.28),
+    (1494, 1548, None, 0, False, [[40, 47, 50, 55]], vbx, WSPK, 0.22),
+    (1560, 1826, ["Em", "B7", "Em", "Am", "C", "B7", "Em", "B7"], 0.46, True, None, hpsi, WMIN, 0.32),
 ]
 def sect_at(t):
     for S in SECT:
         if F(S[0]) <= t < F(S[1]): return S
     return None
-for k in range(int(DUR / BAR) + 1):   # the groove on one film-wide grid: it flows through the cuts
-    t0 = k * BAR; S = sect_at(t0 + 0.01)
+for k in range(int(DUR / WBAR) + 1):   # the waltz on one film-wide 3/4 grid: it flows through the cuts
+    t0 = k * WBAR; S = sect_at(t0 + 0.01)
     if S is None or S[2] is None: continue
-    ci = int((t0 - F(S[0])) // BAR) % len(S[2]); sneak_bar(t0, S[2][ci], S[3], snaps=S[4], shake=S[5])
-    if S[6]:
-        for q in range(8): put(wood(0.13 if q % 2 else 0.18, 1320), hum(t0 + q * E8), 1.0, 0.45, "perc")
+    ci = int((t0 - F(S[0])) // WBAR) % len(S[2]); waltz_bar(t0, S[2][ci], S[3], snaps=S[4])
 for S in SECT:
-    if S[7] is None: continue
+    if S[5] is None: continue
     t = F(S[0]); i = 0
     while t < F(S[1]) - 0.3:
-        d = min(BAR * 1.05, F(S[1]) - t + 0.6); pd(S[7][i % len(S[7])], t, d, 0.22, 650); t += BAR; i += 1
+        d = min(WBAR * 2.05, F(S[1]) - t + 0.6); pd(S[5][i % len(S[5])], t, d, 0.2, 600); t += 2 * WBAR; i += 1
+def wq(t): return np.ceil(t / BW - 1e-6) * BW
 cnt = 0
-for (ga, gb) in GAPS:   # call and response: the melody answers Aiden in his pauses
+for (ga, gb) in GAPS:   # call and response: the melody answers Aiden in his pauses (on the waltz grid)
     S = sect_at(ga + 0.05)
     if S is None: continue
-    motif = S[9][cnt % len(S[9])]; cnt += 1; t = gq(ga + 0.04)
+    motif = S[7][cnt % len(S[7])]; cnt += 1; t = wq(ga + 0.03)
     for m in motif:
-        if t > gb - 0.1: break
-        if m is not None: S[8](m, t, S[10])
-        t += E8
+        if t > gb - 0.08: break
+        if m is not None: S[6](m, t, S[8])
+        t += BW / 2
 def curse(f, vel=0.3, low=True):
-    for i, m in enumerate(CURSE): vb(m + 12, F(f) + i * 0.16, vel, -0.1, 1.4)
-    if low: pz(38, F(f), 0.4, 0.8); pz(37, F(f) + 0.48, 0.35, 0.8)
-pd([50, 57, 62, 65], 0.0, 2.2, 0.16)
-for i, m in enumerate([62, 65, 69, 74, 77, 81]): glk(m + 12, 0.1 + i * 0.12, 0.24)          # up the wall
-for i, m in enumerate([86, 81, 77, 74, 69, 65, 62, 57]): cel(m, F(150) + i * 0.06, 0.26)   # into the wheel... 1702
-put(timpani(m2f(38), 0.4, r, 1.4), F(171), 1.0, 0.0, "perc")
-put(cymbal(0.3, r, 1.2, 1.2), F(228), 1.0, 0.2, "perc"); cel(86, F(228), 0.32); cel(89, F(228) + 0.12, 0.28)  # ka-ching
-put(timpani(m2f(38), 0.75, r, 1.6), F(362), 1.0, 0.0, "perc")                                # "Get out of my chair."
-for k in range(int((F(432) - F(393)) / 0.06)): put(snare(0.1 + 0.25 * (k % 4 == 0), r, 0.1, 1.0, 0.8), F(393) + k * 0.06, 1.0, 0.2, "perc")  # the fight
+    for i, m in enumerate(CURSE): cel(m + 12, F(f) + i * 0.17, vel); mb(m + 24, F(f) + i * 0.17 + 0.02, vel * 0.6, 0.2, 1.4)
+    if low: pz(40, F(f), 0.45, 0.9); pz(41, F(f) + 0.51, 0.4, 0.9)
+# intro: a harpsichord flourish climbing the wall
+for i, m in enumerate([64, 67, 71, 76, 79, 83, 88]): hpsi(m, 0.06 + i * 0.09, 0.3)
+pd([40, 47, 52, 55], 0.0, 2.0, 0.14)
+for i, m in enumerate([88, 83, 79, 76, 71, 67, 64, 59]): cel(m, F(150) + i * 0.055, 0.26)   # into the wheel... 1702
+put(timpani(m2f(40), 0.42, r, 1.4), F(171), 1.0, 0.0, "perc")
+put(cymbal(0.3, r, 1.2, 1.2), F(228), 1.0, 0.2, "perc"); cel(88, F(228), 0.32); cel(91, F(228) + 0.12, 0.28)  # ka-ching
+put(timpani(m2f(40), 0.75, r, 1.6), F(362), 1.0, 0.0, "perc"); bsn(40, F(362), 0.5, 0.5)       # "Get out of my chair."
+for k in range(int((F(432) - F(393)) / 0.06)): put(snare(0.1 + 0.25 * (k % 3 == 0), r, 0.1, 1.0, 0.8), F(393) + k * 0.06, 1.0, 0.2, "perc")
 for j in range(3):
-    for i, m in enumerate([81, 79, 77, 76, 74, 72, 70, 69]): pz(m - 12 * (j == 2), F(395 + j * 12) + i * 0.04, 0.24, 0.2, 0.7, -0.3 + 0.3 * j)
-mb(74, F(436), 0.26, 0.2, 2.2); mb(70, F(436) + B, 0.24, 0.2, 2.2); mb(69, F(436) + 2 * B, 0.22, 0.2, 2.4)  # the empty chair
+    for i, m in enumerate([83, 81, 79, 78, 76, 75, 72, 71]): pz(m - 12 * (j == 2), F(395 + j * 12) + i * 0.04, 0.24, 0.2, 0.7, -0.3 + 0.3 * j)
+mb(76, F(436), 0.26, 0.2, 2.2); mb(77, F(436) + BW * 1.5, 0.24, 0.2, 2.2); mb(71, F(436) + BW * 3, 0.22, 0.2, 2.4)   # the empty chair
 curse(508, 0.3)
-for k in range(int((F(576) - F(530)) / 0.06)): put(timpani(m2f(38), 0.14 + 0.5 * k / 26, r, 0.5), F(530) + k * 0.06, 1.0, 0.0, "perc")
-put(cymbal(0.7, r, 2.4, 1.0), F(576), 1.0, 0.0, "perc"); put(timpani(m2f(38), 1.0, r, 2.2), F(576), 1.0, 0.0, "perc")   # "dies."
-for m in (38, 50, 57): pz(m, F(576), 0.55, 1.0)
-pz(50, F(879), 0.45, 0.5); pz(49, F(879) + 0.16, 0.42, 0.7); cel(86, F(879) + 0.2, 0.3)       # "allegedly."
+for k in range(int((F(576) - F(530)) / 0.06)): put(timpani(m2f(40), 0.14 + 0.5 * k / 26, r, 0.5), F(530) + k * 0.06, 1.0, 0.0, "perc")
+put(cymbal(0.7, r, 2.4, 1.0), F(576), 1.0, 0.0, "perc"); put(timpani(m2f(40), 1.0, r, 2.2), F(576), 1.0, 0.0, "perc")   # "dies."
+for m in (40, 46, 52): pz(m, F(576), 0.55, 1.0)
+hpsi(76, F(879), 0.35); hpsi(77, F(879) + 0.14, 0.33); cel(88, F(879) + 0.22, 0.3)          # "allegedly."
 curse(912, 0.24, False); curse(1046, 0.22, False); curse(1162, 0.24, False)
-for i, m in enumerate([74, None, 72, 69, None, 70, 69]):                                       # never come home
-    if m: mb(m, F(985) + i * B, 0.24, 0.2, 2.0)
-for i, m in enumerate([81, 77, 74, 69, 65, 62, 57]): cel(m, F(1112) + i * 0.035, 0.22)        # the fall
-curse(1296, 0.2, False); pd([38, 44, 50], F(1281), F(70), 0.14, 400)                          # waiting
-pz(57, F(1440), 0.3, 0.4); pz(62, F(1440) + 0.18, 0.3, 0.4)
-put(cymbal(0.6, r, 2.2, 1.0), F(1548), 1.0, 0.0, "perc"); put(timpani(m2f(38), 0.9, r, 2.0), F(1548), 1.0, 0.0, "perc")   # the date slam
-for i, m in enumerate([62, 65, 69, 74, 77, 81, 86]): cel(m, F(1550) + i * 0.05, 0.3)
-pz(57, F(1690), 0.42, 0.4); pz(62, F(1690) + 0.18, 0.42, 0.4)                                 # the shrug: "bup-bup?"
+for i, m in enumerate([76, None, 75, 71, None, 72, 71]):                                       # never come home
+    if m: mb(m, F(985) + i * BW, 0.24, 0.2, 2.0)
+for i, m in enumerate([83, 79, 76, 71, 67, 64, 59]): cel(m, F(1112) + i * 0.035, 0.22)        # the fall
+curse(1296, 0.2, False); pd([40, 46, 52], F(1281), F(70), 0.13, 400)                          # waiting
+hpsi(71, F(1440), 0.3); hpsi(76, F(1440) + 0.16, 0.3)
+put(cymbal(0.6, r, 2.2, 1.0), F(1548), 1.0, 0.0, "perc"); put(timpani(m2f(40), 0.9, r, 2.0), F(1548), 1.0, 0.0, "perc")   # the date slam
+for i, m in enumerate([64, 67, 71, 76, 79, 83, 88]): cel(m, F(1550) + i * 0.05, 0.3)
+pz(59, F(1690), 0.42, 0.4); pz(64, F(1690) + 0.18, 0.42, 0.4)                                 # the shrug: "bup-bup?"
 curse(1760, 0.22, False)
 
 # ---------------------------------------------------------------- music mix (two spaces, glue, tape)

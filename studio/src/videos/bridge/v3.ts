@@ -28,8 +28,15 @@ export const v3HeadFill = (p: Pen, pts: P2[], cx: number, cy: number, R: number,
   const [gx, gy] = p.P(cx + lx * 0.36 * k * R, cy + ly * 0.36 * k * R);
   const gr = g.createRadialGradient(gx, gy, 0, gx, gy, 1.5 * R);
   const K = k > 1 ? [0.3, 0.52, 0.76] : [0.5, 0.74, 0.92]; // reference cast: the soft shadow side reaches further round the head
-  gr.addColorStop(0, skin); gr.addColorStop(K[0], skin); gr.addColorStop(K[1], v3mix(skin, sh, 0.55)); gr.addColorStop(K[2], sh); gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
+  gr.addColorStop(0, skin); gr.addColorStop(K[0], skin); gr.addColorStop(K[1], v3mix(skin, sh, 0.55)); gr.addColorStop(K[2], sh);
+  const SHINE_ON = k > 1; gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
   p.path(pts, true); g.fillStyle = gr; g.fill();
+  if (SHINE_ON) { // shine patch: white, soft-edged, upper left (reference heads read as glossy white balls)
+    const [sx, sy] = p.P(cx - 0.34 * R, cy - 0.42 * R), sc = 1;
+    const sg = g.createRadialGradient(sx, sy, 0, sx, sy, 0.5 * R * sc);
+    sg.addColorStop(0, "rgba(255,255,255,0.95)"); sg.addColorStop(0.45, "rgba(255,255,255,0.55)"); sg.addColorStop(1, "rgba(255,255,255,0)");
+    g.save(); p.path(pts, true); g.clip(); g.fillStyle = sg; g.fillRect(sx - R * sc, sy - R * sc, 2 * R * sc, 2 * R * sc); g.restore();
+  }
 };
 
 /** ink-ball hand with one tiny pale dot (framework 3) */

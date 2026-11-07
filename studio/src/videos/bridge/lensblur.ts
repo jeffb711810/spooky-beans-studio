@@ -103,8 +103,12 @@ export class LensBlur {
     this.pre = new LensBlurEffect({ maxCoC, nearScale, stage: PRE });
     this.main = new LensBlurEffect({ maxCoC, nearScale, stage: MAIN });
   }
+  // getters too: Bell.tsx reads cInf back (x sqrt(lensK)); with only setters that read was undefined -> NaN -> the
+  // shader clamped every world pixel to the maximum blur (fixed for BUSBY; the Winchester master had it)
   set focus(v: number) { this.pre.focus = v; this.main.focus = v; }
+  get focus() { return this.main.focus; }
   set cInf(v: number) { this.pre.cInf = v; this.main.cInf = v; }
+  get cInf() { return this.main.cInf; }
   set mask(t: Texture | null) { this.pre.mask = t; this.main.mask = t; }
   dispose() { this.pre.dispose(); this.main.dispose(); }
 }

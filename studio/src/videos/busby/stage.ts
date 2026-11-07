@@ -296,15 +296,15 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       const u = s.id === 201 ? clamp01((f - 8) / 44) : 1 - clamp01((f - 1748) / 70); hoist(u);
       const up = u < 0.97;
       add(BZ.worker2, 599.82, 0, -2.05, { f, expr: up ? "pained" : "relief", look: 0, pose: up ? "up" : "hips", pa: up ? 1 : poseIn(f, 56, 6), sy: up ? 1 - 0.02 * Math.sin(f * 0.9) : 1, tilt: up ? -3 : 0 });
-      add(BZ.worker1, 600.62, 0.9 + (s.id === 201 ? hop(f, 54, 0.05, 8) : 0), -2.6, { f, expr: u > 0.95 ? "laugh" : u > 0.5 ? "grin" : "nervous", look: -1, pose: u > 0.95 && s.id === 201 ? "up" : "reach", pa: u > 0.95 && s.id === 201 ? poseIn(f, 54, 4) : 1, sy: s.id === 201 ? stretch(f, 54, 0.08) : 1 });
+      add(BZ.worker1, 600.62, 0.9 + (s.id === 201 ? hop(f, 54, 0.05, 8) : 0), -2.6, { f, expr: u > 0.95 ? "excited" : u > 0.5 ? "nervous" : "deadpan", look: -1, pose: u > 0.95 && s.id === 201 ? "up" : "reach", pa: u > 0.95 && s.id === 201 ? poseIn(f, 54, 4) : 1, sy: s.id === 201 ? stretch(f, 54, 0.08) : 1 });
             if (s.id === 201 && f >= 48 && f < 64) F.push(fx(`bzdust${qt((f - 48) / 16, 8)}`, 300, 300, (p) => fxSoot(p, qt((f - 48) / 16, 8) * 0.6), 600.0, 2.0, -2.5, 0.6, 0.6, { soft: true }));
       break;
     }
     case 202: { // reach, SLAP, recoil
       props.pools = MPOOLS;
       const slap = f >= 98, rec = f >= 100;
-      add(BZ.visitor, 599.7, rec ? hop(f, 100, 0.06, 8) : 0, -0.95 + (rec ? 0.12 * smooth((f - 100) / 6) : 0), { f, expr: rec ? "shock" : "smile", look: 1, pose: rec ? "cheeks" : "reach", pa: rec ? poseIn(f, 100, 3) : poseIn(f, 70, 10), tilt: rec ? 0 : -8 * smooth((f - 70) / 14) });
-      add(BZ.guard, 600.4, 0, -1.05, { f, expr: slap ? "angry" : "suspicious", look: -1, pose: slap ? "point" : "hips", pa: slap ? poseIn(f, 98, 2) : 1 });
+      add(BZ.visitor, 599.7, rec ? hop(f, 100, 0.06, 8) : 0, -0.95 + (rec ? 0.12 * smooth((f - 100) / 6) : 0), { f, expr: rec ? "shock" : "excited", look: 1, pose: rec ? "cheeks" : "reach", pa: rec ? poseIn(f, 100, 3) : poseIn(f, 70, 10), tilt: rec ? 0 : -8 * smooth((f - 70) / 14) });
+      add(BZ.guard, 600.4, 0, -1.05, { f, expr: slap ? "angry" : "deadpan", look: -1, pose: slap ? "point" : "hips", pa: slap ? poseIn(f, 98, 2) : 1 });
       if (rec) emoteFx({ x: 599.7, y: 0, z: -0.85, b: "adult" }, "bang", 100, 16, -1);
       break;
     }
@@ -342,8 +342,8 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     case 211: { // 200 years in one orbit: candles -> oil lamps -> bulbs, tricorns -> top hats -> flat caps, everyone laughing at it
       const era = f < 640 ? 0 : f < 690 ? 1 : 2; PUB.era = era; props.pools = era === 0 ? CPOOLS : PPOOLS;
       const C = era === 0 ? [BZ.old1, BZ.old2] : era === 1 ? [BZ.vic1, BZ.vic2] : [BZ.local1, BZ.local2];
-      add(C[0], 677.72, bounce(f, 10, 0.012), -2.66, { f, expr: "laugh", look: -1, pose: Math.floor((f - 594) / 14) % 2 ? "belly" : "point", pa: poseIn(f, 594 + 14 * Math.floor((f - 594) / 14), 5), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
-      add(C[1], 676.88, bounce(f, 11, 0.012, 4), -2.5, { f, expr: "laugh", look: 1, pose: Math.floor((f - 600) / 16) % 2 ? "point" : "belly", pa: poseIn(f, 600 + 16 * Math.floor((f - 600) / 16), 5), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.45 + 1)) });
+      add(C[0], 677.72, bounce(f, 10, 0.012), -2.66, { f, expr: era === 1 ? "excited" : "laugh", look: -1, pose: Math.floor((f - 594) / 14) % 2 ? "belly" : "point", pa: poseIn(f, 594 + 14 * Math.floor((f - 594) / 14), 5), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
+      add(C[1], 676.88, bounce(f, 11, 0.012, 4), -2.5, { f, expr: era === 0 ? "deadpan" : era === 1 ? "laugh" : "smug", look: 1, pose: Math.floor((f - 600) / 16) % 2 ? "point" : "belly", pa: poseIn(f, 600 + 16 * Math.floor((f - 600) / 16), 5), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.45 + 1)) });
       break;
     }
     case 212: { props.pools = PPOOLS; // "Go on, sit in the dead man's chair!"
@@ -403,7 +403,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       break; }
     case 227: { props.pools = MPOOLS; // who owns it? one big shrug
       const sh = f >= 1688, L = [[BZ.curator, 599.0], [BZ.guard, 599.5], [BZ.expert, 600.0], [BZ.visitor, 600.5], [BZ.landlord, 601.0]] as const;
-      L.forEach(([w, x], i) => add(w, x, sh ? hop(f, 1688 + i, 0.05, 8) : 0, -1.55 - (i % 2) * 0.15, { f, expr: sh ? "dazed" : "nervous", look: x < 600 ? 1 : -1, browUp: 10, pose: sh ? "shrug" : undefined, pa: sh ? poseIn(f, 1688 + i, 4) : 0 }));
+      L.forEach(([w, x], i) => add(w, x, sh ? hop(f, 1688 + i, 0.05, 8) : 0, -1.55 - (i % 2) * 0.15, { f, expr: (sh ? ["worried", "deadpan", "dazed", "alert", "nervous"] : ["alert", "deadpan", "suspicious", "nervous", "worried"])[i] as Expr, look: x < 600 ? 1 : -1, browUp: 10, pose: sh ? "shrug" : undefined, pa: sh ? poseIn(f, 1688 + i, 4) : 0 }));
       if (sh) for (const [i, x] of [[0, 599.0], [2, 600.0], [4, 601.0]] as const) emoteFx({ x, y: 0, z: -1.55, b: "adult" }, "q", 1692 + i, 30, 1);
       break; }
     case 901: case 902: props.pools = [[600, 2.75, -2.62], [600, 1.47, -2.9], [601.75, 2.42, -2.9]]; break; // BUSBY: the spot on the chair, the plaque, the portrait

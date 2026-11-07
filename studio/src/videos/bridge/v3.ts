@@ -6,7 +6,7 @@ import type { Pen } from "./toon";
 type P2 = [number, number];
 export const V3_SKIN = "#fefbf5";
 export const V3_SH = "#d5d5dc"; // skin x (0.84, 0.85, 0.90): blue-grey, never purple
-export const V3_INK = "#231810";
+export let V3_INK = "#231810";
 const WHITE = "#ffffff", MOUTH_IN = "#3c1e22", TONGUE = "#e26e74", SWEAT = "#a8d6f5", BLUSH = "rgba(244,152,152,0.55)";
 
 const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
@@ -24,19 +24,22 @@ const bez3 = (a: P2, b: P2, c: P2, d: P2, n = 20): P2[] => arc(n, 0, 1).map((t) 
 
 /** the head: a matte white ball, lit toward the key, soft blue-grey terminator on the far side */
 export const v3HeadFill = (p: Pen, pts: P2[], cx: number, cy: number, R: number, light: number, skin = V3_SKIN, k = 1) => {
-  const g = p.g, lx = Math.cos(light), ly = Math.sin(light), sh = v3mul(skin, k > 1 ? [0.76, 0.775, 0.84] : [0.84, 0.85, 0.9]);
-  const [gx, gy] = p.P(cx + lx * 0.36 * k * R, cy + ly * 0.36 * k * R);
-  const gr = g.createRadialGradient(gx, gy, 0, gx, gy, 1.5 * R);
-  const K = k > 1 ? [0.3, 0.52, 0.76] : [0.5, 0.74, 0.92]; // reference cast: the soft shadow side reaches further round the head
-  gr.addColorStop(0, skin); gr.addColorStop(K[0], skin); gr.addColorStop(K[1], v3mix(skin, sh, 0.55)); gr.addColorStop(K[2], sh);
-  const SHINE_ON = k > 1; gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
-  p.path(pts, true); g.fillStyle = gr; g.fill();
-  if (SHINE_ON) { // shine patch: white, soft-edged, upper left (reference heads read as glossy white balls)
-    const [sx, sy] = p.P(cx - 0.34 * R, cy - 0.42 * R), sc = 1;
-    const sg = g.createRadialGradient(sx, sy, 0, sx, sy, 0.5 * R * sc);
-    sg.addColorStop(0, "rgba(255,255,255,0.95)"); sg.addColorStop(0.45, "rgba(255,255,255,0.55)"); sg.addColorStop(1, "rgba(255,255,255,0)");
-    g.save(); p.path(pts, true); g.clip(); g.fillStyle = sg; g.fillRect(sx - R * sc, sy - R * sc, 2 * R * sc, 2 * R * sc); g.restore();
+  const g = p.g;
+  if (k > 1) { // reference cast, MEASURED on his heads: cream-white, brightest centre-right, a soft WARM falloff (~5-6 %)
+    // toward the left and bottom edges (the same side as the heavy ink), no grey half-face, no hot spot
+    // (painted deeper than it reads: the grade's bright end squeezes it to his ~6 % soft band inside the heavy ink)
+    const base = "#fcf8f3", edge = v3mul(base, [0.7, 0.69, 0.72]);
+    const [gx, gy] = p.P(cx + 0.22 * R, cy - 0.18 * R);
+    const gr = g.createRadialGradient(gx, gy, 0, gx, gy, 1.28 * R);
+    gr.addColorStop(0, base); gr.addColorStop(0.62, base); gr.addColorStop(0.8, v3mix(base, edge, 0.3)); gr.addColorStop(0.92, v3mix(base, edge, 0.85)); gr.addColorStop(1, edge);
+    p.path(pts, true); g.fillStyle = gr; g.fill();
+    return;
   }
+  const lx = Math.cos(light), ly = Math.sin(light), sh = v3mul(skin, [0.84, 0.85, 0.9]);
+  const [gx, gy] = p.P(cx + lx * 0.36 * R, cy + ly * 0.36 * R);
+  const gr = g.createRadialGradient(gx, gy, 0, gx, gy, 1.5 * R);
+  gr.addColorStop(0, skin); gr.addColorStop(0.5, skin); gr.addColorStop(0.74, v3mix(skin, sh, 0.55)); gr.addColorStop(0.92, sh); gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
+  p.path(pts, true); g.fillStyle = gr; g.fill();
 };
 
 /** ink-ball hand with one tiny pale dot (framework 3) */
@@ -78,19 +81,27 @@ const taper = (p: Pen, pts: P2[], w: number, fill: string, ends = 0.25) => {
 };
 
 /** the face kit: the same face on everyone; expressions only change the shapes. `e` is the engine's Expr. */
-export type V3Opts = { yaw: number; look: number; lid: number; talk?: number; browUp?: number; fore?: number; tongue?: number; glasses?: boolean; stache?: string; bold?: number };
+export type V3Opts = { yaw: number; look: number; lid: number; talk?: number; browUp?: number; fore?: number; tongue?: number; glasses?: boolean; stache?: string; bold?: number; small?: number;
+  /** reference cast: his face layout; top / bot = the head's extent and brim = the lowest hat / hair edge over the brows (D from the centre) */
+  rick?: boolean; top?: number; bot?: number; brim?: number };
 export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: V3Opts) => {
   const yaw = o.yaw, R = 0.5;
   // face-plane (u, v) in D -> design units, wrapped on the head sphere (lon = u / R + yaw)
-  const F = (u: number, v: number): P2 => { const lon = u / R + yaw, lat = v / R; return [cx + D * R * Math.cos(lat) * Math.sin(Math.max(-1.55, Math.min(1.55, lon))), cy + D * R * Math.sin(lat)]; };
+  const RK = !!o.rick, FS = RK ? 1 : o.small ?? 1;
+  // reference cast, MEASURED on two of his faces: lids 0.075 D above the middle of the head, mouth 0.143 D below it,
+  // eyes 0.138 D off centre (so a big white chin below the mouth); under a hat brim the eyes drop only as far as they must
+  const top = o.top ?? -0.5, bot = o.bot ?? 0.5, EYT = Math.max((top + bot) / 2 - 0.075, o.brim !== undefined ? o.brim + 0.105 : -9);
+  const VS = Math.max(0.95, Math.min(1.15, 1.13 * (bot - top))), US = RK ? 1.03 : FS;
+  const F = (u0: number, v0: number): P2 => { const u = u0 * US, v = RK ? EYT + (v0 - 0.025) * VS : v0 * FS + (1 - FS) * 0.03, lon = u / R + yaw, lat = v / R; return [cx + D * R * Math.cos(lat) * Math.sin(Math.max(-1.55, Math.min(1.55, lon))), cy + D * R * Math.sin(lat)]; };
   const vis = (u: number) => Math.cos(u / R + yaw) > 0.05; // features past the limb are not drawn
   const BW = o.bold ?? 1; // reference cast: heavier ink on every feature (lids, brows, mouths, outlines)
   const fill = (pts: P2[], col: string, ol = 0) => { const q = pts.map(([u, v]) => F(u, v)); p.path(q, true); p.g.fillStyle = col; p.g.fill(); if (ol) { p.g.lineWidth = ol * BW * D; p.g.strokeStyle = V3_INK; p.g.lineJoin = "round"; p.g.stroke(); } };
-  const line = (pts: P2[], w: number, col = V3_INK) => p.stroke(pts.map(([u, v]) => F(u, v)), w * BW * D, col);
-  const brush = (pts: P2[], w: number) => taper(p, pts.map(([u, v]) => F(u, v)), w * BW * D, V3_INK);
+  let MK = 1; // mouth lines: his are heavier than his lids
+  const line = (pts: P2[], w: number, col = V3_INK) => p.stroke(pts.map(([u, v]) => F(u, v)), w * BW * MK * D, col);
+  const brush = (pts: P2[], w: number) => taper(p, pts.map(([u, v]) => F(u, v)), w * BW * D, V3_INK, RK ? 0.55 : 0.25);
   // brows stay under a low hat brim
-  const foreV = o.fore !== undefined ? (o.fore - cy) / D + 0.035 : -9;
-  const brow = (bx: number, by: number, ang: number, sag: number, ln = 0.095, w = 0.046, wavy = 0) => {
+  const foreV = RK && o.brim !== undefined ? (o.brim + 0.045 - EYT) / VS + 0.025 : o.fore !== undefined ? (o.fore - cy) / D + 0.035 : -9;
+  const brow = (bx: number, by: number, ang: number, sag: number, ln = RK ? 0.09 : 0.095, w = RK ? 0.042 : 0.046, wavy = 0) => {
     if (!vis(bx)) return;
     const up = o.browUp && Math.sign(bx) === Math.sign(yaw || 1) ? o.browUp * 0.01 : 0;
     by = Math.max(by - up, foreV);
@@ -99,16 +110,16 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
   };
   const closed = o.lid > 0.55;
   const eyeDot = (ex: number, ey: number, w = 0.09, h = 0.12) => { if (!vis(ex)) return; if (closed) return eyeClosed(ex, ey); fill(arc(40).map((t) => [ex + (w / 2) * Math.cos(t), ey + (h / 2) * Math.sin(t)]), V3_INK); };
-  const eyeLid = (ex: number, ey: number, ang = 0, lw = 0.19, dw = 0.095, dh = 0.075, lt = 0.028) => {
+  const eyeLid = (ex: number, ey: number, ang = 0, lw = 0.19, dw = RK ? 0.1 : 0.095, dh = RK ? 0.085 : 0.075, lt = RK ? 0.026 : 0.028) => {
     if (!vis(ex)) return;
     const ca = Math.cos(ang), sa = Math.sin(ang), Rt = (u: number, v: number): P2 => [ex + u * ca - v * sa, ey + u * sa + v * ca];
     if (!closed) fill(arc(24, 0, Math.PI).map((t) => Rt((dw / 2) * Math.cos(t), dh * Math.sin(t))), V3_INK);
-    line([Rt(-lw / 2, 0.004), Rt(0, -0.004), Rt(lw / 2, 0.004)], lt);
+    line(RK ? bez2(Rt(-lw / 2, 0.006), Rt(0, -0.018), Rt(lw / 2, 0.006), 12) : [Rt(-lw / 2, 0.004), Rt(0, -0.004), Rt(lw / 2, 0.004)], lt);
   };
   const eyeRing = (ex: number, ey: number, r = 0.105, look: P2 = [0, 0], pr = 0.03) => {
     if (!vis(ex)) return; if (closed) return eyeClosed(ex, ey);
     const ring = arc(48).map((t) => [ex + r * Math.cos(t), ey + r * Math.sin(t)] as P2);
-    fill(ring, WHITE); line(ring, 0.03);
+    fill(ring, WHITE); line(ring, RK ? 0.026 : 0.03);
     const px = ex + look[0] * r * 0.5, py = ey + look[1] * r * 0.5;
     fill(arc(24).map((t) => [px + pr * Math.cos(t), py + pr * 1.1 * Math.sin(t)]), V3_INK);
   };
@@ -140,15 +151,29 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
     fill(q, MOUTH_IN, 0.022);
     if (teethBand) { const g = p.g; g.save(); p.path(q.map(([u, v]) => F(u, v)), true); g.clip(); fill([[-w / 2, y0 - 0.01], [w / 2, y0 - 0.01], [w / 2, y0 + h * 0.26], [-w / 2, y0 + h * 0.26]], WHITE); g.restore(); }
   };
+  const lozenge = (mx: number, my: number, w: number, h: number) => fill([...arc(16, -1, 1).map((u) => [mx + (w / 2) * u, my - (h / 2) * Math.pow(1 - u * u, 0.45)] as P2), ...arc(16, 1, -1).map((u) => [mx + (w / 2) * u, my + (h / 2) * Math.pow(1 - u * u, 0.45)] as P2)], V3_INK);
   const sweat: [number, number, number][] = [];
   const vein = (vx: number, vy: number, s = 0.075) => { for (const a of [-0.5, 0.6, 2.1]) line(bez2([vx, vy], [vx + 0.55 * s * Math.cos(a + 0.6), vy - 0.55 * s * Math.sin(a + 0.6)], [vx + s * Math.cos(a), vy - s * Math.sin(a)], 10), 0.02); };
-  const blush = (ey: number) => { for (const s of [-1, 1]) if (vis(s * 0.21)) fill(arc(24).map((t) => [s * 0.225 + 0.065 * Math.cos(t), ey + 0.105 + 0.035 * Math.sin(t)]), BLUSH); };
+  const blush = (ey: number) => { if (RK || (o.small ?? 1) < 1) return; for (const s of [-1, 1]) if (vis(s * 0.21)) fill(arc(24).map((t) => [s * 0.225 + 0.065 * Math.cos(t), ey + 0.105 + 0.035 * Math.sin(t)]), BLUSH); };
 
   const EX = 0.134, EY = 0.045, S = [-1, 1] as const, lk = Math.max(-1, Math.min(1, o.look)) * 0.022;
   const talk = o.talk ?? 0, talking = talk > 0.12;
   let mouthDone = false;
-  const M = (fn: () => void) => { if (!talking) fn(); };
+  const M = (fn: () => void) => { if (!talking) { MK = RK ? 1.4 : 1; fn(); MK = 1; } };
   switch (e) {
+    case "deadpan": // HIS signature face: a heavy lid over a big half-round pupil, one brow cocked, a flat dark lozenge mouth
+      for (const s of S) eyeLid(s * EX + lk, EY - 0.02, 0, 0.19, 0.1, 0.1);
+      brow(-0.142, EY - 0.165, -0.02, 0.012); brow(0.142, EY - 0.215, 0.06, 0.025);
+      M(() => lozenge(0, 0.232, 0.27, 0.042));
+      break;
+    case "alert": // his guard: wide white eyes, small pupils, brows up, a small round mouth
+      for (const s of S) { eyeRing(s * 0.127, EY - 0.01, 0.1, [o.look, 0], 0.028); brow(s * 0.135, EY - 0.17, s * 0.12, 0.025); }
+      M(() => fill(arc(24).map((t) => [0.026 * Math.cos(t), 0.235 + 0.02 * Math.sin(t)] as P2), V3_INK));
+      break;
+    case "excited": // his inmate: wide white eyes and a crescent of teeth
+      for (const s of S) { eyeRing(s * 0.127, EY - 0.01, 0.105, [o.look, 0.2], 0.03); brow(s * 0.14, EY - 0.175, s * 0.1, 0.03); }
+      M(() => teeth(0.36, 0.1, 0.19, 0, "crescent", 7));
+      break;
     case "smug": case "suspicious":
       for (const s of S) eyeLid(s * EX + lk, EY - 0.02, 0.06 * s);
       brow(-0.142, EY - 0.13, -0.05, 0.01); brow(0.142, EY - 0.19, 0.16, 0.03);
@@ -159,12 +184,12 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
       M(() => teeth(0.38, 0.085, 0.2, 0.03, "crescent", 7));
       break;
     case "grin": case "relief_open":
-      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.142, EY - 0.165, s * 0.1, 0.03); }
+      for (const s of S) { if (RK && e === "grin") eyeDot(s * EX + lk, EY, 0.085, 0.12); else eyeHappy(s * EX, EY - 0.01); brow(s * 0.142, EY - 0.165, s * 0.1, 0.03); }
       M(() => teeth(0.34, 0.12, 0.19, 0, "D", 6));
       break;
     case "nervous":
       for (const s of S) { eyeDot(s * EX + lk, EY - 0.01, 0.085, 0.125); brow(s * 0.146, EY - 0.17, s * 0.34, 0.012); }
-      M(() => teeth(0.4, 0.14, 0.19, 0, "D", 6));
+      M(() => RK ? teeth(0.2, 0.075, 0.205, 0, "box", 5, true) : teeth(0.4, 0.14, 0.19, 0, "D", 6));
       sweat.push([-40, 0.66, 0.075], [215, 0.64, 0.06]);
       break;
     case "stern":
@@ -218,7 +243,7 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
       break;
     default: // neutral
       for (const s of S) { eyeDot(s * EX + lk, EY); brow(s * 0.142, EY - 0.165, 0, 0.02); }
-      M(() => line(bez2([-0.06, 0.225], [0, 0.25], [0.06, 0.225], 14), 0.03));
+      M(() => RK ? lozenge(0, 0.235, 0.12, 0.03) : line(bez2([-0.06, 0.225], [0, 0.25], [0.06, 0.225], 14), 0.03));
   }
   // talking: the mouth changes on twos (the stage samples the voice envelope); 3 sizes, dark inside
   if (talking && !mouthDone) {
@@ -253,6 +278,7 @@ const lin = (n: number, a: number, b: number) => Array.from({ length: n + 1 }, (
 /** outline weight for hats / wear (reference cast, measured: his outlines are ~0.55 of ours); set per card by toon.ts */
 let INKK = 1;
 export const v3InkScale = (k: number) => { INKK = k; };
+export const v3InkColor = (c: string) => { V3_INK = c; };
 const cloth = (p: Pen, pts: P2[], col: string, light: number, D: number, ol = 0.048, gl?: [P2, P2], ga = 0.2) => {
   p.gradFill(pts, col, v3cloth(col), light, 0.08);
   if (gl && INKK > 0.9) p.clip(pts, () => p.stroke([gl[0], gl[1]], 0.05 * D, `rgba(255,255,255,${ga})`));
@@ -286,7 +312,8 @@ const FRINGE: Record<string, P2[]> = {
   center: [[0.53, 0.16], [0.45, -0.02], [0.28, -0.19], [0.03, -0.28], [-0.03, -0.28], [-0.28, -0.19], [-0.45, -0.02], [-0.53, 0.16]],
 };
 const hairCap = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: number, light: number) => {
-  const col = o.hair ?? "#5a3b2a", s = f || 1, X: X2 = (x, y) => [cx + x * D * s, hc + y * D];
+  const col = o.hair ?? "#5a3b2a", s = f || 1, up = (y: number) => (o.rick ? HAIR_UP * Math.max(0, Math.min(1, (y + 0.5) / 0.3)) : 0);
+  const X: X2 = (x, y) => [cx + x * D * s, hc + (y - up(y)) * D]; // reference cast: the fringe sits higher (more face shows)
   const kind = o.hairdo === "center" || o.hairdo === "braids" ? "center" : o.hairdo === "tousled" ? "tousled" : "parted";
   if (o.hairdo === "braids") for (const k of [-1, 1]) for (let i = 0; i < 3; i++) cloth(p, ellX(X, k * 0.47, 0.22 + 0.17 * i, 0.075, 0.095), col, light, D, 0.03);
   const top = lin(30, Math.PI + 0.12, 2 * Math.PI - 0.12).map((t) => X(0.535 * Math.cos(t), 0.535 * Math.sin(t)));
@@ -314,8 +341,21 @@ export const v3HatBehind = (p: Pen, o: Outfit, cx: number, hc: number, D: number
 };
 
 /** the hat (and the hair under it), drawn over the head */
+/** reference cast hats: [lowest edge as drawn, y scale, x scale]; the lowest edge moves up to HAT_LOW (measured on his
+ *  peaked caps: the band sits ~0.3 D above the middle of the head, the cap ~0.42 D tall and ~1.1 D wide) */
+const HAT_RK: Record<string, [number, number, number]> = { cap: [-0.125, 0.62, 0.82], ballcap: [-0.095, 0.62, 0.82], peaked: [-0.085, 0.62, 0.8],
+  tricorn: [-0.17, 0.66, 0.82], tophat: [-0.11, 0.72, 0.82], brim: [-0.11, 0.66, 0.82], straw: [-0.08, 0.66, 0.82], nightcap: [-0.24, 0.7, 0.85] };
+const HAT_LOW = -0.3, HAIR_UP = 0.07;
+/** the lowest hat / hair edge over the brows (D from the head centre), for the face layout; undefined = nothing there */
+export const v3Brim = (o: Outfit): number | undefined => {
+  if (o.hat && HAT_RK[o.hat]) return HAT_LOW;
+  if (o.hat === "flight") return -0.28;
+  if (o.hat === "hair") { const fr = FRINGE[o.hairdo === "center" || o.hairdo === "braids" ? "center" : o.hairdo === "tousled" ? "tousled" : "parted"].filter(([x]) => Math.abs(x) < 0.24); return Math.max(...fr.map(([, y]) => y)) - HAIR_UP; }
+  return undefined;
+};
 export const v3Hat = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: number, light: number): boolean => {
-  const s = f || 1, X: X2 = (x, y) => [cx + x * D * s, hc + y * D], col = o.cap ?? "#806e5a", hair = o.hair ?? "#3a281c";
+  const ht = o.rick && o.hat ? HAT_RK[o.hat] : undefined;
+  const s = f || 1, X: X2 = ht ? (x, y) => [cx + x * ht[2] * D * s, hc + (HAT_LOW + (y - ht[0]) * ht[1]) * D] : (x, y) => [cx + x * D * s, hc + y * D], col = o.cap ?? "#806e5a", hair = o.hair ?? "#3a281c";
   const front = f === 0;
   const visorFront = (drop: number, w: number, c: string) => cloth(p, [...B2(X, [-w, -0.2], [0, -0.16], [w, -0.2], 14), ...B2(X, [w + 0.02, -0.19], [0, drop], [-w - 0.02, -0.19], 14)], c, light, D);
   switch (o.hat) {

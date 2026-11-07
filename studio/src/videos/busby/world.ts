@@ -134,6 +134,8 @@ const drape = (x0: number, x1: number, z0: number, z1: number, h: (x: number, z:
 const cloth = (x: number, z: number, x0: number, x1: number) =>
   0.012 * Math.sin(x * 7.3 + z * 3.1) + 0.008 * Math.sin(x * 13.7 - z * 9.2) - 0.045 * (1 - ss(Math.min(x - x0, x1 - x), 0, 0.12));
 
+/** reference-cast face cream (pre-grade multiplier on the white face pixels; tuned on rendered frames) */
+const FACE_CREAM: [number, number, number] = [1.04, 0.85, 0.75];
 export type Lit = { mat: THREE.MeshBasicMaterial; on: THREE.Color; off: THREE.Color };
 
 export class World {
@@ -1004,6 +1006,8 @@ export class World {
     SHINE.uPoolSpecCol.value.set(...SH.poolSpecCol); SHINE.uSheenCol.value.set(...SH.sheenCol);
     CHAR.uCharTint.value.set(...L.charTint); CHAR.uCharShade.value = L.charShade; CHAR.uGrad.value = L.charGrad;
     CHAR.uBodyGrad.value = L.bodyGrad; CHAR.uSideTint.value.set(...L.sideTint);
+    // reference cast faces (MEASURED on his frames: warm cream ~(255,251,245) after his grade): pre-grade tint per look
+    CHAR.uFaceTint.value.set(...(LO.faceTint ?? (outside ? [0.95, 0.97, 1.03] : FACE_CREAM)));
     const rim = outside ? RIM_NIGHT : RIM_CANDLE; CHAR.uRimK.value = rim[0]; CHAR.uRimCol.value.set(...rim[1]);
     // ---- sky, fog ----
     const K = LOOK.night, su = this.skyMat.uniforms;

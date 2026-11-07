@@ -60,6 +60,8 @@ export const CHAR = {
   uBodyGrad: { value: 0.2 }, uSideTint: { value: new THREE.Vector3(0.92, 0.9, 0.96) },
   // optional rim of any colour (Bell Witch: cool moon / warm candle); 0 keeps the bridge's golden-only warm rim
   uRimK: { value: 0 }, uRimCol: { value: new THREE.Vector3(0.95, 0.52, 0.16) },
+  // the white faces' own colour (pre-grade): cool white by default; the reference cast's warm cream is set per look
+  uFaceTint: { value: new THREE.Vector3(0.95, 0.97, 1.03) },
 };
 
 // directional light 0 = the sun = the only shadow caster (three sorts shadow-casting lights first). Only the

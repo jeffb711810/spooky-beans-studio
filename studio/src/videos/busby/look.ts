@@ -6,7 +6,7 @@
 import { getInputProps } from "remotion";
 
 type Num3 = [number, number, number];
-export type LookOv = {
+export type LookOv = { faceTint?: [number, number, number];
   night?: Record<string, unknown>;      // Partial<LightPreset> for outdoor shots (moon.ts NIGHT)
   candle?: Record<string, unknown>;     // Partial<LightPreset> for indoor shots (candle.ts CANDLE)
   pools?: Record<string, unknown>;      // candle.ts POOLS
@@ -48,7 +48,7 @@ export const MOODS: Record<Mood, LookOv> = {
   dayInt: {"candle": {"lit": [2.05, 1.9, 1.62], "shade": [0.92, 0.98, 1.1], "lift": [0.07, 0.07, 0.075], "term": 0.85, "lambert": 0.75, "charTint": [1.0, 0.99, 0.97], "sideTint": [0.98, 0.98, 1.0], "fog": "#fff4e2", "fogNear": 40, "fogFar": 300}, "pools": {"k": 0, "satDark": 0.95, "sat": 1.0}, "shineCandle": {"k": 1.5, "sheen": 0.3, "specCol": [1.6, 1.55, 1.4], "poolSpecCol": [1.6, 1.5, 1.3], "sheenCol": [0.42, 0.4, 0.36]}, "gradeCandle": {"ky": [0.08, 0.26, 0.45, 0.78, 0.96, 0.995, 1], "sat": [0.95, 1.0, 0.95], "tintS": [0, 0.01], "tintM": [0, 0], "tintH": [0, 0], "vig": [0.42, 0.3]}, "ink": {"candle": {"ao": 1.2, "aoRadius": 0.9}}},
   night: {},
   // BUSBY pub at night, the lamps out: moonlight through the windows, cold blue, the chair alone
-  pubNight: {"candle": {"lit": [0.8, 0.9, 1.18], "shade": [0.14, 0.18, 0.32], "lift": [0.02, 0.03, 0.06], "term": 0.4, "lambert": 0.6, "charTint": [0.8, 0.88, 1.0], "fog": "#0e1830", "fogNear": 40, "fogFar": 300},
+  pubNight: {"faceTint": [0.95, 0.97, 1.03], "candle": {"lit": [0.8, 0.9, 1.18], "shade": [0.14, 0.18, 0.32], "lift": [0.02, 0.03, 0.06], "term": 0.4, "lambert": 0.6, "charTint": [0.8, 0.88, 1.0], "fog": "#0e1830", "fogNear": 40, "fogFar": 300},
     "pools": {"k": 1, "floor": 0.5, "floorCol": [0.16, 0.2, 0.34], "r": [1.0, 3.6], "col": [1.0, 1.12, 1.45], "cardK": 0.5, "sat": 0.95, "satDark": 0.55},
     "shineCandle": {"specCol": [0.8, 0.95, 1.3], "poolSpecCol": [0.8, 0.95, 1.4], "sheenCol": [0.15, 0.2, 0.35]}},
   // BUSBY pub by day: the warm room with SOME practical pools (lamps, fire) and a deeper shade, so the room has depth

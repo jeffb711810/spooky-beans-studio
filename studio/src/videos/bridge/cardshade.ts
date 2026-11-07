@@ -86,7 +86,7 @@ vec3 outgoingLight = diffuseColor.rgb * tintK;
     float pw = smoothstep( 0.5, 0.7, lum0 ) * ( 1.0 - smoothstep( 0.1, 0.19, sat0 ) ) * smoothstep( 0.3, 0.6, c0.a ) * head;
     outgoingLight *= mix( vec3( 1.0 ), 1.0 / max( tintK, vec3( 0.2 ) ), 0.5 * pw );
     // gain kept under the bloom threshold (1.0): at 1.22 the faces bloomed and greyed the eye rings / pupils
-    outgoingLight = mix( outgoingLight, diffuseColor.rgb * vec3( 0.95, 0.97, 1.03 ), 0.85 * pw );
+    outgoingLight = mix( outgoingLight, diffuseColor.rgb * uFaceTint, 0.85 * pw );
     outgoingLight += vec3( 1.0, 0.985, 0.96 ) * ( 0.2 * gl + 0.38 * gk ) * ( 1.0 - pw ) * skin0 * head * step( -0.2, hd.y );
   }
   #endif
@@ -96,7 +96,7 @@ vec3 outgoingLight = diffuseColor.rgb * tintK;
 
 const DECL = "#include <common>\nuniform vec3 uCharTint; uniform float uCharShade; uniform float uGrad; uniform float uBodyGrad; uniform vec3 uSideTint;"
   + " uniform float uRimK; uniform vec3 uRimCol; uniform float uGradK; uniform float uGradKB; uniform float uTintK; uniform float uNorm; uniform float uGain; uniform float uPx;"
-  + " uniform float uHeadK; uniform vec4 uHead; uniform vec4 uTorso;";
+  + " uniform float uHeadK; uniform vec4 uHead; uniform vec4 uTorso; uniform vec3 uFaceTint;";
 /** card-only constants (not per light): gradient share, tint share, overall gain (calibrated: faces ~.93 V) */
 export const CARD_K = { uGradK: { value: GRAD_K }, uGradKB: { value: GRAD_KB }, uTintK: { value: TINT_K }, uNorm: { value: 0.7 }, uGain: { value: 1.03 }, uPx: { value: 0.5 },
   uHeadK: { value: HEAD_K } }; // uPx = render height / 1920 (set per draw in cast.ts)
@@ -120,7 +120,7 @@ export function cardShade(m: THREE.MeshLambertMaterial) {
       .replace("#include <lights_fragment_begin>", "float sunVis = 1.0;\n" + LFB)
       .replace("vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;", CARD);
   };
-  m.customProgramCacheKey = () => "card17";
+  m.customProgramCacheKey = () => "card18";
   return m;
 }
 

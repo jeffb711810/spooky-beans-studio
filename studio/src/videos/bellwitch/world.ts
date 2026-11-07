@@ -890,8 +890,11 @@ export class World {
   }
 
   update(f: number, cam: THREE.PerspectiveCamera, scene: THREE.Scene) {
-    const LK = (getInputProps() as { look3?: { pos: [number, number, number]; look: [number, number, number]; fov: number; noCast?: boolean } }).look3; // v3 look tests: fixed camera, no cast
-    const s = shotAtT(f, tailOf()), c0 = camAt(s, f), c = LK ? { ...c0, pos: LK.pos, look: LK.look, fov: LK.fov, roll: 0 } : c0, L = presetOf(s), t = f / FPS, outside = s.light === "night";
+    type T3 = [number, number, number];
+    const LK = (getInputProps() as { look3?: { pos?: T3; look?: T3; fov?: number; noCast?: boolean; lock?: number; path?: number[][] } }).look3; // v3 tests: camera path / fixed camera, no cast
+    const fCam = f; if (LK?.lock !== undefined) f = LK.lock;                       // lock the story context (light, mood, grade) to one frame
+    const P3 = LK?.path ? LK.path[Math.min(fCam, LK.path.length - 1)] : null;
+    const s = shotAtT(f, tailOf()), c0 = camAt(s, f), c = P3 ? { ...c0, pos: [P3[0], P3[1], P3[2]] as T3, look: [P3[3], P3[4], P3[5]] as T3, fov: P3[6], roll: 0 } : LK?.pos ? { ...c0, pos: LK.pos, look: LK.look as T3, fov: LK.fov as number, roll: 0 } : c0, L = presetOf(s), t = fCam / FPS, outside = s.light === "night";
     { const BP: [number, number, number, number][] = [[-312, 15.5, -12, 0.8], [-316.5, 13.8, -10, 0.55], [-309, 13.2, -9, 0.45], [-319, 17.2, -15, 0.45], [-313.5, 18.4, -16, 0.6]];
       this.bats.forEach((b, i) => { b.visible = s.id === 99; const q = BP[i]; b.position.set(q[0], q[1], q[2]); b.scale.setScalar(q[3]); b.rotation.set(0, 0, (i % 2 ? 0.25 : -0.2)); b.lookAt(c.pos[0], c.pos[1], c.pos[2]); b.rotateZ(i % 2 ? 0.25 : -0.2); }); }
     cam.position.set(...c.pos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);

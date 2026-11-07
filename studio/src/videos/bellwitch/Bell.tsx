@@ -94,7 +94,8 @@ const useKit = () => {
 };
 
 const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
-  const f = useCurrentFrame();
+  const f0 = useCurrentFrame(); const L3 = (getInputProps() as { look3?: { lock?: number } }).look3;
+  const f = L3?.lock !== undefined ? L3.lock : f0;                                       // v3 tests: story context locked
   const { camera, scene } = useThree();
   const world = useMemo(() => new World(kit), [kit]);
   const fx = useMemo(() => ({
@@ -126,20 +127,21 @@ const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
     </EffectComposer>
   ), [fx]);
   const cam = camera as THREE.PerspectiveCamera, s = shotAtT(f, tailOf());
-  const target = world.update(f, cam, scene);
+  const target = world.update(f0, cam, scene);
   noInkFallback(world.root);
   const MT = (getInputProps() as { matte?: { bg: [number, number, number] } }).matte;
   if (MT) scene.background = new THREE.Color(...MT.bg);
   cam.getWorldDirection(fwd);
   // focus on the speaking / reacting face; it travels and racks with the camera keys (story.ts focusAt), the blur
   // strength glides with them too (blurred close-up -> sharp wide). `target` (stage focus) is the fallback.
-  const LK = (getInputProps() as { look3?: { focus?: [number, number, number]; cInf?: number } }).look3;
-  const fo = LK?.focus ?? focusAt(s, f);
+  const LK = (getInputProps() as { look3?: { focus?: [number, number, number]; cInf?: number; path?: number[][] } }).look3;
+  const P3 = LK?.path ? LK.path[Math.min(f0, LK.path.length - 1)] : null;
+  const fo: [number, number, number] | null | undefined = P3 ? [P3[7], P3[8], P3[9]] : LK?.focus ?? focusAt(s, f);
   fpt.set(...(fo ?? [target.x, target.y, target.z]));
   fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
-  fx.lens.cInf = LK?.cInf !== undefined ? LK.cInf : cInfAt(s, f) * BG_BLUR * (s.light === "candle" ? 1.1 : 1.15); // user: "blur the background for close up" like his (was .55 / .8; wides with cInf 0 stay sharp)
+  fx.lens.cInf = P3 ? P3[10] : LK?.cInf !== undefined ? LK.cInf : cInfAt(s, f) * BG_BLUR * (s.light === "candle" ? 1.1 : 1.15); // user: "blur the background for close up" like his (was .55 / .8; wides with cInf 0 stay sharp)
   // whip blur: uv streak = camera screen motion x 0.5 shutter; its pass runs only on whip frames
-  const wv = whipVel(f);
+  const wv = LK ? null : whipVel(f);                                                    // no motion blur, ever (v3)
   fx.whip.vel.set(wv ? wv[0] * 0.5 : 0, wv ? wv[1] * 0.5 : 0); fx.whip.zoom = wv ? wv[2] * 0.5 : 0;
   const wp = composer.current?.passes.find((p) => p instanceof EffectPass && (p as unknown as { effects: Effect[] }).effects.includes(fx.whip));
   if (wp) wp.enabled = !!wv;
@@ -183,7 +185,7 @@ export const BellWitch: React.FC = () => {
   const f = useCurrentFrame();
   const kit = useKit();
   if (!kit) return null;
-  const flash = flashAt(f);
+  const flash = (getInputProps() as { look3?: unknown }).look3 ? 0 : flashAt(f);
   return (
     <AbsoluteFill style={{ background: "#0b0d18" }}>
       <ThreeCanvas width={1080} height={1920} {...(dprOverride() ? { dpr: dprOverride() } : {})} shadows

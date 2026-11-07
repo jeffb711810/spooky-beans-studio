@@ -77,3 +77,7 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
 - soft horizontal gradient: LIGHT on the left -> DARKER on the right (right side 1.4x to 2x darker than the left)
 - a thin PALE STREAK (rim highlight) just inside the LEFT edge, following the outline curve (top-to-mid, not full length)
 - warm ink outline on top
+## Shadows
+- each character is re-drawn a second time from the SUN's point of view, just for its shadow: a 2048x2048 depth
+  (shadow) map from the directional sun light; characters cast real soft ground shadows (sun up-right -> shadow falls
+  down-left, long soft grey ellipse-like shape)

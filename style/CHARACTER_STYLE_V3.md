@@ -81,3 +81,5 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
 - each character is re-drawn a second time from the SUN's point of view, just for its shadow: a 2048x2048 depth
   (shadow) map from the directional sun light; characters cast real soft ground shadows (sun up-right -> shadow falls
   down-left, long soft grey ellipse-like shape)
+- the sun pass is JUST for the shadow: characters are NOT lit/shaded by the scene lights (no sun shading, no receiving
+  world shadows on the body); their look comes only from their own drawn colours + the fixed left-light gradient/streak

@@ -64,7 +64,7 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
    lag/overshoot on pans, eye-height camera, quick reframes; can add a REC dot / timecode overlay.
 4. THE WATCHER - something is watching: camera hides behind foreground objects (doorframes, banisters, plants, windows)
    far from the subject, very slow push-in, no shake, long-lens voyeur framing; the subject is small in frame.
-5. THROUGH THE STEEL (user: the camera just FOLLOWS THE SOUND) - the camera is driven by the soundtrack: each sound
+5. THROUGH THE STEEL (invented by a subagent for Rick's submarine short: the camera just FOLLOWS THE SOUND through the hull) - the camera is driven by the soundtrack: each sound
    (hammer hit, creak, footstep, bell, whisper) pulls the camera toward / whips it to the thing making it; push-ins on
    sustained sounds, whip + hard stop on sharp hits; silence = camera drifts toward the next sound source.
    (Winchester: follow the endless hammering through the house.)

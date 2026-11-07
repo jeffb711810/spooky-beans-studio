@@ -48,3 +48,9 @@ Unit: 1 D = head width. Everything measured in D.
 - the camera stands still in only ~4.5% of frames (e.g. ~105 of 2350): it is moving in ~95% of all frames
 - ORBIT size: looks like a 180 but is only ~98 degrees of arc around the subject (camera swings under/around the front,
   so the face flip happens mid-orbit)
+## Camera code (from Rick's camera_moves.js)
+- every shot = { pos, target, fov: 26 }  (a long 26-degree lens: flatter, telephoto look; our old shots used 44-66)
+- pushIn(shot, { factor: 1.9, ease: 'outCubic' })  -> camera distance to target shrinks by 1.9x, outCubic ease
+- orbit(center, { az0: -44, az1: 55, el: 17.5 })   -> azimuth -44 deg to +55 deg (= 99 deg arc), elevation 17.5 deg
+- if (K[i].stop) return 0;  // whip lands: hard stop (zero velocity in 1 frame)
+- shake: nz = sin(t*4.59)*.5 + sin(t*8.61)*.3 + ...  (sum of incommensurate sines = handheld noise)

@@ -8,7 +8,7 @@
 // the final EffectPass dithers its 8-bit output (night-sky, moon-halo, bloom and vignette gradients, no banding).
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { AbsoluteFill, continueRender, delayRender, getInputProps, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, continueRender, delayRender, getInputProps, staticFile, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer } from "@react-three/postprocessing";
@@ -191,6 +191,7 @@ export const BellWitch: React.FC = () => {
       </ThreeCanvas>
       {flash > 0 && <AbsoluteFill style={{ background: "#ffffff", opacity: flash }} />}
       {(getInputProps() as { captions?: boolean }).captions !== false && <Captions f={f} />}
+      {(getInputProps() as { withAudio?: boolean }).withAudio && <Audio src={staticFile("winchester_mix.wav")} />}
     </AbsoluteFill>
   );
 };

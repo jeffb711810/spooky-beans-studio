@@ -23,7 +23,12 @@ description: Make an "Allegedly Haunted" / Spooky Beans vertical short (60-80 s)
 - test frames in one pass: `npx remotion render src/index.ts BellWitch out/qc --sequence --frames=95,550,1625
   --image-format=jpeg --scale=0.5 --timeout=600000 --gl=swangle` (first frame builds the world: keep the long timeout)
 - audio: `python3 audio/winchester/audio/wh_audio.py` (never while rendering: it needs several GB of RAM)
-- full check: `npm run preview` then `python3 scripts/scan.py out/prev/prev.mp4`; final: `npm run final4k` (~13 h on 4 CPU cores)
+- full check: `npm run preview` then `python3 scripts/scan.py out/prev/prev.mp4` (the preview passes `post.dpr 0.25`: R3F
+  clamps dpr to >= 1, so without it the WebGL buffer stays 1080x1920 and the scan render takes ~3.5 h instead of minutes)
+- FINAL on the user's Windows PC (preferred, GPU): `npm run final` (scripts/render-final.mjs: true 4K, PNG frames, crf 16,
+  High@5.1 + VBV, soundtrack from public/winchester_mix.wav via the `withAudio` prop, prints time left);
+  `final-1080`, `final-safe` (concurrency 2), `final-cpu` (swangle). User guide: RENDER_ON_WINDOWS.md at the repo root.
+  Cloud fallback: `npm run final4k` (~13 h on 4 CPU cores). Rebuild public/winchester_mix.wav after any audio change.
 - HyperFrames (`npx hyperframes ...`): HTML-based motion pieces (title cards, banners, channel promos, end screens);
   the story shorts themselves stay in Remotion + three.js. The Remotion Claude plugin (remotion-best-practices etc.)
   is enabled on the account for API questions.

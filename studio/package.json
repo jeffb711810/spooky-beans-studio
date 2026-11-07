@@ -9,7 +9,11 @@
     "typecheck": "tsc --noEmit -p .",
     "preview": "bash scripts/run_prev.sh",
     "final4k": "bash scripts/run_final_4k.sh",
-    "hyperframes": "hyperframes"
+    "hyperframes": "hyperframes",
+    "final": "node scripts/render-final.mjs",
+    "final-1080": "node scripts/render-final.mjs --1080",
+    "final-safe": "node scripts/render-final.mjs --safe",
+    "final-cpu": "node scripts/render-final.mjs --cpu"
   },
   "dependencies": {
     "@fontsource/montserrat": "^5.3.0",

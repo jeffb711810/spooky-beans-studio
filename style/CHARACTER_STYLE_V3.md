@@ -45,3 +45,4 @@ Unit: 1 D = head width. Everything measured in D.
 2. ORBIT: camera arcs around the subject (keeps looking at it) - this is when the face flip happens
 3. WHIP: fast move that STOPS IN 1 FRAME - no settle, no wobble, no ease-out at the end
 - example frame: low camera skimming along the rails/structure, strong perspective, warm low sun
+- the camera stands still in only ~4.5% of frames (e.g. ~105 of 2350): it is moving in ~95% of all frames

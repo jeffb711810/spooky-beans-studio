@@ -41,14 +41,14 @@ export const BETSY_BED: Outfit = { build: "kid", jacket: RK ? "#f4a48e" : "#f2ec
 export const SON: Outfit = { build: "kid", jacket: RK ? "#86c06e" : "#d8cdb4", pants: "#3a3f52", waist: "#3a3f52", suspenders: "#6a3f2a", collar: "#e9e1cf", boots: "#2a1e18",
   hat: "hair", hair: "#5a3b2a", hairdo: "tousled", skin: SKINS[0] };
 /** the 1894 writer: top hat, black frock coat over a grey waistcoat, bow tie, spectacles, grey mutton chops */
-export const WRITER: Outfit = { jacket: "#2b2927", pants: "#2a2927", boots: "#1a1715", hat: "tophat", moustache: "#a9a7ae", beard: "#a9a7ae", beardStyle: "chops",
-  skin: SKINS[0], vest: "#6e6a63", shirt: SHIRT, collar: SHIRT, tie: "#1d1b1a", glasses: true, buttons: "#d9c27a" };
+export const WRITER: Outfit = { jacket: "#485a4c", pants: "#3b3f52", boots: "#1a1715", hat: "tophat", cap: "#363230", ribbon: "#962c26", hair: "#969490",
+  skin: SKINS[0], vest: "#cca640", shirt: SHIRT, collar: "#f4f0e6", tie: "#231810", buttons: "#5a4020", kit: "foreman" }; // v3: the test-clip foreman (user: "he looks exactly the same" as the last video)
 /** the fisherman: straw hat, ginger beard, blue work shirt, braces */
 export const FISHER: Outfit = { jacket: "#7f9bb3", pants: "#4b4a3a", waist: "#4b4a3a", suspenders: "#6a3f2a", boots: "#4a3426", hat: "straw", cap: "#d8bb72",
   ribbon: "#5a2f2a", beard: "#9a5530", moustache: "#9a5530", skin: SKINS[3] };
 /** neighbours: even = men (Sunday top hat, felt hat + beard, bare-headed farmhand), odd = women (bonnets, shawls, aprons) */
 export const FOLK: Outfit[] = [
-  { jacket: "#3f5f8f", pants: "#3b3f52", boots: "#4a3426", hat: "tophat", vest: "#c9b48a", collar: SHIRT, tie: "#6a3a2c", moustache: "#4a3426", skin: SKINS[0] },
+  { jacket: "#485a4c", pants: "#3b3f52", boots: "#4a3426", hat: "tophat", cap: "#363230", ribbon: "#962c26", vest: "#cca640", collar: "#f4f0e6", tie: "#231810", buttons: "#5a4020", hair: "#969490", kit: "foreman" }, // v3: the test-clip foreman
   { jacket: "#8f3e2e", pants: "#3b3f52", boots: "#4a3426", hat: "bonnet", bonnet: "#cfae6e", ribbon: "#3f5f8f", hair: "#6a4428", dress: "#8f3e2e", apron: "#e6dcc4", skin: SKINS[1] },
   { jacket: "#5d6a3a", pants: "#3b3f52", boots: "#4a3426", hat: "brim", cap: "#3b3226", vest: "#9a6a3a", collar: SHIRT, beard: "#3a2a20", moustache: "#3a2a20", skin: SKINS[2] },
   { jacket: "#3f6a6a", pants: "#3b3f52", boots: "#4a3426", hat: "bonnet", bonnet: "#9a8a62", ribbon: "#e6dcc4", hair: "#2a201a", dress: "#3f6a6a", shawl: "#b5653f", collar: SHIRT, skin: SKINS[3] },
@@ -78,7 +78,7 @@ export const ROSA = W({ jacket: "#f2c23c", pants: "#2f3a5a", boots: "#2a1e18", h
 export const GUS = W({ jacket: "#4f9e5a", pants: "#3a3a44", boots: "#2a1e18", hat: "brim", cap: "#2f4f6f", moustache: "#5a3b2a", glasses: true, vest: "#e9e1cf", tie: "#c94a3c", collar: "#f3efe7", skin: SKINS[2], worry: true }, "gus", 10);
 
 /** WINCHESTER: Sarah Winchester, the widow (black pinstriped dress, white high collar, dark hair, gold buttons) */
-export const SARAH = W({ jacket: "#26221f", pants: "#26221f", boots: "#1a1715", hat: "hair", hair: "#4a2e22", hairdo: "center", dress: "#26221f", collar: "#f6f1e8", buttons: "#e0b04a", skin: SKINS[1] }, "sarah", 11);
+export const SARAH = W({ jacket: "#24242a", pants: "#24242a", boots: "#1a1715", hat: "hood", bonnet: "#1d1e24", ribbon: "#202127", dress: "#24242a", collar: "#f0eadc", buttons: "#ded4c0", kit: "sarah" }, "sarah", 11); // v3: the test-clip widow (mourning hood + veil, lace collar, brooch)
 /** WINCHESTER cast (paper style, his clothing details: buttons, braces, ties, glasses) */
 export const WORKER = [
   W({ jacket: "#d9573f", pants: "#3a5f9a", waist: "#3a5f9a", suspenders: "#5b3a22", boots: "#3a2618", hat: "brim", cap: "#8a6a3c", moustache: "#5a3b2a", collar: "#f3efe7", skin: SKINS[0] }, "wk0", 21),
@@ -92,7 +92,7 @@ const B = (o: Partial<Outfit>, k: string, seed: number) => W({ boots: "#3a2618",
 export const CREW = {
   gardener: B({ jacket: "#f3ead8", pants: "#6b5a3a", waist: "#6b5a3a", hat: "straw", cap: "#e2c77e", ribbon: "#3f7f4a", apron: "#4f8a4a", beard: "#a39a8e", beardStyle: "short", moustache: "#a39a8e", skin: SKINS[2] }, "gardener", 41),
   lumber: B({ jacket: "#cfe0ea", pants: "#3e4a5e", waist: "#3e4a5e", suspenders: "#7a3a28", hat: "cap", cap: "#5a4a3c", moustache: "#3a2a1e" }, "lumber", 42),
-  apprentice: B({ jacket: "#e8b04a", pants: "#4a3a2c", waist: "#4a3a2c", suspenders: "#2e2a26", hat: "hair", hair: "#c8642a", hairdo: "tousled", apron: "#8a5a36", freckles: true, blush: "#f0a090" }, "apprentice", 43),
+  apprentice: B({ jacket: "#547aaa", pants: "#4a3a2c", hat: "cap", cap: "#806e5a", hair: "#3a281c", plaid: "#405c86", apron: "#ceaa70", kerchief: "#c44030", kit: "carpenter" }, "apprentice", 43), // v3: the test-clip carpenter
   doorman: B({ jacket: "#f6f2ea", pants: "#5a5a62", waist: "#5a5a62", vest: "#2e2c2a", hat: "brim", cap: "#4a4a52", moustache: "#2a2420", buttons: "#c9a24a" }, "doorman", 44),
   roofer: B({ build: "stout", jacket: "#4f7fc0", pants: "#5a4632", waist: "#5a4632", suspenders: "#c9473a", hat: "straw", cap: "#e0c27a", ribbon: "#c9473a", beard: "#6a3f22", beardStyle: "short", moustache: "#6a3f22" }, "roofer", 45),
   farmhand: B({ jacket: "#b5562f", pants: "#4a4436", waist: "#4a4436", vest: "#6b5640", hat: "brim", cap: "#b08a56", beard: "#c8c2b8", beardStyle: "chops", moustache: "#c8c2b8", skin: SKINS[2] }, "farmhand", 46),
@@ -111,7 +111,7 @@ export const PSYCHIC = W({ jacket: "#2e6f5a", pants: "#2e6f5a", boots: "#1a1715"
 export const GUY = W({ jacket: "#3f8fd2", pants: "#33507e", boots: "#f4f1ea", hat: "hair", hair: "#6a3f22", hairdo: "tousled", skin: SKINS[0] }, "guy", 25);
 export const HISTORIAN = W({ jacket: "#8a5e3c", pants: "#4a4a52", boots: "#3a2618", hat: "hair", hair: "#b8b2a8", hairdo: "parted", shirt: "#e6eef6", tie: "#2f6fb5", collar: "#e6eef6", glasses: true, buttons: "#5a3a22", skin: SKINS[2] }, "historian", 26);
 export const TOURISTS = [
-  W({ jacket: "#e8503c", pants: "#2f4f7a", boots: "#f3efe7", hat: "cap", cap: "#2f4f7a", skin: SKINS[0] }, "tr0", 31),
+  W({ jacket: "#e46838", pants: "#2f4f7a", boots: "#f3efe7", hat: "ballcap", cap: "#3070b8", hair: "#80502a", pack: "#2c3a58", camera: true, logo: true, kit: "tourist" }, "tr0", 31), // v3: the test-clip tourist
   W({ jacket: "#2fb3a6", pants: "#3a3a44", boots: "#f3efe7", hat: "hair", hair: "#7a4a2a", hairdo: "braids", ribbon: "#f2c23c", skin: SKINS[1] }, "tr1", 32),
   W({ jacket: "#f08a2c", pants: "#2f3a5a", boots: "#2a2420", hat: "brim", cap: "#3f6fb5", glasses: true, moustache: "#5a3b2a", skin: SKINS[2] }, "tr2", 33),
   W({ build: "kid", jacket: "#f2c23c", pants: "#3a5f9a", boots: "#e8503c", hat: "hair", hair: "#d0632a", hairdo: "tousled", skin: SKINS[0] }, "tr3", 34),

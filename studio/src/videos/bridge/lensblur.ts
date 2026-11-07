@@ -11,14 +11,17 @@
 // renormalised by the accepted weights. Fixed sample pattern, no per-pixel noise: no grain, no frame-to-frame flicker.
 // Both passes are CONVOLUTION effects, so R3F's <EffectComposer> gives each its own EffectPass.
 import { Effect, EffectAttribute, BlendFunction } from "postprocessing";
-import { Uniform } from "three";
+import { Uniform, Texture } from "three";
 
 const frag = /* glsl */ `
 uniform float focus;      // focus distance along the view axis (m)
 uniform float cInf;       // blur-disc radius (px at 1080x1920) of things at infinity; 0 = off
 uniform float nearScale;  // extra blur for things in front of the focus plane
 uniform float maxCoC;     // px at 1080x1920
+uniform sampler2D charMask; // v3 (characters on top, never blurred): 1 where a character card is visible
+uniform float useMask;
 #define GOLDEN 2.39996323
+float isChar(vec2 p) { return useMask > 0.5 ? step(0.5, texture2D(charMask, p).r) : 0.0; }
 
 float cocAt(float d, float s) {               // signed CoC radius in output px
   float c = cInf * s * (1.0 - focus / max(d, 1e-3));
@@ -28,7 +31,7 @@ float cocAt(float d, float s) {               // signed CoC radius in output px
 float distAt(vec2 uv) { return -getViewZ(readDepth(uv)); }
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, const in float depth, out vec4 outputColor) {
-  if (cInf < 0.25) { outputColor = inputColor; return; }
+  if (cInf < 0.25 || isChar(uv) > 0.5) { outputColor = inputColor; return; }
   float s = resolution.y / 1920.0;             // output px per 1080x1920 px
   float d0 = -getViewZ(depth);
   float r0 = abs(cocAt(d0, s));
@@ -42,7 +45,7 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, const in float depth,
       float ds = distAt(suv);
       float rs = abs(cocAt(ds, s)) * SPREAD;
       if (ds > d0) rs = min(rs, R);            // background never bleeds over a nearer pixel
-      float w = clamp(rs - rr + 0.5, 0.0, 1.0); // does the sample's disc reach us?
+      float w = clamp(rs - rr + 0.5, 0.0, 1.0) * (1.0 - isChar(suv)); // does the sample's disc reach us? (sharp characters never smear)
       acc += texture2D(inputBuffer, suv).rgb * w; wsum += w;
     }
   }
@@ -56,7 +59,7 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, const in float depth,
     float a = float(i) * GOLDEN + 1.0;
     vec2 suv = uv + vec2(cos(a), sin(a)) * rr * texelSize;
     float ds = distAt(suv);
-    if (ds >= d0 * 0.97) continue;              // only things in front of us
+    if (ds >= d0 * 0.97 || isChar(suv) > 0.5) continue; // only things in front of us (not the sharp characters)
     float rs = abs(cocAt(ds, s));
     float w = clamp(rs - rr + 0.5, 0.0, 1.0);
     fg += texture2D(inputBuffer, suv).rgb * w; fw += w;
@@ -81,6 +84,7 @@ export class LensBlurEffect extends Effect {
       ]),
       uniforms: new Map<string, Uniform>([
         ["focus", new Uniform(10)], ["cInf", new Uniform(0)], ["nearScale", new Uniform(nearScale)], ["maxCoC", new Uniform(maxCoC)],
+        ["charMask", new Uniform(null)], ["useMask", new Uniform(0)],
       ]),
     });
   }
@@ -88,6 +92,7 @@ export class LensBlurEffect extends Effect {
   get focus() { return this.uniforms.get("focus")!.value as number; }
   set cInf(v: number) { this.uniforms.get("cInf")!.value = v; }
   get cInf() { return this.uniforms.get("cInf")!.value as number; }
+  set mask(t: Texture | null) { this.uniforms.get("charMask")!.value = t; this.uniforms.get("useMask")!.value = t ? 1 : 0; }
 }
 
 /** The pair of passes the composer needs (pre first, then main); set focus / cInf once per frame on this object. */
@@ -100,6 +105,7 @@ export class LensBlur {
   }
   set focus(v: number) { this.pre.focus = v; this.main.focus = v; }
   set cInf(v: number) { this.pre.cInf = v; this.main.cInf = v; }
+  set mask(t: Texture | null) { this.pre.mask = t; this.main.mask = t; }
   dispose() { this.pre.dispose(); this.main.dispose(); }
 }
 

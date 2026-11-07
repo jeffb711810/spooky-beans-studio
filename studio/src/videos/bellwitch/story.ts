@@ -111,10 +111,19 @@ export const SHOTS: Shot[] = [
   { id: 124, a: 1638, b: 1735, light: "night", mood: "day", cInf: 0, keys: [{ f: 1638, pos: Wv(9.0, 1.5, 24), look: Wv(12.0, 10.0, -6), fov: 66 }] },
   { id: 125, a: 1735, b: 1770, light: "night", mood: "day", cInf: 22, keys: [{ f: 1735, pos: Wv(1.4, 1.5, 28.6), look: Wv(0.8, 1.35, 25.5), fov: 46 }] },
   // 15 1922: night, scaffolding, workers hammering; a window goes dark; the hammering stops
-  { id: 126, a: 1770, b: 1924, light: "night", mood: "night", cInf: 0, creep: 0.0009, keys: [{ f: 1770, pos: Wv(8.5, 3.2, 20.5), look: Wv(8.2, 6.0, 0), fov: 54 }] },
+  // CHECKLIST 8 (no bare frame, Rick cuts in on the beat): "In 1922, Sarah dies." = push toward the house as her window
+  // goes dark; "And for the first time in decades..." = cut to a builder hammering on the scaffold; "the hammering stops."
+  // = his swing freezes and the camera pushes in on his face
+  { id: 126, a: 1770, b: 1924, light: "night", mood: "night", cInf: 0, creep: 0.0009, keys: [{ f: 1770, pos: Wv(8.5, 3.2, 20.5), look: Wv(8.2, 6.0, 0), fov: 54 },
+    { f: 1834, glide: 50, pos: Wv(8.6, 5.2, 13.5), look: Wv(8.4, 6.4, 0), fov: 50 },
+    { f: 1836, glide: 1, pos: Wv(10.6, 7.6, 7.4), look: Wv(9.0, 7.35, 2.25), fov: 40, cInf: 16 },
+    { f: 1922, glide: 34, pos: Wv(9.7, 7.55, 5.0), look: Wv(9.0, 7.4, 2.25), fov: 40, cInf: 18 }] },
   // 16 the nails left half hammered in
-  { id: 127, a: 1924, b: 2036, light: "candle", mood: "dayInt", cInf: 30, keys: [{ f: 1924, pos: Fv(-3.95, 1.62, -6.95), look: Fv(-4.45, 1.55, -7.4), fov: 32 },
-    { f: 2035, glide: 80, pos: Fv(-3.6, 0.6, -6.6), look: Fv(-4.2, 0.05, -7.3), fov: 40 }] },
+  // CHECKLIST 8 (no bare frame): "The workers leave so fast," = the crew stampedes out at the camera, then a hard cut to
+  // "nails are still half hammered into the walls" (the nail, held), and a short tilt down to the dropped hammer
+  { id: 127, a: 1924, b: 2036, light: "candle", mood: "dayInt", cInf: 14, keys: [{ f: 1924, pos: Fv(-0.4, 1.55, 2.4), look: Fv(0.1, 1.15, -5.0), fov: 50 },
+    { f: 1968, glide: 1, pos: Fv(-3.95, 1.62, -6.95), look: Fv(-4.45, 1.55, -7.4), fov: 32 },
+    { f: 2035, glide: 20, pos: Fv(-3.85, 0.5, -6.8), look: Fv(-4.2, 0.03, -7.25), fov: 40 }] },
   // 17 the historian shrugs; Sarah happily drawing plans
   { id: 128, a: 2036, b: 2100, light: "candle", mood: "dayInt", cInf: 22, keys: [{ f: 2036, pos: Fv(-2.45, 1.5, -2.25), look: Fv(-2.45, 1.3, -4.2), fov: 48 }] },
   { id: 129, a: 2100, b: 2185, light: "candle", mood: "dayInt", cInf: 22, creep: 0.0012, keys: [{ f: 2100, pos: Fv(-2.1, 1.45, -2.4), look: Fv(-2.45, 1.2, -4.3), fov: 46 }] },

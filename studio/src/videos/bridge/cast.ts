@@ -88,7 +88,7 @@ export class Actor {
    *  written, so the lens blur keeps that edge with the card; the world draws these cards first among the transparent
    *  objects, back to front (world.ts sets renderOrder by distance), so mist / glows / soft fx still cover them as before. */
   constructor(parent: THREE.Object3D, geo: THREE.BufferGeometry = BODY, smooth = false) {
-    this.mat = cardShade(new THREE.MeshLambertMaterial({ map: blank, alphaTest: smooth ? 0.1 : 0.5, transparent: smooth, side: THREE.DoubleSide }));
+    this.mat = cardShade(new THREE.MeshLambertMaterial({ map: blank, alphaTest: smooth ? 0.1 : 0.5, transparent: smooth, side: THREE.DoubleSide, fog: false })); // v3: characters never fogged
     this.mat.forceSinglePass = true; // (a transparent double-sided material is otherwise drawn twice: back then front)
     this.mat.alphaToCoverage = false; // A2C + MSAA left 1 px sky-depth seams on blurred far cards (POST)
     this.dmat = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: blank, alphaTest: 0.5, side: THREE.DoubleSide });

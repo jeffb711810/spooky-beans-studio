@@ -27,6 +27,8 @@ export const GRADE_CANDLE: GradeParams = {
   tintS: [0.026, -0.024], tintM: [-0.002, 0.0], tintH: [-0.022, 0.016], vig: [0.3, 0.38], // look round: cooler (Cb+ Cr-, never Cr+) shadows
 };
 Object.assign(GRADE_CANDLE, { ky: [0.045, 0.17, 0.41, 0.69, 0.89, 0.97, 1], sat: [1.5, 1.38, 1.12], tintS: [0.05, -0.015], tintM: [0.0, 0.006], tintH: [-0.035, 0.03], vig: [0.45, 0.3] }); // look round 10
+// CHECKLIST 3 (v3, vs Rick 10b): warm-lifted blacks (never blue-black), saturation .71 -> ~.6
+Object.assign(GRADE_CANDLE, { ky: [0.06, 0.17, 0.41, 0.69, 0.89, 0.97, 1], sat: [1.15, 1.1, 1.0], tintS: [0.0, 0.012] });
 export const GRADE_STRENGTH = { night: 1, candle: 1 };
 /** bloom on HDR emissives only (windows, lanterns, flames, moon): softer knee + stronger, tighter glow (5 mips) */
 export const BLOOM = { intensity: 1.35, threshold: 1.0, smoothing: 0.3, radius: 0.74, levels: 5 }; // look round 10: his lanterns glow (was .95 / .62) // wider glow (ref window r50 ~34 px @720, candle r10 ~174)

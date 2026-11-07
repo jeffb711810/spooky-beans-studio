@@ -108,6 +108,14 @@ const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
   }), [camera, scene]);
   useEffect(() => () => { (fx.ink as unknown as { dispose?: () => void }).dispose?.(); }, [fx]);
   const composer = useRef<PPComposer>(null);
+  // CHECKLIST 6: the character mask, rendered before the composer every frame (characters are never blurred)
+  const maskRT = useMemo(() => new THREE.WebGLRenderTarget(4, 4, { depthBuffer: true }), []);
+  useFrame(({ gl }) => {
+    const sz = gl.getDrawingBufferSize(new THREE.Vector2());
+    if (maskRT.width !== sz.x || maskRT.height !== sz.y) maskRT.setSize(sz.x, sz.y);
+    world.renderMask(gl, scene, camera, maskRT);
+    fx.lens.mask = maskRT.texture;
+  }, -1);
   // dither the last (on-screen) EffectPass once: +-0.5 LSB ordered noise kills 8-bit banding in the dark gradients
   useFrame(() => {
     const ps = composer.current?.passes, last = ps?.[ps.length - 1];
@@ -140,6 +148,8 @@ const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
   fpt.set(...(fo ?? [target.x, target.y, target.z]));
   fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
   fx.lens.cInf = P3 ? P3[10] : LK?.cInf !== undefined ? LK.cInf : cInfAt(s, f) * BG_BLUR * (s.light === "candle" ? 1.1 : 1.15); // user: "blur the background for close up" like his (was .55 / .8; wides with cInf 0 stay sharp)
+  if (!P3 && LK?.cInf === undefined) fx.lens.cInf *= Math.sqrt(world.lensK); // 26 deg lens: same framing, longer focal length -> softer far background
+  fx.ink.lensOffset = world.lensD;
   // whip blur: uv streak = camera screen motion x 0.5 shutter; its pass runs only on whip frames
   const wv: ReturnType<typeof whipVel> = null;                                                    // no motion blur, ever (v3)
   fx.whip.vel.set(wv ? wv[0] * 0.5 : 0, wv ? wv[1] * 0.5 : 0); fx.whip.zoom = wv ? wv[2] * 0.5 : 0;

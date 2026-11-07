@@ -39,7 +39,8 @@ Object.assign(SATMUL_OF, {
   bwGrass: 0.45, bwPineA: 0.7, bwPineB: 0.7, bwLogs: 1.35, bwLogEnd: 1.3, bwEndGrain: 1.3, bwPlanks: 1.3, bwWood: 1.3,
   bwWoodDark: 1.2, bwDoor: 1.3, bwPumpkin: 1.4, bwHay: 1.3, bwHayDark: 1.3, bwCorn: 1.3, bwStem: 0.8, bwDirt: 1.1,
 });
-import { Shot, camAt, shotAtT, X0, GRAVE, FPS } from "./story";
+import { Shot, camAt, shotAtT, focusAt, X0, GRAVE, FPS } from "./story";
+const V3_LENS = 26; // degrees (style/CARTOON_FRAMEWORK.md 8)
 import { stage, Props } from "./stage";
 import { dressFarm, dressGrave, dressRoom } from "./dress";
 import { wagonUpdate } from "./wagon"; // WAGON (wagon agent: shot 13 horse wagon)
@@ -137,6 +138,8 @@ export class World {
   root = new THREE.Group();
   private pool = new Pool();
   private actors: Actor[] = [];
+  /** the 26 deg lens conversion of the current frame: how far the camera backed off (m) and the lens ratio */
+  lensD = 0; lensK = 1;
   private rrCache = new Map<number, number>();
   private sc0 = new THREE.Vector3();
   private fxs: Fx[] = [];
@@ -860,6 +863,53 @@ export class World {
   }
 
   // smooth cards (user: "no jagged edges for ANY of the project, all smooth black ink"): blended anti-aliased edges
+  // CHECKLIST 6 (v3 pipeline: characters on top, NEVER blurred): every frame, a mask of the visible character pixels
+  // (world drawn black as the occluder, then the cards' cut-outs white), read by the lens blur
+  private maskMats = new WeakMap<Actor, THREE.ShaderMaterial>();
+  private static OCC = new THREE.MeshBasicMaterial({ color: 0x000000 });
+  private maskOf(a: Actor) {
+    const map = (a.mesh.material as THREE.MeshLambertMaterial).map ?? null;
+    let m = this.maskMats.get(a);
+    if (!m) {
+      m = new THREE.ShaderMaterial({
+        uniforms: { map: { value: map }, uvT: { value: new THREE.Matrix3() } }, side: THREE.DoubleSide,
+        vertexShader: "uniform mat3 uvT; varying vec2 vUv; void main() { vUv = (uvT * vec3(uv, 1.0)).xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+        fragmentShader: "uniform sampler2D map; varying vec2 vUv; void main() { if (texture2D(map, vUv).a < 0.5) discard; gl_FragColor = vec4(1.0); }",
+      });
+      this.maskMats.set(a, m);
+    }
+    m.uniforms.map.value = map;
+    if (map) { map.updateMatrix(); (m.uniforms.uvT.value as THREE.Matrix3).copy(map.matrix); }
+    return m;
+  }
+  renderMask(gl: THREE.WebGLRenderer, scene: THREE.Scene, cam: THREE.Camera, rt: THREE.WebGLRenderTarget) {
+    const shown = this.actors.filter((a) => a.mesh.visible), fxs = this.fxs.filter((x) => x.mesh.visible);
+    const bg = scene.background, fog = scene.fog, ov = scene.overrideMaterial, prev = gl.getRenderTarget(), ac = gl.autoClear;
+    const cc = gl.getClearColor(new THREE.Color()), ca = gl.getClearAlpha(), su = gl.shadowMap.autoUpdate, lm = cam.layers.mask;
+    gl.shadowMap.autoUpdate = false;
+    for (const a of shown) a.mesh.visible = false; for (const x of fxs) x.mesh.visible = false;
+    // see-through things (glass, lamp halos, light pools, mist, sprites) never hide a character
+    const clear: THREE.Object3D[] = [];
+    scene.traverseVisible((o) => {
+      const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined, m0 = Array.isArray(m) ? m[0] : m;
+      if ((o as THREE.Sprite).isSprite || (o as THREE.Points).isPoints || (m0 && (m0.transparent || !m0.depthWrite || m0.opacity < 1))) clear.push(o);
+    });
+    for (const o of clear) o.visible = false;
+    scene.background = null; scene.fog = null; scene.overrideMaterial = World.OCC;
+    gl.setRenderTarget(rt); gl.setClearColor(0x000000, 1); gl.clear(true, true, true);
+    gl.render(scene, cam);                                    // the world: black, writes depth (occluders)
+    scene.overrideMaterial = ov;
+    for (const o of clear) o.visible = true;
+    const mats = shown.map((a) => a.mesh.material);
+    for (const a of shown) { a.mesh.visible = true; a.mesh.material = this.maskOf(a); a.mesh.layers.enable(5); }
+    cam.layers.set(5); gl.autoClear = false;
+    gl.render(scene, cam);                                    // the characters: white where they are not hidden
+    gl.autoClear = ac; cam.layers.mask = lm;
+    shown.forEach((a, i) => { a.mesh.material = mats[i]; a.mesh.layers.disable(5); });
+    for (const x of fxs) x.mesh.visible = true;
+    scene.background = bg; scene.fog = fog; gl.shadowMap.autoUpdate = su;
+    gl.setRenderTarget(prev); gl.setClearColor(cc, ca);
+  }
   private actor(i: number) { while (this.actors.length <= i) this.actors.push(new Actor(this.root, undefined, true)); return this.actors[i]; }
   private fx(i: number) { while (this.fxs.length <= i) this.fxs.push(new Fx(this.root, true)); return this.fxs[i]; }
 
@@ -897,10 +947,23 @@ export class World {
     const s = shotAtT(f, tailOf()), c0 = camAt(s, f), c = P3 ? { ...c0, pos: [P3[0], P3[1], P3[2]] as T3, look: [P3[3], P3[4], P3[5]] as T3, fov: P3[6], roll: 0 } : LK?.pos ? { ...c0, pos: LK.pos, look: LK.look as T3, fov: LK.fov as number, roll: 0 } : c0, L = presetOf(s), t = fCam / FPS, outside = s.light === "night";
     { const BP: [number, number, number, number][] = [[-312, 15.5, -12, 0.8], [-316.5, 13.8, -10, 0.55], [-309, 13.2, -9, 0.45], [-319, 17.2, -15, 0.45], [-313.5, 18.4, -16, 0.6]];
       this.bats.forEach((b, i) => { b.visible = s.id === 99; const q = BP[i]; b.position.set(q[0], q[1], q[2]); b.scale.setScalar(q[3]); b.rotation.set(0, 0, (i % 2 ? 0.25 : -0.2)); b.lookAt(c.pos[0], c.pos[1], c.pos[2]); b.rotateZ(i % 2 ? 0.25 : -0.2); }); }
-    cam.position.set(...c.pos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);
-    cam.fov = c.fov; cam.near = 0.1; cam.far = 1500; cam.updateProjectionMatrix(); cam.updateMatrixWorld();
+    // CHECKLIST 7 (v3: "every shot is a position, a target and a 26 degree lens"): every key keeps its framing of the
+    // subject (story focus) but is shot through a 26 deg lens from further back along the same view line; the near plane
+    // sits where the old camera stood, so walls behind the new position are cut away (his flat, telephoto diorama look)
+    let cpos = c.pos as T3, cfov = c.fov, cnear = 0.1; this.lensD = 0; this.lensK = 1;
+    if (!LK && cfov > 40) { // close-ups (32-40 deg) are already long lenses: backing off there clips the walls beside them
+      const F = focusAt(s, f), lx = c.look[0] - cpos[0], ly = c.look[1] - cpos[1], lz = c.look[2] - cpos[2], ll = Math.hypot(lx, ly, lz) || 1;
+      const ux = lx / ll, uy = ly / ll, uz = lz / ll, ds = Math.max(0.6, (F[0] - cpos[0]) * ux + (F[1] - cpos[1]) * uy + (F[2] - cpos[2]) * uz);
+      // the camera may back off at most LENS_MAX m (the sets end: a wide exterior would leave the ground); the lens then
+      // narrows only as far as that allows (close shots reach 26 deg, wides keep most of their framing)
+      const t0 = Math.tan((cfov * Math.PI) / 360), k = t0 / Math.tan((V3_LENS * Math.PI) / 360);
+      const D = Math.min(ds * (k - 1), outside ? 3 : 4.5), t1 = (t0 * ds) / (ds + D);
+      cpos = [cpos[0] - ux * D, cpos[1] - uy * D, cpos[2] - uz * D]; cnear = D + 0.1; cfov = (2 * Math.atan(t1) * 180) / Math.PI; this.lensD = D; this.lensK = t0 / t1;
+    }
+    cam.position.set(...cpos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);
+    cam.fov = cfov; cam.near = cnear; cam.far = 1500 + this.lensD; cam.updateProjectionMatrix(); cam.updateMatrixWorld();
     cam.layers.enable(NOINK);
-    const focus = V(...c.look), dist = cam.position.distanceTo(focus), sunDir = this.sunFor(s);
+    const focus = V(...c.look), dist = V(...c.pos).distanceTo(focus), sunDir = this.sunFor(s);
     // ---- light rig ----
     this.hemi.color.set(L.sky); this.hemi.groundColor.set(L.ground); this.hemi.intensity = L.hemiI;
     this.sun.color.set(L.sunCol); this.sun.intensity = L.sunI;
@@ -944,10 +1007,10 @@ export class World {
     [su.c0, su.c1, su.c2, su.c3, su.c4].forEach((u, i) => untone((LO.sky ?? NIGHT_SKY ?? K.sky.c)[i], u.value as THREE.Color));
     const e = K.sky.e.map((d) => THREE.MathUtils.degToRad(d)); (su.e.value as THREE.Vector4).set(e[1], e[2], e[3], e[4]);
     this.sky.position.copy(cam.position);
-    untone(L.fog, this.fog.color); this.fog.near = L.fogNear; this.fog.far = L.fogFar; scene.fog = this.fog; scene.background = null;
+    untone(L.fog, this.fog.color); this.fog.near = L.fogNear + this.lensD; this.fog.far = L.fogFar + this.lensD; scene.fog = this.fog; scene.background = null;
     // ---- staged props + cast ----
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
-    const st = stage(f, s, { pos: cam.position, right, sun: sunDir });
+    const st = stage(f, s, { pos: cam.position, right, sun: sunDir, fov: cam.fov });
     this.pose(st.props, t);
     // WAGON (wagon agent): shot 13's horse wagon (wagon.ts), built once under the root, rolled/posed per frame
     wagonUpdate(this.root, f, s.id === 13);

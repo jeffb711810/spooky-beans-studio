@@ -196,3 +196,21 @@ Rick's reference clips are private study material (never publish, never commit).
 2. Shake amplitude.
 3. Who lip-syncs.
 (Answered by Rick's thumbnails 2026-11-07: white-ring eyes ARE part of the kit; hats look 3D.)
+
+## 16. Three more Rick videos (2026-11-07) and the engine checklist pass
+[R] From "He Could Spot Winning Tickets" and two "Pink Prison Cell" clips (private study, never published):
+- Every scene has its own colour mood (warm counter, sunset office, white store, blue prison, pink cell); dark vignettes,
+  warm practical lights with glow, floating dust.
+- Story light lands ON the characters: the winning ticket lights the face gold, the "garbage" ticket turns it green.
+- Camera: slow creeps on every hold, sudden swoops (crane down onto a prop), push past a face to the held prop, push
+  to an extreme close-up of a detail, fly through doorways into the next room, dutch-rolled orbits, a rise to a top-down
+  view that zooms into a texture as the transition.
+- Cross-dissolves (6-9 f) between places, often during a camera move; light-flare washes as transitions.
+- Slapstick physics: thrown out of a door (flailing, box flying), a ticket flicked off-screen spinning, floor cracks
+  under a heavy character, red rage lines growing.
+- Captions: 1-2 words, white bold with a black outline, about 70 % down the frame.
+[I] Engine checklist pass (all 8 items of section 14), see out/v5 stills: eyes 0.264 D apart; beards, moustaches and
+glasses dropped (same face on everyone); v3 hats for every hat type; grade re-fit to 10b (day p50 ~.6, interior
+~.45); face leads body by 1 f (stage built twice per frame); mouths on twos; no blinks while talking; a per-frame
+character mask keeps characters out of the lens blur and fog; camera still 2.8 % of frames; 26 deg lens by backing
+off along the view line (near plane = old camera, capped 4.5 m in / 3 m out); bare shots restaged (127, 126, 103).

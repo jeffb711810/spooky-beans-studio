@@ -125,57 +125,57 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
   };
   const sweat: [number, number, number][] = [];
   const vein = (vx: number, vy: number, s = 0.075) => { for (const a of [-0.5, 0.6, 2.1]) line(bez2([vx, vy], [vx + 0.55 * s * Math.cos(a + 0.6), vy - 0.55 * s * Math.sin(a + 0.6)], [vx + s * Math.cos(a), vy - s * Math.sin(a)], 10), 0.02); };
-  const blush = (ey: number) => { for (const s of [-1, 1]) if (vis(s * 0.21)) fill(arc(24).map((t) => [s * 0.21 + 0.065 * Math.cos(t), ey + 0.105 + 0.035 * Math.sin(t)]), BLUSH); };
+  const blush = (ey: number) => { for (const s of [-1, 1]) if (vis(s * 0.21)) fill(arc(24).map((t) => [s * 0.225 + 0.065 * Math.cos(t), ey + 0.105 + 0.035 * Math.sin(t)]), BLUSH); };
 
-  const EX = 0.122, EY = 0.045, S = [-1, 1] as const, lk = Math.max(-1, Math.min(1, o.look)) * 0.022;
+  const EX = 0.134, EY = 0.045, S = [-1, 1] as const, lk = Math.max(-1, Math.min(1, o.look)) * 0.022;
   const talk = o.talk ?? 0, talking = talk > 0.12;
   let mouthDone = false;
   const M = (fn: () => void) => { if (!talking) fn(); };
   switch (e) {
     case "smug": case "suspicious":
       for (const s of S) eyeLid(s * EX + lk, EY - 0.02, 0.06 * s);
-      brow(-0.13, EY - 0.13, -0.05, 0.01); brow(0.13, EY - 0.19, 0.16, 0.03);
+      brow(-0.142, EY - 0.13, -0.05, 0.01); brow(0.142, EY - 0.19, 0.16, 0.03);
       M(() => line(bez3([-0.07, 0.235], [-0.01, 0.245], [0.06, 0.24], [0.1, 0.205]), 0.03));
       break;
     case "evil":
-      for (const s of S) { eyeLid(s * EX + lk, EY - 0.005, -s * 0.3, 0.19, 0.085, 0.06); brow(s * 0.13, EY - 0.115, -s * 0.42, 0); }
+      for (const s of S) { eyeLid(s * EX + lk, EY - 0.005, -s * 0.3, 0.19, 0.085, 0.06); brow(s * 0.142, EY - 0.115, -s * 0.42, 0); }
       M(() => teeth(0.38, 0.085, 0.2, 0.03, "crescent", 7));
       break;
     case "grin": case "relief_open":
-      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.13, EY - 0.165, s * 0.1, 0.03); }
+      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.142, EY - 0.165, s * 0.1, 0.03); }
       M(() => teeth(0.34, 0.12, 0.19, 0, "D", 6));
       break;
     case "nervous":
-      for (const s of S) { eyeDot(s * EX + lk, EY - 0.01, 0.085, 0.125); brow(s * 0.135, EY - 0.17, s * 0.34, 0.012); }
+      for (const s of S) { eyeDot(s * EX + lk, EY - 0.01, 0.085, 0.125); brow(s * 0.146, EY - 0.17, s * 0.34, 0.012); }
       M(() => teeth(0.4, 0.14, 0.19, 0, "D", 6));
       sweat.push([-40, 0.66, 0.075], [215, 0.64, 0.06]);
       break;
     case "stern":
-      for (const s of S) { eyeRing(s * 0.115, EY, 0.095, [o.look, 0], 0.026); brow(s * 0.125, EY - 0.135, -s * 0.36, 0); }
+      for (const s of S) { eyeRing(s * 0.127, EY, 0.095, [o.look, 0], 0.026); brow(s * 0.137, EY - 0.135, -s * 0.36, 0); }
       M(() => line([[-0.03, 0.235], [0.03, 0.235]], 0.03));
       break;
     case "angry": case "pained":
-      for (const s of S) { if (e === "pained") eyeClosed(s * EX, EY, 0.13, -0.02 * s); else eyeDot(s * EX + lk, EY, 0.085, 0.1); brow(s * 0.125, EY - 0.12, -s * 0.42, 0); }
+      for (const s of S) { if (e === "pained") eyeClosed(s * EX, EY, 0.13, -0.02 * s); else eyeDot(s * EX + lk, EY, 0.085, 0.1); brow(s * 0.137, EY - 0.12, -s * 0.42, 0); }
       M(() => teeth(0.22, 0.09, 0.205, 0, "box", 5, true));
       vein(-0.3, -0.12);
       break;
     case "shock":
-      for (const s of S) { eyeRing(s * 0.115, EY - 0.01, 0.105, [o.look, 0]); brow(s * 0.12, EY - 0.2, s * 0.1, 0.035, 0.08); }
+      for (const s of S) { eyeRing(s * 0.127, EY - 0.01, 0.105, [o.look, 0]); brow(s * 0.132, EY - 0.2, s * 0.1, 0.035, 0.08); }
       M(() => fill(arc(30).map((t) => [0.042 * Math.cos(t), 0.25 + 0.055 * Math.sin(t)]), V3_INK));
       break;
     case "scream": case "terrified": case "yell":
-      for (const s of S) eyeRing(s * 0.118, EY - 0.01, 0.112, [o.look, 0], 0.026);
-      brow(-0.13, EY - 0.2, 0.18, 0.02, 0.095, 0.046, 0.012); brow(0.13, EY - 0.215, -0.1, 0.03, 0.095, 0.046, 0.016);
+      for (const s of S) eyeRing(s * 0.129, EY - 0.01, 0.112, [o.look, 0], 0.026);
+      brow(-0.142, EY - 0.2, 0.18, 0.02, 0.095, 0.046, 0.012); brow(0.142, EY - 0.215, -0.1, 0.03, 0.095, 0.046, 0.016);
       if (e === "terrified") { M(() => teeth(0.15, 0.085, 0.215, 0, "box", 5, true)); for (const s of S) line(bez2([s * 0.09, 0.3], [s * 0.115, 0.33], [s * 0.08, 0.36], 8), 0.016); }
       else { M(() => openMouth(0.2, 0.15, 0.2, true)); mouthDone = true; }
       vein(-0.3, -0.12); sweat.push([-35, 0.68, 0.075], [-5, 0.72, 0.06], [195, 0.68, 0.07], [160, 0.7, 0.055]);
       break;
     case "laugh":
-      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.13, EY - 0.16, s * 0.12, 0.03); }
+      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.142, EY - 0.16, s * 0.12, 0.03); }
       M(() => teeth(0.3, 0.16, 0.185, 0, "D", 6, false, true)); blush(EY);
       break;
     case "worried": case "sad": case "cry":
-      for (const s of S) { if (e === "cry") eyeClosed(s * EX, EY, 0.13, 0.012 * s); else eyeDot(s * EX + lk, EY); brow(s * 0.135, EY - 0.165, s * 0.34, 0.015); }
+      for (const s of S) { if (e === "cry") eyeClosed(s * EX, EY, 0.13, 0.012 * s); else eyeDot(s * EX + lk, EY); brow(s * 0.146, EY - 0.165, s * 0.34, 0.015); }
       M(() => e === "worried" ? line([[-0.05, 0.24], [-0.017, 0.23], [0.017, 0.24], [0.05, 0.23]], 0.028) : line(bez2([-0.06, 0.25], [0, 0.215], [0.06, 0.25], 12), 0.03));
       if (e !== "worried") for (const s of S) if (vis(s * EX)) { // tears: a drop under each eye, tip up
         const [tx, ty] = F(s * (EX + 0.01), EY + 0.15), r = 0.032 * D;
@@ -184,23 +184,23 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
       }
       break;
     case "dazed":
-      for (const s of S) { eyeClosed(s * EX, EY, 0.13, 0.012 * s); brow(s * 0.13, EY - 0.13, s * 0.28, 0.01); }
+      for (const s of S) { eyeClosed(s * EX, EY, 0.13, 0.012 * s); brow(s * 0.142, EY - 0.13, s * 0.28, 0.01); }
       M(() => line([[-0.05, 0.24], [-0.017, 0.23], [0.017, 0.24], [0.05, 0.23]], 0.026));
       break;
     case "whistle":
-      for (const s of S) { eyeLid(s * EX + lk, EY - 0.02); brow(s * 0.13, EY - 0.17, 0, 0.02); }
+      for (const s of S) { eyeLid(s * EX + lk, EY - 0.02); brow(s * 0.142, EY - 0.17, 0, 0.02); }
       M(() => { const ring = arc(24).map((t) => [0.03 * Math.cos(t), 0.235 + 0.035 * Math.sin(t)] as P2); fill(ring, MOUTH_IN, 0.024); });
       break;
     case "relief": case "smile_closed":
-      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.13, EY - 0.165, s * 0.08, 0.025); }
+      for (const s of S) { eyeHappy(s * EX, EY - 0.01); brow(s * 0.142, EY - 0.165, s * 0.08, 0.025); }
       M(() => line(bez2([-0.08, 0.215], [0, 0.265], [0.08, 0.215], 14), 0.03));
       break;
     case "smile": case "lick":
-      for (const s of S) { eyeDot(s * EX + lk, EY); brow(s * 0.13, EY - 0.165, 0, 0.02); }
+      for (const s of S) { eyeDot(s * EX + lk, EY); brow(s * 0.142, EY - 0.165, 0, 0.02); }
       M(() => line(bez2([-0.075, 0.22], [0, 0.26], [0.075, 0.22], 14), 0.03));
       break;
     default: // neutral
-      for (const s of S) { eyeDot(s * EX + lk, EY); brow(s * 0.13, EY - 0.165, 0, 0.02); }
+      for (const s of S) { eyeDot(s * EX + lk, EY); brow(s * 0.142, EY - 0.165, 0, 0.02); }
       M(() => line(bez2([-0.06, 0.225], [0, 0.25], [0.06, 0.225], 14), 0.03));
   }
   // talking: the mouth changes on twos (the stage samples the voice envelope); 3 sizes, dark inside
@@ -215,5 +215,187 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
     const loc: P2[] = [...arc(16, -Math.PI / 2, Math.PI / 2).map((t) => [0.5 * Math.cos(t), 0.5 * Math.sin(t)] as P2), [-1.5, 0]];
     const q = loc.map(([u, v]) => [cx + D * (x0 + sz * (u * ca - v * sa)), cy + D * (y0 + sz * (u * sa + v * ca))] as P2);
     p.path(q, true); p.g.fillStyle = SWEAT; p.g.fill(); p.g.lineWidth = 0.016 * D; p.g.strokeStyle = V3_INK; p.g.stroke();
+  }
+};
+
+// =====================================================================================================================
+// HATS, HAIR AND CLOTHES (v3_lookdev.py cast: carpenter flat cap, foreman top hat, tourist ball cap, Sarah's hood):
+// every hat has a 3D look (elliptical base / top seen slightly from above, a gloss stroke); all in head-D units.
+// =====================================================================================================================
+import type { Outfit } from "./toon";
+type X2 = (x: number, y: number) => P2;
+const lin = (n: number, a: number, b: number) => Array.from({ length: n + 1 }, (_, i) => a + ((b - a) * i) / n);
+/** a filled, shaded, outlined piece of cloth (gradient light-left, x0.75 on the far side) */
+const cloth = (p: Pen, pts: P2[], col: string, light: number, D: number, ol = 0.048, gl?: [P2, P2], ga = 0.2) => {
+  p.gradFill(pts, col, v3cloth(col), light, 0.08);
+  if (gl) p.clip(pts, () => p.stroke([gl[0], gl[1]], 0.05 * D, `rgba(255,255,255,${ga})`));
+  if (ol) p.poly(pts, null, ol * D);
+};
+const flat = (p: Pen, pts: P2[], col: string, D: number, ol = 0) => { p.path(pts, true); p.g.fillStyle = col; p.g.fill(); if (ol) p.poly(pts, null, ol * D); };
+const ellX = (X: X2, cx: number, cy: number, rx: number, ry: number, n = 40) => lin(n, 0, Math.PI * 2).slice(0, -1).map((t) => X(cx + rx * Math.cos(t), cy + ry * Math.sin(t)));
+const B2 = (X: X2, a: P2, b: P2, c: P2, n = 16) => bez2(a, b, c, n).map(([x, y]) => X(x, y));
+const B3 = (X: X2, a: P2, b: P2, c: P2, d: P2, n = 24) => bez3(a, b, c, d, n).map(([x, y]) => X(x, y));
+const lighter = (c: string, k: number) => v3mul(c, [k, k, k]);
+
+/** side hair under a hat: a ragged band inside the head outline on the back side (front view: small sideburns) */
+const sideHair = (p: Pen, cx: number, hc: number, D: number, col: string, f: number) => {
+  if (f === 0) return;
+  const sides = [[f, 148, 236]];
+  p.clip(lin(40, 0, Math.PI * 2).map((t) => [cx + 0.475 * D * Math.cos(t), hc + 0.475 * D * Math.sin(t)] as P2), () => {
+    for (const [s, a0, a1] of sides) {
+      const X: X2 = (x, y) => [cx + x * D * -s, hc + y * D]; // the back side is opposite the facing side
+      const out = lin(24, a0, a1).map((a) => X(0.5 * Math.cos((a * Math.PI) / 180), 0.5 * Math.sin((a * Math.PI) / 180)));
+      const inn = lin(8, a1, a0).map((a, i) => { const r = i % 2 ? 0.42 : 0.34; return X(r * Math.cos((a * Math.PI) / 180), r * Math.sin((a * Math.PI) / 180)); });
+      flat(p, [...out, ...inn], col, D);
+      for (let i = 1; i <= 3; i++) { const a = ((a0 + ((a1 - a0) * i) / 4) * Math.PI) / 180; p.stroke([X(0.47 * Math.cos(a), 0.47 * Math.sin(a)), X(0.4 * Math.cos(a + 0.06), 0.4 * Math.sin(a + 0.06))], 0.016 * D, v3mul(col, [0.6, 0.6, 0.6])); }
+    }
+  });
+};
+
+/** HAIR as the "hat" (Rick's orange-haired guy): a hair cap over the top of the head with a fringe edge */
+const FRINGE: Record<string, P2[]> = {
+  parted: [[0.53, 0.02], [0.4, -0.14], [0.2, -0.22], [0.02, -0.15], [-0.2, -0.21], [-0.4, -0.12], [-0.53, 0.02]],
+  tousled: [[0.53, -0.02], [0.4, -0.2], [0.29, -0.13], [0.17, -0.24], [0.05, -0.15], [-0.07, -0.25], [-0.19, -0.16], [-0.31, -0.24], [-0.43, -0.12], [-0.53, -0.02]],
+  center: [[0.53, 0.16], [0.45, -0.02], [0.28, -0.19], [0.03, -0.28], [-0.03, -0.28], [-0.28, -0.19], [-0.45, -0.02], [-0.53, 0.16]],
+};
+const hairCap = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: number, light: number) => {
+  const col = o.hair ?? "#5a3b2a", s = f || 1, X: X2 = (x, y) => [cx + x * D * s, hc + y * D];
+  const kind = o.hairdo === "center" || o.hairdo === "braids" ? "center" : o.hairdo === "tousled" ? "tousled" : "parted";
+  if (o.hairdo === "braids") for (const k of [-1, 1]) for (let i = 0; i < 3; i++) cloth(p, ellX(X, k * 0.47, 0.22 + 0.17 * i, 0.075, 0.095), col, light, D, 0.03);
+  const top = lin(30, Math.PI + 0.12, 2 * Math.PI - 0.12).map((t) => X(0.535 * Math.cos(t), 0.535 * Math.sin(t)));
+  const fr = FRINGE[kind].map(([x, y]) => X(x, y));
+  cloth(p, [...top, ...fr], col, light, D, 0.044, [X(-0.3, -0.36), X(0.05, -0.47)], 0.22);
+  const dk = v3mul(col, [0.62, 0.62, 0.62]);
+  if (kind === "center") p.stroke([X(0, -0.5), X(0, -0.3)], 0.018 * D, dk);
+  else if (kind === "parted") p.stroke(B2(X, [0.18, -0.5], [0.2, -0.36], [0.12, -0.22], 10), 0.018 * D, dk);
+  else { cloth(p, [X(-0.04, -0.5), X(0.02, -0.66), X(0.1, -0.5)], col, light, D, 0.03); cloth(p, [X(0.08, -0.51), X(0.2, -0.62), X(0.2, -0.48)], col, light, D, 0.03); }
+  for (const [a, b, c] of [[[-0.35, -0.42], [-0.3, -0.3], [-0.22, -0.2]], [[0.35, -0.4], [0.33, -0.28], [0.3, -0.17]]] as [P2, P2, P2][]) p.stroke(B2(X, a, b, c, 8), 0.014 * D, dk);
+};
+
+/** behind the head: Sarah's hood + veil, bonnets */
+export const v3HatBehind = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: number, light: number): boolean => {
+  if (o.hat !== "hood" && o.hat !== "bonnet") return false;
+  const col = o.bonnet ?? (o.hat === "hood" ? "#3a3734" : "#cfae6e");
+  if (o.hat === "hood") for (const s of f === 0 ? [-1, 1] : [-f]) { // the veil hangs down the back
+    const X: X2 = (x, y) => [cx + x * D * s, hc + y * D];
+    const veil = [...B3(X, [0.16, -0.4], [0.66, -0.3], [0.8, 0.6], [0.58, 1.1], 30), X(0.3, 1.0), X(0.4, 0.2)];
+    p.path(veil, true); p.g.fillStyle = v3mul(col, [0.8, 0.8, 0.83]); p.g.fill(); p.poly(veil, null, 0.048 * D);
+  }
+  const X: X2 = (x, y) => [cx + x * D * (f || 1), hc + y * D];
+  cloth(p, ellX(X, f === 0 ? 0 : 0.05, -0.07, 0.61, 0.6, 48), col, light, D);
+  return true;
+};
+
+/** the hat (and the hair under it), drawn over the head */
+export const v3Hat = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: number, light: number): boolean => {
+  const s = f || 1, X: X2 = (x, y) => [cx + x * D * s, hc + y * D], col = o.cap ?? "#806e5a", hair = o.hair ?? "#3a281c";
+  const front = f === 0;
+  const visorFront = (drop: number, w: number, c: string) => cloth(p, [...B2(X, [-w, -0.2], [0, -0.16], [w, -0.2], 14), ...B2(X, [w + 0.02, -0.19], [0, drop], [-w - 0.02, -0.19], 14)], c, light, D);
+  switch (o.hat) {
+    case "hair": hairCap(p, o, cx, hc, D, f, light); return true;
+    case "hood": case "bonnet": {
+      const c2 = o.bonnet ?? (o.hat === "hood" ? "#3a3734" : "#cfae6e"), rib = o.ribbon ?? v3mul(c2, [0.82, 0.82, 0.82]);
+      if (o.hat === "bonnet" && o.hair) sideHair(p, cx, hc, D, o.hair, f);
+      cloth(p, [...B3(X, [-0.5, -0.16], [-0.46, -0.68], [0.5, -0.7], [0.53, -0.14], 30), ...B3(X, [0.42, -0.22], [0.36, -0.54], [-0.36, -0.52], [-0.4, -0.12], 30)], c2, light, D);
+      for (const k of [-1, 1]) flat(p, ellX(X, k * 0.075, 0.5, 0.075, 0.045, 24), rib, D, 0.022);
+      flat(p, ellX(X, 0, 0.5, 0.03, 0.03, 16), v3mul(rib, [0.85, 0.85, 0.85]), D);
+      return true;
+    }
+    case "cap": { // flat cap
+      sideHair(p, cx, hc, D, hair, f);
+      const base = lin(30, 0.56, -0.55).map((x) => X(x, -0.2 + 0.075 * Math.sqrt(Math.max(0, 1 - (x / 0.55) ** 2))));
+      const crown = [...B3(X, [-0.55, -0.18], [-0.66, -0.8], [0.58, -0.84], [0.56, -0.22], 40), ...base];
+      cloth(p, crown, col, light, D, 0.048, [X(-0.3, -0.66), X(0.05, -0.74)], 0.18);
+      p.clip(crown, () => p.stroke(B2(X, [-0.4, -0.26], [-0.05, -0.8], [0.42, -0.4], 20), 0.016 * D, v3mul(col, [0.62, 0.62, 0.62])));
+      flat(p, ellX(X, -0.02, -0.655, 0.05, 0.028, 20), v3mul(col, [0.75, 0.75, 0.75]), D, 0.02);
+      if (front) visorFront(-0.05, 0.44, v3mul(col, [0.86, 0.86, 0.86]));
+      else cloth(p, [...B3(X, [0.22, -0.17], [0.6, -0.3], [0.95, -0.24], [0.92, -0.15], 24), ...B2(X, [0.92, -0.15], [0.6, -0.1], [0.24, -0.08], 18)], v3mul(col, [0.86, 0.86, 0.86]), light, D);
+      return true;
+    }
+    case "ballcap": {
+      sideHair(p, cx, hc, D, hair, f);
+      const base = lin(30, 0.52, -0.53).map((x) => X(x, -0.17 + 0.07 * Math.sqrt(Math.max(0, 1 - (x / 0.52) ** 2))));
+      const crown = [...B3(X, [-0.53, -0.15], [-0.58, -0.84], [0.52, -0.86], [0.52, -0.17], 40), ...base];
+      cloth(p, crown, col, light, D, 0.048, [X(-0.32, -0.6), X(-0.08, -0.76)], 0.2);
+      p.clip(crown, () => { for (const g of [-0.18, 0.2]) p.stroke(B2(X, [g, -0.12], [g * 0.6, -0.5], [0, -0.67], 16), 0.016 * D, v3mul(col, [0.6, 0.6, 0.6])); });
+      flat(p, ellX(X, 0, -0.665, 0.05, 0.028, 20), v3mul(col, [0.8, 0.8, 0.8]), D, 0.02);
+      if (front) visorFront(0.0, 0.42, v3mul(col, [0.88, 0.88, 0.88]));
+      else cloth(p, [...B3(X, [0.25, -0.18], [0.62, -0.33], [1.02, -0.26], [1.0, -0.15], 24), ...B2(X, [1.0, -0.15], [0.64, -0.08], [0.28, -0.07], 18)], v3mul(col, [0.88, 0.88, 0.88]), light, D);
+      return true;
+    }
+    case "tophat": case "brim": case "straw": {
+      sideHair(p, cx, hc, D, o.hat === "tophat" ? o.hair ?? "#969490" : hair, f);
+      const c = o.hat === "straw" ? o.cap ?? "#d8bb72" : o.hat === "tophat" ? o.cap ?? "#363230" : col;
+      const by = o.hat === "straw" ? -0.23 : -0.25, top = o.hat === "tophat" ? -1.06 : o.hat === "straw" ? -0.58 : -0.8;
+      const bw = o.hat === "straw" ? 0.74 : o.hat === "tophat" ? 0.62 : 0.64, cw = o.hat === "straw" ? 0.35 : o.hat === "tophat" ? 0.31 : 0.36;
+      cloth(p, ellX(X, 0, by + 0.02, bw, o.hat === "straw" ? 0.13 : 0.12, 48), lighter(c, 1.1), light, D);
+      const base = lin(24, cw, -cw).map((x) => X(x, by + 0.055 * Math.sqrt(Math.max(0, 1 - (x / cw) ** 2))));
+      const crown = o.hat === "brim" ? [...B3(X, [-cw, by], [-cw - 0.05, top], [cw + 0.05, top], [cw, by], 30), ...base] : [X(-cw, by), X(-cw - 0.03, top), X(cw + 0.03, top), ...base];
+      cloth(p, crown, c, light, D, 0, [X(-0.17, top + 0.1), X(-0.15, by - 0.17)], 0.2);
+      const band = o.ribbon ?? (o.hat === "tophat" ? "#962c26" : v3mul(c, [0.55, 0.55, 0.58]));
+      p.clip(crown, () => { const hb = o.hat === "straw" ? 0.11 : 0.13; flat(p, [X(-1, by + 0.2), ...lin(24, -cw, cw).map((x) => X(x, by + 0.055 * Math.sqrt(Math.max(0, 1 - (x / cw) ** 2)) - hb)), X(1, by + 0.2)], band, D); });
+      if (o.hat === "straw") p.clip(crown, () => { for (const yy of [top + 0.1, top + 0.18]) p.stroke([X(-0.4, yy), X(0.4, yy)], 0.012 * D, v3mul(c, [0.78, 0.76, 0.7])); });
+      if (o.hat === "brim") p.clip(crown, () => p.stroke(B2(X, [-0.12, top + 0.1], [0, top + 0.18], [0.12, top + 0.1], 10), 0.02 * D, v3mul(c, [0.6, 0.6, 0.6])));
+      p.poly(crown, null, 0.048 * D);
+      if (o.hat !== "brim") { const tp = ellX(X, 0, top, cw + 0.03, o.hat === "straw" ? 0.075 : 0.07, 36); flat(p, tp, lighter(c, o.hat === "straw" ? 1.12 : 1.35), D, 0.035); }
+      return true;
+    }
+  }
+  return false;
+};
+
+/** clothes details INSIDE the body outline (clip to the torso first): plaid, aprons, braces, vests, logos, straps */
+export const v3WearIn = (p: Pen, o: Outfit, tcx: number, hc: number, D: number, f: number, light: number) => {
+  const s = f || 1, X: X2 = (x, y) => [tcx + x * D * s, hc + y * D];
+  if (o.plaid) { for (const yy of [0.62, 0.8, 1.0]) p.stroke([X(-0.5, yy), X(0.5, yy)], 0.022 * D, o.plaid); for (const xx of [-0.16, 0.14]) p.stroke([X(xx, 0.3), X(xx, 1.5)], 0.022 * D, o.plaid); }
+  if (o.vest && !o.dress) {
+    const vest = [X(-0.16, 0.42), X(0.16, 0.42), X(0.11, 1.2), X(-0.11, 1.2)];
+    cloth(p, vest, o.vest, light, D, 0.024);
+    for (const k of [-1, 1]) { const lap = [X(k * 0.16, 0.44), X(k * 0.28, 0.5), X(k * 0.14, 0.92)]; flat(p, lap, lighter(o.jacket, 1.22), D, 0.02); }
+    if (o.kit === "foreman") p.stroke(B2(X, [-0.11, 0.86], [0, 1.0], [0.11, 0.86], 12), 0.016 * D, "#e8c052");
+    for (let i = 0; i < 3; i++) p.dot(...X(0, 0.76 + 0.13 * i), 0.017 * D, o.buttons ?? "#5a4020");
+  } else if (o.buttons && !o.dress && !o.apron) for (let i = 0; i < 3; i++) p.dot(...X(0.02, 0.7 + 0.16 * i), 0.019 * D, o.buttons);
+  if (o.suspenders && !o.apron) for (const k of [-1, 1]) p.stroke([X(k * 0.2, 0.42), X(k * 0.18, 1.35)], 0.04 * D, o.suspenders);
+  if (o.apron && !o.dress) {
+    cloth(p, [X(-1, 0.94), X(1, 0.94), X(1, 2), X(-1, 2)], o.apron, light, D, 0);
+    p.stroke([X(-0.33, 0.94), X(0.33, 0.94)], 0.018 * D, V3_INK);
+    for (const k of [-1, 1]) p.stroke([X(k * 0.22, 0.94), X(k * 0.19, 0.48)], 0.032 * D, v3mul(o.apron, [0.86, 0.84, 0.8]));
+    flat(p, [X(-0.13, 1.05), X(0.13, 1.05), X(0.12, 1.22), X(-0.12, 1.22)], v3mul(o.apron, [0.92, 0.9, 0.88]), D, 0.02);
+    p.stroke([X(-0.06, 1.05), X(-0.065, 0.95)], 0.022 * D, "#78787e");
+  }
+  if (o.logo) { flat(p, [X(-0.11, 0.86), X(0.13, 0.86), X(0.13, 0.99), X(-0.11, 0.99)], "#faf4e8", D); p.stroke([X(-0.07, 0.925), X(0.09, 0.925)], 0.02 * D, o.jacket); }
+  if (o.pack) for (const k of [-1, 1]) p.stroke(B2(X, [k * 0.2, 0.46], [k * 0.27, 0.8], [k * 0.27, 1.15], 12), 0.05 * D, o.pack);
+};
+
+/** a backpack behind the body (tourists) */
+export const v3Pack = (p: Pen, o: Outfit, tcx: number, hc: number, D: number, f: number, light: number) => {
+  if (!o.pack) return;
+  const s = f || 1, X: X2 = (x, y) => [tcx + x * D * s, hc + y * D];
+  cloth(p, ellX(X, -0.3, 0.92, 0.17, 0.4, 40), o.pack, light, D);
+};
+
+/** details ON TOP of the body: collars, ties, kerchiefs, Sarah's lace collar + brooch + buttons, the tourist's camera */
+export const v3WearOn = (p: Pen, o: Outfit, tcx: number, hc: number, D: number, f: number, light: number) => {
+  const s = f || 1, X: X2 = (x, y) => [tcx + x * D * s, hc + y * D];
+  if (o.kit === "sarah") {
+    const col = [X(-0.25, 0.46), ...lin(18, Math.PI, 0).map((t) => X(0.25 * Math.cos(t), 0.46 + 0.15 * Math.sin(t))), X(0.25, 0.46)];
+    flat(p, col, o.collar ?? "#f0eadc", D, 0.024);
+    for (let i = 0; i < 7; i++) p.dot(...X(-0.21 + 0.07 * i, 0.47 + 0.11 * Math.sin((Math.PI * i) / 6)), 0.018 * D, "#dcd4c4");
+    p.dot(...X(0, 0.63), 0.047 * D, "#cea848"); p.dot(...X(0, 0.63), 0.027 * D, "#f0e2c8");
+    for (let i = 0; i < 5; i++) p.dot(...X(-0.02, 0.72 + 0.14 * i), 0.019 * D, o.buttons ?? "#ded4c0");
+    return;
+  }
+  if (o.shawl) { const sh = [X(-0.4, 0.44), X(0.4, 0.44), X(0.37, 0.7), X(0, 0.92), X(-0.37, 0.7)]; cloth(p, sh, o.shawl, light, D, 0.044); }
+  if (o.kerchief) flat(p, [X(-0.16, 0.45), X(0.16, 0.45), X(0, 0.64)], o.kerchief, D, 0.025);
+  else if (o.collar && !o.dress) flat(p, [X(-0.13, 0.42), X(0, 0.55), X(0.13, 0.42), X(0, 0.46)], o.collar, D, 0.02);
+  if (o.tie) {
+    if (o.kit === "foreman" || o.vest) flat(p, [X(-0.1, 0.48), X(0, 0.525), X(0.1, 0.48), X(0.1, 0.58), X(0, 0.535), X(-0.1, 0.58)], o.tie, D, 0.016);
+    else flat(p, [X(-0.035, 0.5), X(0.035, 0.5), X(0.05, 0.84), X(0, 0.91), X(-0.05, 0.84)], o.tie, D, 0.02);
+  }
+  if (o.dress && o.collar) flat(p, [X(-0.15, 0.44), X(0, 0.56), X(0.15, 0.44), X(0, 0.48)], o.collar, D, 0.02);
+  if (o.camera) {
+    p.stroke(B2(X, [-0.14, 1.1], [-0.2, 0.7], [0, 0.48], 12), 0.02 * D, "#28282c");
+    cloth(p, [X(-0.16, 1.1), X(0.1, 1.1), X(0.1, 1.28), X(-0.16, 1.28)], "#36363a", light, D, 0.025);
+    flat(p, ellX(X, -0.03, 1.19, 0.06, 0.06, 24), "#7896b4", D, 0.022);
   }
 };

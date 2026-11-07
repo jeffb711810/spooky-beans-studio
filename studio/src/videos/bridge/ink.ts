@@ -114,6 +114,7 @@ uniform float wNear;
 uniform float wFar;
 uniform float dNear;
 uniform float dFar;
+uniform float dOff;      // v3 26 deg lens: line widths keep the old camera's distances
 uniform float creaseScale;
 uniform float depthLo;
 uniform float depthHi;
@@ -147,7 +148,7 @@ vec3 viewPos(vec2 uv, float d) { vec2 n = uv * 2.0 - 1.0; return vec3(n.x * d / 
 // as DOTTED lines. A crease now needs the neighbour's face to be >= 2 px wide (the pixel beyond it has the same normal).
 float crease(vec3 n0, vec3 P0, float zc, vec2 uq, float zq, vec2 away) {
   vec4 nq = textureLod(tNormal, uq, 0.0);
-  if (nq.a < 0.5 || abs(zq - zc) > zc * depthLo) return 0.0;       // sky / depth jump: not a crease
+  if (nq.a < 0.5 || abs(zq - zc) > max(zc - dOff, 0.05) * depthLo) return 0.0;       // sky / depth jump: not a crease
   float k = 1.0 - smoothstep(cosHi, cosLo, dot(n0, nq.xyz));
   if (k <= 0.0) return 0.0;
   vec4 nb = textureLod(tNormal, uq + away, 0.0);
@@ -168,10 +169,10 @@ void main() {
     zm = min(zm, dist(tMainDepth, vUv - vec2(texel.x, 0.0)));
     zm = min(zm, dist(tMainDepth, vUv + vec2(0.0, texel.y)));
     zm = min(zm, dist(tMainDepth, vUv - vec2(0.0, texel.y)));
-    if (zm < zc * 0.985 - 0.03) { gl_FragColor = vec4(0.0); return; }
+    if (zm < zc - max(zc - dOff, 0.05) * 0.015 - 0.03) { gl_FragColor = vec4(0.0); return; }
   }
 
-  float t = clamp(log(zc / dNear) / log(dFar / dNear), 0.0, 1.0);
+  float t = clamp(log(max(zc - dOff, 0.05) / dNear) / log(dFar / dNear), 0.0, 1.0);
   float w = mix(wNear, wFar, t) * pxScale;           // silhouette line width (output px) at this distance, near side only
   float hc = 0.5 * w * creaseScale;                  // crease line half width (px), drawn on both faces
   float Wc = 1.0 / zc;
@@ -182,6 +183,7 @@ void main() {
   vec2 tx = vec2(texel.x, 0.0), ty = vec2(0.0, texel.y);
   bool sliver = (dot(textureLod(tNormal, vUv + tx, 0.0).xyz, n0) < 0.94 && dot(textureLod(tNormal, vUv - tx, 0.0).xyz, n0) < 0.94)
              || (dot(textureLod(tNormal, vUv + ty, 0.0).xyz, n0) < 0.94 && dot(textureLod(tNormal, vUv - ty, 0.0).xyz, n0) < 0.94);
+  float kz = max(zc - dOff, 0.05) / zc;
   for (int a = 0; a < 4; a++) {
     vec2 o1 = STEP[a] * texel;
     for (int r = 1; r <= RMAX; r++) {
@@ -193,7 +195,7 @@ void main() {
       float z1 = dist(tDepth, vUv - o), z2 = dist(tDepth, vUv + o);
       // depth jump: this pixel is in front of its neighbours (2nd difference of 1/z < 0; exactly 0 on planes)
       float s = (1.0 / z1 + 1.0 / z2 - 2.0 * Wc) / Wc;
-      eD = max(eD, smoothstep(depthLo, depthHi, -s) * cw);
+      eD = max(eD, smoothstep(depthLo * kz, depthHi * kz, -s) * cw); // kz: the 26 deg lens shrinks relative jumps by (z - dOff) / z
       // crease: normal turns towards a neighbour at the same depth
       if (ch > 0.0 && !sliver) eN = max(eN, max(crease(n0, P0, zc, vUv - o, z1, -o1), crease(n0, P0, zc, vUv + o, z2, o1)) * ch);
     }
@@ -327,7 +329,7 @@ export class InkPass extends Pass {
     this.maskMat = fs(MASK_FRAG, {
       tNormal: { value: this.rt.texture }, tDepth: { value: this.rt.depthTexture }, tMainDepth: { value: null },
       texel: { value: texel }, cNear: { value: 0.2 }, cFar: { value: 1500 }, p00: { value: 1 }, p11: { value: 1 },
-      wNear: { value: o.widthNear }, wFar: { value: o.widthFar }, dNear: { value: o.distNear }, dFar: { value: o.distFar },
+      wNear: { value: o.widthNear }, wFar: { value: o.widthFar }, dNear: { value: o.distNear }, dFar: { value: o.distFar }, dOff: { value: 0 },
       creaseScale: { value: o.creaseScale }, depthLo: { value: o.depthLo }, depthHi: { value: o.depthHi },
       cosLo: { value: Math.cos((o.angleLo * Math.PI) / 180) }, cosHi: { value: Math.cos((o.angleHi * Math.PI) / 180) },
       concaveGain: { value: o.concaveGain }, farOpacity: { value: o.farOpacity },
@@ -345,6 +347,8 @@ export class InkPass extends Pass {
     this.fsScene.add(this.quad);
   }
 
+  /** v3 26 deg lens: distance the camera backed off this frame (line widths are measured from the old camera) */
+  set lensOffset(d: number) { this.maskMat.uniforms.dOff.value = d; }
   /** live tuning, e.g. ink.set({ widthNear: 4.2, concaveGain: 0.5 }) */
   set(options: InkOptions) {
     const u = this.maskMat.uniforms;

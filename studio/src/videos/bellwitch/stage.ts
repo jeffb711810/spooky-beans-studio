@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { Pen, bodyFront, bodySide, FrontOpts, SideOpts, Expr, Pose, fxNote, fxPuff, fxContact } from "../bridge/toon";
 import { MAX, ROSA, GUS, SARAH } from "./cast";
 const WX = (x: number) => -900 + x, FX = (x: number) => -600 + x, MXv = (x: number) => -300 + x;
+import { v3Hat } from "../bridge/v3";
 import { ghostCard, blueprintCard, scrollCard, mapCard, magnifierCard, rollerCard } from "./fxart";
 import { WHS } from "./mansion";
 import { WP } from "./whprops";
@@ -29,6 +30,8 @@ export type Place = {
   scale?: number; mirror?: boolean; yaw?: number; roll?: number; size?: [number, number, number];
   /** squash & stretch: height x sy, width / sqrt(sy) (feet stay planted) */
   sy?: number;
+  /** v3 timing: the person and options that built this card (stage() re-draws it with the next frame's face) */
+  who?: Who; po?: PO; at?: V3;
 };
 export type FxPlace = { key: string; cw: number; ch: number; draw: (p: Pen) => void; x: number; y: number; z: number; w: number; h: number; soft?: boolean; rot?: number; glow?: number; flat?: boolean };
 export type Props = {
@@ -39,7 +42,7 @@ export type Props = {
   /** shot 11: the huddle quilt (lumps over the four laps) replaces the plain one */
   huddle: boolean;
 };
-export type CamInfo = { pos: THREE.Vector3; right: THREE.Vector3; sun: THREE.Vector3 };
+export type CamInfo = { pos: THREE.Vector3; right: THREE.Vector3; sun: THREE.Vector3; fov?: number };
 export type Stage = { places: Place[]; fx: FxPlace[]; props: Props; focus?: V3 };
 
 // ---------------- helpers ----------------
@@ -61,16 +64,17 @@ const tmp = new THREE.Vector3();
 type PO = FrontOpts & { sw?: number[]; bs?: number; scale?: number; roll?: number; side?: boolean; so?: SideOpts; mirror?: boolean; awake?: boolean; shut?: boolean; f: number; sy?: number };
 /** one character card; `awake: false` keeps the eyes shut (asleep) */
 const person = (cam: CamInfo, who: Who, x: number, y: number, z: number, o: PO): Place => {
-  const scale = o.scale ?? 1, d = cam.pos.distanceTo(tmp.set(x, y + 1.2 * scale, z)) / scale, [w, h, k] = tier(d);
+  const scale = o.scale ?? 1, d = cam.pos.distanceTo(tmp.set(x, y + 1.2 * scale, z)) / scale, [w, h, k] = tier(d, cam.fov ?? 38); // texture size from the real lens
   const mirror = !!o.mirror, light = light2D(cam, mirror && !!o.side);
-  const blink = o.awake === false || o.shut ? 1 : lidAt(o.f, who.seed * 7 + 101 * (o.bs ?? 0), o.sw ?? []); // bs: extras sharing an outfit blink out of sync
+  const talking = (o.talk ?? 0) > 0.04; // v3: NOBODY BLINKS WHILE THEY TALK
+  const blink = o.awake === false || o.shut ? 1 : talking ? 0 : lidAt(o.f, who.seed * 7 + 101 * (o.bs ?? 0), o.sw ?? []); // bs: extras sharing an outfit blink out of sync
   if (o.side) {
     const s2: SideOpts = { mode: "stand", ...o.so, light, seed: who.seed, blink };
-    return { key: `S|${who.k}|${fkey(s2)}`, x, y, z, scale, mirror, roll: o.roll, size: [w, h, k], sy: o.sy, draw: (p) => bodySide(p, who.o, s2) };
+    return { key: `S|${who.k}|${fkey(s2)}`, x, y, z, scale, mirror, roll: o.roll, size: [w, h, k], sy: o.sy, draw: (p) => bodySide(p, who.o, s2), who, po: o, at: [x, y, z] };
   }
   const { f: _f, sw: _sw, bs: _bs, scale: _s, roll: _r, side: _d, so: _so, mirror: _m, awake: _a, shut: _sh, sy: _sy, ...fo } = o;
   const f2: FrontOpts = { mode: "stand", ...fo, light, seed: who.seed, blink };
-  return { key: `F|${who.k}|${fkey(f2)}`, x, y, z, scale, mirror, roll: o.roll, size: [w, h, k], sy: o.sy, draw: (p) => bodyFront(p, who.o, f2) };
+  return { key: `F|${who.k}|${fkey(f2)}`, x, y, z, scale, mirror, roll: o.roll, size: [w, h, k], sy: o.sy, draw: (p) => bodyFront(p, who.o, f2), who, po: o, at: [x, y, z] };
 };
 /** expression timeline: [[frame, expr], ...] -> expr at f */
 const ex = (f: number, tl: [number, Expr][]): Expr => { let e = tl[0][1]; for (const [k, v] of tl) if (f >= k) e = v; return e; };
@@ -121,7 +125,7 @@ const stretch = (f: number, at: number, a = 0.13) => {
 };
 /** WINCHESTER acting layer (user: "more facial expression that matches the narrator talking", "fluid lip movements",
  *  "jumpy energetic emotions on top of the sad confused mad"): narrator-synced talk, hops, beat bounces, nods, trembles */
-const talkV = (f: number, a: number, b: number, g = 1.15) => (f >= a && f < b ? Math.min(1, (VENV[f] ?? 0) * g) * smooth((f - a) / 3) * (1 - smooth((f - b + 4) / 4)) : 0);
+const talkV = (f: number, a: number, b: number, g = 1.15) => (f >= a && f < b ? Math.min(1, (VENV[f - (f & 1)] ?? 0) * g) * smooth((f - a) / 3) * (1 - smooth((f - b + 4) / 4)) : 0);
 const hop = (f: number, at: number, h = 0.09, n = 10) => (f >= at && f < at + n ? h * Math.sin((Math.PI * (f - at)) / n) : 0);
 const bounce = (f: number, per: number, h: number, ph = 0) => h * Math.abs(Math.sin((Math.PI * (f + ph)) / per));
 const nod = (f: number) => 6 * Math.min(0.6, Math.max(0, (VENV[f] ?? 0) - (VENV[f - 3] ?? 0)));
@@ -131,7 +135,8 @@ const BEAT = 2 * Math.PI / 0.8 * 2;   // one beat of the score (2 hammer swings)
 const poseIn = (f: number, at: number, n = 5, until = 1e9, m = 6) => (f < at ? 0 : smooth((f - at) / n) * (1 - smooth((f - until) / m)));
 /** lip flap while the character speaks the given words ([start, end) frames): syllable-ish open / close, 5 levels */
 const talkAt = (f: number, words: [number, number][]) => {
-  for (const [a, b] of words) if (f >= a && f < b) return Math.round((0.25 + 0.75 * Math.abs(Math.sin(((f - a + 1) * Math.PI) / 4.6))) * 4) / 4;
+  const f2 = f - (f & 1); // v3: the mouth changes on twos
+  for (const [a, b] of words) if (f >= a && f < b) return Math.round((0.25 + 0.75 * Math.abs(Math.sin(((f2 - a + 1) * Math.PI) / 4.6))) * 4) / 4;
   return 0;
 };
 /** words each speaking character says (frames from words.json) */
@@ -166,7 +171,25 @@ const NIGHTSTAND_FLAME: V3 = [X0 - 0.3, 1.0, -2.72], CRATE_FLAME: V3 = [X0 + 3.5
 const SIT = 0.66; // card sole height when sitting up in bed (legs hidden in the mattress)
 const I = (x: number, y: number, z: number): V3 => [X0 + x, y, z];
 
+/** the doorman after his hat blew off (shot 103) */
+const DOORMAN_NOHAT: Who = { ...CREW.doorman, k: "doormanNH", o: { ...CREW.doorman.o, hat: "hair", hair: "#3a2a20", hairdo: "parted" } };
 export const stage = (f: number, s: Shot, cam: CamInfo): Stage => {
+  const next = stage0(f + 1, s, cam), cur = stage0(f, s, cam);
+  const pool = new Map<string, Place[]>();
+  for (const p of next.places) if (p.who && p.po) { const k = p.who.k; if (!pool.has(k)) pool.set(k, []); pool.get(k)!.push(p); }
+  cur.places = cur.places.map((p) => {
+    if (!p.who || !p.po || !p.at) return p;
+    const n = pool.get(p.who.k)?.shift();
+    if (!n || !n.po) return p;
+    const face = { expr: n.po.expr, look: n.po.look, browUp: n.po.browUp, tongue: n.po.tongue };
+    const so = p.po.so && n.po.so ? { ...p.po.so, expr: n.po.so.expr } : p.po.so;
+    if (face.expr === p.po.expr && face.look === p.po.look && face.browUp === p.po.browUp && so === p.po.so) return p;
+    const q = person(cam, p.who, p.at[0], p.at[1], p.at[2], { ...p.po, ...face, so });
+    return { ...q, y: p.y };
+  });
+  return cur;
+};
+const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
   const P: Place[] = [], F: FxPlace[] = [];
   const props: Props = { windows: [1, 1, 1, 1], quiltB: 0, chairDown: f >= 396 ? 1 : 0, /* John knocks it over in shot 5; it stays down (stood back up, its tall back blocked the huddle shot) */ johnLying: false, vial: f >= 1101, saucer: false, book: false, plates: false, lanterns: [], huddle: false };
   Object.assign(WHS, { scaffold: 0, tallTower: 0, fall: 0, lit: 1, doorNW: 0, bell: 0 }); Object.assign(WP, { seance: 0, crystal: 0, coins: 0, doorB: 0, candles: 0 });
@@ -672,7 +695,14 @@ export const stage = (f: number, s: Shot, cam: CamInfo): Stage => {
     case 103: { // the Door to Nowhere swings open; a worker steps out ... and windmills over the drop
       WHS.doorNW = smooth((f - 124) / 12);
       if (f >= 136) { const x = WX(17.55), y = 3.38, z = -0.1, wob = Math.sin(f * 0.9);
-        add(CREW.doorman, x, y + hop(f, 150, 0.13, 10), z, { f, expr: f < 150 ? "whistle" : "scream", look: 1, sy: stretch(f, 150, 0.16), roll: f < 150 ? 0 : 0.12 * wob, pose: f < 150 ? undefined : "up", pa: poseIn(f, 150, 3) });
+        // CHECKLIST 8: his hat blows off at the edge and tumbles down the two-story drop (the tilt down follows it)
+        const lost = f >= 156, who = lost ? DOORMAN_NOHAT : CREW.doorman;
+        if (lost && f < 192) {
+          const tt = Math.min(f - 156, 26) / 30, hy = Math.max(0.12, y + 1.55 + 1.6 * tt - 7.5 * tt * tt), hx = x + 0.55 * tt, ang = f < 182 ? (f - 156) * 0.45 : 0;
+          F.push(fx(`hatFall${Math.round(ang * 10)}`, 300, 300, (p) => { v3Hat(p, CREW.doorman.o, 150, 196, 230, 0, -2.1); }, hx, hy, z + 0.35, 0.42, 0.42, { rot: ang }));
+          if (f >= 182) { const q = qt((f - 182) / 10); F.push(fx(`hatPuff${q}`, 300, 300, (p) => fxPuff(p, q), hx, 0.2, z + 0.4, 0.9, 0.9, { soft: true })); }
+        }
+        add(who, x, y + hop(f, 150, 0.13, 10), z, { f, expr: f < 150 ? "whistle" : "scream", look: 1, sy: stretch(f, 150, 0.16), roll: f < 150 ? 0 : 0.12 * wob, pose: f < 150 ? undefined : "up", pa: poseIn(f, 150, 3) });
         if (f >= 150) { emoteFx({ x, y, z, b: "adult", roll: 0.12 * wob }, "bang", 150, 20, -1); sweatFx({ x, y, z, b: "adult" }, 152, 1); } }
       break;
     }
@@ -797,14 +827,29 @@ export const stage = (f: number, s: Shot, cam: CamInfo): Stage => {
     }
     case 126: { // 1922: night, scaffolding, hammering ... a window goes dark ... the hammering stops
       WHS.scaffold = 1; WHS.lit = f >= 1800 ? 0.84 : 1;
-      const stop = f >= 1885, hk = (ph: number) => (stop ? 0.25 : 0.5 + 0.5 * Math.sin(f * 0.8 + ph));
+      const stop = f >= 1903, hk = (ph: number) => (stop ? 0.62 : 0.5 + 0.5 * Math.sin(f * 0.8 + ph)); // "stops." (1903): the swing freezes mid-air
       add(CREW.nt1, WX(4.2), 3.3 + 0.02 * hk(0), 2.25, { f, expr: stop ? "sad" : "smile_closed", look: 1, prop: ["hammer", hk(0)] });
       add(CREW.nt2, WX(9.0), 6.5 + 0.02 * hk(1.7), 2.25, { f, expr: stop ? "sad" : "whistle", look: -1, prop: ["hammer", hk(1.7)] });
       add(CREW.nt3, WX(12.0), 3.3 + 0.02 * hk(3.1), 2.25, { f, expr: stop ? "sad" : "smile_closed", look: -1, prop: ["hammer", hk(3.1)] });
       props.lanterns.push([WX(5.2), 4.1, 2.75], [WX(10.2), 7.3, 2.75]);
       break;
     }
-    case 127: break; // the half-hammered nail (prop only)
+    case 127: { // "The workers leave so fast": three builders stampede out of the house straight at the camera (dust behind)
+      if (f < 1968) {
+        const RUN: [Who, number, number][] = [[CREW.lumber, -0.9, 1924], [CREW.roofer, 0.5, 1931], [CREW.glazier, 1.45, 1938]];
+        RUN.forEach(([who, x, f0], i) => {
+          if (f < f0) return;
+          const u = (f - f0) / 30, z = -6.6 + 8.2 * u;
+          if (z > 1.3) return;
+          add(who, FX(x + 0.25 * Math.sin(u * 9 + i)), 0, z, { f, mode: "march", phase: (f - f0) * 0.14, lift: 95, expr: i === 1 ? "terrified" : "scream", look: 0, pose: "up", pa: 1, tilt: (i % 2 ? -1 : 1) * 4 });
+          const q = qt(((f - f0) % 10) / 10);
+          F.push(fx(`puffRun${i}${q}`, 300, 300, (p) => fxPuff(p, q), FX(x), 0.15, z - 0.35, 0.8, 0.8, { soft: true }));
+        });
+      }
+      // "nails ...": the half-hammered nail glints
+      if (f >= 1974 && f < 1988) { const u = qt((f - 1974) / 14, 7); F.push(fx(`nailGlint${u}`, 400, 400, (p) => fxTwinkle(p, u, 1), FX(-4.42), 1.57, -7.37, 0.12, 0.12, { soft: true, glow: 1.6 })); }
+      break;
+    }
     case 128: { // the historian squints through a magnifier ... shrugs
       const x = FX(-2.45), z = -4.8;
       add(HISTORIAN, x, hop(f, 2068, 0.06, 9), z, { f, expr: f >= 2068 ? "nervous" : "suspicious", look: 0, pose: f >= 2068 ? "shrug" : "hold", pa: 1, headTilt: f < 2068 ? 3 * Math.sin(f * 0.15) : -6, sy: stretch(f, 2068, 0.1) });

@@ -93,3 +93,8 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
 - do better: update each character ONCE per frame, and only characters in the current shot/set (skip off-set ones)
 - Rick's frames spend 34% (a third) rebuilding faces -> our face cache (build once, then only rotate) removes that cost
 - (frame ref: dark tunnel scene, hammer-hit spark star on the hammer, tired face = droopy half lids + raised inner brows)
+- "stop drawing what nobody sees" (Rick's shadow.js fix):
+    if (skip?.has(ch)) continue;              // nobody sees him -> skip his update + shadow pass
+    for (const ch of off) ch.root.visible = false;   // off-shot characters hidden entirely
+    let E = cache.get(key);                   // face: draw once
+    if (cache.size >= 24) cache.delete(oldest);      // 24-face cache, evict oldest

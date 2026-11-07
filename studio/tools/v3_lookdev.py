@@ -135,48 +135,126 @@ class Char:
     def fpoly(self, pts, yaw): return self.poly([self.sph(u, v, yaw) for u, v in pts])
     def fstroke(self, pts, w, yaw, taper=False): return self.stroke([self.sph(u, v, yaw) for u, v in pts], w, taper)
 
-    def brow(self, bx, by, ang, sag, yaw, ln=0.09, w=0.05):
+    def brow(self, bx, by, ang, sag, yaw, ln=0.095, w=0.046, wavy=0.0):
+        """thick tapered brush stroke; ang > 0 turns it clockwise (y down)"""
         c = []
-        for t in np.linspace(-1, 1, 30):
-            u, v = ln * t, -sag * (1 - t * t)
+        for t in np.linspace(-1, 1, 34):
+            u, v = ln * t, -sag * (1 - t * t) + wavy * math.sin(t * math.pi * 1.5)
             c.append((bx + u * math.cos(ang) - v * math.sin(ang), by + u * math.sin(ang) + v * math.cos(ang)))
         self.paint(self.fstroke(c, w, yaw, taper=True), INK)
 
-    def face(self, yaw, e):
-        EX, EY = 0.130, 0.045
-        kind = {"smug": "lid", "deadpan": "lid", "angry": "lid", "worried": "dot", "neutral": "dot", "surprised": "ring"}[e]
+    # ---- eye shapes (face-plane coords in D, projected onto the sphere) ----
+    def eye_dot(self, ex, ey, yaw, w=0.09, h=0.12):
+        self.paint(self.fpoly([(ex + w / 2 * math.cos(t), ey + h / 2 * math.sin(t)) for t in arc(64)[:-1]], yaw), INK)
+
+    def eye_lid(self, ex, ey, yaw, ang=0.0, lw=0.19, dw=0.095, dh=0.075, lt=0.028):
+        """Rick's lidded eye: a long thin lid line with a small half-disc hanging under its middle"""
+        ca, sa = math.cos(ang), math.sin(ang); R = lambda u, v: (ex + u * ca - v * sa, ey + u * sa + v * ca)
+        self.paint(self.fpoly([R(dw / 2 * math.cos(t), dh * math.sin(t)) for t in arc(40, 0, math.pi)], yaw), INK)
+        self.paint(self.fstroke([R(-lw / 2, 0.004), R(0, -0.004), R(lw / 2, 0.004)], lt, yaw), INK)
+
+    def eye_ring(self, ex, ey, yaw, r=0.105, look=(0.0, 0.0), pr=0.03):
+        ring = [(ex + r * math.cos(t), ey + r * math.sin(t)) for t in arc(72)]
+        self.paint(self.fpoly(ring[:-1], yaw), WHITE); self.paint(self.fstroke(ring, 0.03, yaw), INK)
+        px, py = ex + look[0] * r * 0.5, ey + look[1] * r * 0.5
+        self.paint(self.fpoly([(px + pr * math.cos(t), py + pr * 1.1 * math.sin(t)) for t in arc(32)[:-1]], yaw), INK)
+
+    def eye_happy(self, ex, ey, yaw, w=0.13, h=0.05):
+        self.paint(self.fstroke([(ex + w / 2 * u, ey + 0.02 - h * (1 - u * u)) for u in np.linspace(-1, 1, 24)], 0.034, yaw), INK)
+
+    def eye_closed(self, ex, ey, yaw, w=0.13, droop=0.0):
+        self.paint(self.fstroke([(ex - w / 2, ey), (ex + w / 2, ey + droop)], 0.03, yaw), INK)
+
+    # ---- mouths ----
+    def mouth_line(self, pts, yaw, w=0.03): self.paint(self.fstroke(pts, w, yaw), INK)
+
+    def mouth_teeth(self, w, h, y0, yaw, lop=0.0, shape="crescent", n=6, grid=False, interior=False):
+        us = np.linspace(-1, 1, 40)
+        if shape == "crescent":                                         # sly grin, thin at the corners
+            top = [(w / 2 * u, y0 + 0.02 * (1 - u * u) - lop * u - 0.015 * u * u) for u in us]
+            bot = [(x, y + h * (1 - (2 * x / w) ** 2) ** 0.8) for x, y in top]
+        elif shape == "D":                                              # big grin: flat top, round bottom
+            top = [(w / 2 * u, y0 - lop * u) for u in us]
+            bot = [(x, y + h * math.sqrt(max(0.0, 1 - (2 * x / w) ** 2))) for x, y in top]
+        else:                                                           # gritted-teeth box
+            top = [(w / 2 * u, y0) for u in us]; bot = [(w / 2 * u, y0 + h) for u in us]
+        m = self.fpoly(top + bot[::-1], yaw)
+        if interior:                                                    # open laugh: dark inside, top teeth, tongue
+            self.paint(m, (60, 30, 34))
+            band = self.fpoly(top + [(x, y + h * 0.30) for x, y in top][::-1], yaw) & m; self.paint(band, WHITE)
+            self.paint(self.fpoly([(w * 0.22 * math.cos(t), y0 + h * 0.86 + h * 0.24 * math.sin(t)) for t in arc(40)[:-1]], yaw) & m, (226, 110, 116))
+            for i in range(1, n): x = -w / 2 + w * i / n; self.paint(self.fstroke([(x, y0 - 0.03), (x, y0 + h * 0.30)], 0.012, yaw) & band, INK)
+        else:
+            self.paint(m, WHITE)
+            for i in range(1, n): x = -w / 2 + w * i / n; self.paint(self.fstroke([(x, y0 - 0.06), (x, y0 + h + 0.06)], 0.012, yaw) & m, INK)
+            if grid: self.paint(self.fstroke([(-w / 2, y0 + h / 2), (w / 2, y0 + h / 2)], 0.012, yaw) & m, INK)
+        self.outline(m, 0.024)
+
+    # ---- emotion FX ----
+    def fx_sweat(self, drops):
+        for phi, r, sz in drops:                                        # teardrops flying off, tips toward the head
+            a = math.radians(phi); ca, sa = math.cos(a), math.sin(a); cx, cy = r * ca, r * sa
+            loc = [(0.5 * math.cos(t), 0.5 * math.sin(t)) for t in np.linspace(-math.pi / 2, math.pi / 2, 24)] + [(-1.5, 0.0)]
+            m = self.poly([(cx + sz * (u * ca - v * sa), cy + sz * (u * sa + v * ca)) for u, v in loc])
+            self.paint(m, (168, 214, 245)); self.outline(m, 0.016)
+
+    def fx_vein(self, cx, cy, yaw, s=0.075):
+        for a in (-0.5, 0.6, 2.1):                                      # stress squiggle on the forehead
+            p2 = (cx + s * math.cos(a), cy - s * math.sin(a)); p1 = (cx + 0.55 * s * math.cos(a + 0.6), cy - 0.55 * s * math.sin(a + 0.6))
+            self.paint(self.fstroke(bez2((cx, cy), p1, p2, 12), 0.02, yaw), INK)
+
+    def fx_blush(self, yaw, ey):
         for s in (-1, 1):
-            ex = s * EX
-            if kind == "dot":
-                self.paint(self.fpoly([(ex + 0.046 * math.cos(t), EY + 0.058 * math.sin(t)) for t in arc(64)[:-1]], yaw), INK)
-                by = EY - 0.165
-            elif kind == "lid":
-                top = EY - 0.03
-                self.paint(self.fpoly([(ex + 0.085 * math.cos(t), top + 0.095 * math.sin(t)) for t in arc(40, 0, math.pi)], yaw), INK)
-                drop = 0.014 if e != "angry" else -0.02                 # outer end of the lid a touch lower
-                self.paint(self.fstroke([(ex - s * 0.098, top - drop * 0.3), (ex, top - 0.004), (ex + s * 0.098, top + drop)], 0.034, yaw), INK)
-                by = top - 0.10
-            else:                                                       # startled: white rings, small pupils
-                cx, rr = s * 0.115, 0.105
-                ring = [(cx + rr * math.cos(t), EY - 0.01 + rr * math.sin(t)) for t in arc(72)]
-                self.paint(self.fpoly(ring[:-1], yaw), WHITE); self.paint(self.fstroke(ring, 0.03, yaw), INK)
-                self.paint(self.fpoly([(cx + 0.012 + 0.03 * math.cos(t), EY - 0.005 + 0.033 * math.sin(t)) for t in arc(32)[:-1]], yaw), INK)
-                by = EY - 0.205
-            # brows: thick tapered brush strokes that do the acting
-            if e == "worried": self.brow(s * 0.135, by + 0.01, s * 0.34, 0.015, yaw)
-            elif e == "angry": self.brow(s * 0.13, by + 0.035, -s * 0.40, 0.0, yaw)
-            elif e == "smug": self.brow(s * 0.135, by - (0.045 if s > 0 else 0.0), (0.10 if s > 0 else -0.06), 0.02, yaw)
-            elif e == "surprised": self.brow(s * 0.12, by, 0.0, 0.035, yaw, ln=0.08)
-            elif e == "deadpan": self.brow(s * 0.135, by + 0.01, -s * 0.05, 0.008, yaw)
-            else: self.brow(s * 0.135, by, 0.0, 0.02, yaw)
-        # mouth (0.03 D strokes)
-        if e == "surprised":
-            self.paint(self.fpoly([(0.0 + 0.034 * math.cos(t), 0.245 + 0.044 * math.sin(t)) for t in arc(40)[:-1]], yaw), INK)
-        elif e == "smug": self.paint(self.fstroke(bez3((-0.06, 0.232), (-0.01, 0.240), (0.05, 0.236), (0.085, 0.205), 24), 0.03, yaw), INK)
-        elif e == "deadpan": self.paint(self.fstroke([(-0.085, 0.228), (0.085, 0.226)], 0.03, yaw), INK)
-        elif e == "worried": self.paint(self.fstroke([(-0.045, 0.236), (-0.015, 0.228), (0.015, 0.236), (0.045, 0.228)], 0.028, yaw), INK)
-        elif e == "angry": self.paint(self.fstroke(bez2((-0.07, 0.245), (0.0, 0.215), (0.07, 0.245), 20), 0.03, yaw), INK)
-        else: self.paint(self.fstroke(bez2((-0.06, 0.218), (0.0, 0.245), (0.06, 0.218), 20), 0.03, yaw), INK)
+            m = self.fpoly([(s * 0.21 + 0.065 * math.cos(t), ey + 0.105 + 0.035 * math.sin(t)) for t in arc(40)[:-1]], yaw)
+            self.paint(np.clip(nd.gaussian_filter(m.astype(float), self.k * 0.012), 0, 1), (244, 152, 152), 0.6)
+
+    EXPRESSIONS = ["neutral", "deadpan", "smug", "scheming", "nervous", "stern", "startled", "panic", "laugh", "shifty", "worried", "tired"]
+
+    def face(self, yaw, e):
+        """Rick's face kit: the same face on everyone, expressions change the shapes (measured from his frames)"""
+        EX, EY, S = 0.122, 0.045, (-1, 1)
+        if e == "neutral":
+            for s in S: self.eye_dot(s * EX, EY, yaw); self.brow(s * 0.13, EY - 0.165, 0.0, 0.02, yaw)
+            self.mouth_line(bez2((-0.06, 0.225), (0.0, 0.25), (0.06, 0.225), 20), yaw)
+        elif e == "deadpan":
+            for s in S: self.eye_lid(s * EX, EY - 0.02, yaw)
+            self.brow(-0.13, EY - 0.135, 0.0, 0.01, yaw); self.brow(0.13, EY - 0.165, 0.10, 0.02, yaw)
+            self.mouth_line([(-0.11, 0.23), (0.11, 0.228)], yaw, 0.032)
+        elif e == "smug":
+            for s in S: self.eye_lid(s * EX, EY - 0.02, yaw, ang=0.06 * s)
+            self.brow(-0.13, EY - 0.13, -0.05, 0.01, yaw); self.brow(0.13, EY - 0.19, 0.16, 0.03, yaw)
+            self.mouth_line(bez3((-0.07, 0.235), (-0.01, 0.245), (0.06, 0.24), (0.10, 0.205), 24), yaw)
+        elif e == "scheming":
+            for s in S: self.eye_lid(s * EX, EY - 0.005, yaw, ang=-s * 0.30, dw=0.085, dh=0.06); self.brow(s * 0.13, EY - 0.115, -s * 0.42, 0.0, yaw)
+            self.mouth_teeth(0.38, 0.085, 0.20, yaw, lop=0.03, shape="crescent", n=7)
+        elif e == "nervous":
+            for s in S: self.eye_dot(s * EX, EY - 0.01, yaw, 0.085, 0.125); self.brow(s * 0.135, EY - 0.17, s * 0.34, 0.012, yaw)
+            self.mouth_teeth(0.40, 0.14, 0.19, yaw, shape="D", n=6)
+            self._sweat = [(-40, 0.66, 0.075), (215, 0.64, 0.06)]
+        elif e == "stern":
+            for s in S: self.eye_ring(s * 0.115, EY, yaw, r=0.095, pr=0.026); self.brow(s * 0.125, EY - 0.135, -s * 0.36, 0.0, yaw)
+            self.mouth_line([(-0.03, 0.235), (0.03, 0.235)], yaw, 0.03)
+        elif e == "startled":
+            for s in S: self.eye_ring(s * 0.115, EY - 0.01, yaw); self.brow(s * 0.12, EY - 0.20, s * 0.10, 0.035, yaw, ln=0.08)
+            self.paint(self.fpoly([(0.042 * math.cos(t), 0.25 + 0.055 * math.sin(t)) for t in arc(40)[:-1]], yaw), INK)
+        elif e == "panic":
+            for s in S: self.eye_ring(s * 0.118, EY - 0.01, yaw, r=0.112, pr=0.026)
+            self.brow(-0.13, EY - 0.20, 0.18, 0.02, yaw, wavy=0.012); self.brow(0.13, EY - 0.215, -0.10, 0.03, yaw, wavy=0.016)
+            self.mouth_teeth(0.15, 0.085, 0.215, yaw, shape="box", n=5, grid=True)
+            for s in S: self.mouth_line(bez2((s * 0.09, 0.30), (s * 0.115, 0.33), (s * 0.08, 0.36), 10), yaw, 0.016)
+            self.fx_vein(-0.30, -0.12, yaw); self._sweat = [(-35, 0.68, 0.075), (-5, 0.72, 0.06), (195, 0.68, 0.07), (160, 0.70, 0.055)]
+        elif e == "laugh":
+            for s in S: self.eye_happy(s * EX, EY - 0.01, yaw); self.brow(s * 0.13, EY - 0.16, s * 0.12, 0.03, yaw)
+            self.mouth_teeth(0.30, 0.16, 0.185, yaw, shape="D", n=6, interior=True); self.fx_blush(yaw, EY)
+        elif e == "shifty":
+            for s in S: self.eye_ring(s * 0.115, EY, yaw, look=(1.0, 0.1), pr=0.03)
+            self.mouth_teeth(0.34, 0.075, 0.205, yaw, lop=0.02, shape="crescent", n=7)
+        elif e == "worried":
+            for s in S: self.eye_dot(s * EX, EY, yaw); self.brow(s * 0.135, EY - 0.165, s * 0.34, 0.015, yaw)
+            self.mouth_line([(-0.05, 0.24), (-0.017, 0.23), (0.017, 0.24), (0.05, 0.23)], yaw, 0.028)
+        elif e == "tired":
+            for s in S: self.eye_closed(s * EX, EY, yaw, droop=0.012 * s); self.brow(s * 0.13, EY - 0.13, s * 0.28, 0.01, yaw)
+            self.mouth_line([(-0.025, 0.24), (0.025, 0.24)], yaw, 0.026)
 
     def hair(self, a0, a1, col, r_in=(0.34, 0.42), strands=3):
         out = [(0.5 * math.cos(math.radians(t)), 0.5 * math.sin(math.radians(t))) for t in np.linspace(a0, a1, 30)]
@@ -200,6 +278,7 @@ class Char:
             self.limb(pts + bez2(ank, (s * 0.185, SOLE), (s * 0.31, SOLE), 12)[1:])
 
     def done(self):
+        if getattr(self, "_sweat", None): self.fx_sweat(self._sweat); self._sweat = None   # FX go over hats
         img = np.dstack([np.clip(self.rgb, 0, 255), np.clip(self.a, 0, 1) * 255]).astype(np.uint8)
         pm = img.astype(float); pm[..., :3] *= pm[..., 3:4] / 255
         small = Image.fromarray(pm.astype(np.uint8), "RGBA").resize((self.W // SS, self.H // SS), Image.LANCZOS)
@@ -265,7 +344,7 @@ def carpenter(Dpx):
     handle = c.stroke([(hx - 0.02, hy + 0.10), tuple(tp)], 0.05); c.paint(handle, (166, 112, 62)); c.outline(handle, 0.025)
     hd = c.poly([tuple(tp + q * a * 0.16 + d * b * 0.055) for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1))]); c.grad(hd, (150, 156, 164), 1.6); c.outline(hd, 0.03)
     c.hand(hx, hy)
-    c.head(0.26 * f, "smug"); c.hair(148, 236, (58, 40, 28))
+    c.head(0.26 * f, "scheming"); c.hair(148, 236, (58, 40, 28))
     flat_cap(c, (128, 110, 90), f)
     return c.done()
 
@@ -310,7 +389,7 @@ def foreman(Dpx):
     colr = c.poly([(-0.13, 0.42), (0.0, 0.56), (0.13, 0.42), (0.0, 0.46)]); c.paint(colr, (244, 240, 230)); c.outline(colr, 0.02)
     bow = c.poly([(-0.10, 0.48), (0.0, 0.525), (0.10, 0.48), (0.10, 0.58), (0.0, 0.535), (-0.10, 0.58)]); c.paint(bow, INK)
     c.limb(bez2((-0.31, 0.72), (-0.58, 0.66), (-0.78, 0.42), 20)); c.hand(-0.79, 0.41)
-    c.head(0.26 * f, "neutral"); c.hair(-34, 22, (150, 148, 144))
+    c.head(0.26 * f, "stern"); c.hair(-34, 22, (150, 148, 144))
     top_hat(c)
     return c.done()
 
@@ -329,7 +408,7 @@ def tourist(Dpx):
     c.paint(c.ell(-0.03, 1.19, 0.06, 0.06), (120, 150, 180)); c.outline(c.ell(-0.03, 1.19, 0.06, 0.06), 0.022)
     c.paint(c.stroke(bez2((-0.14, 1.10), (-0.2, 0.7), (0.0, 0.48), 16), 0.02), (40, 40, 44))
     c.limb(bez2((0.30, 0.72), (0.64, 0.58), (0.70, 0.16), 20)); c.hand(0.70, 0.14)
-    c.head(0.26 * f, "surprised"); c.hair(152, 234, (128, 80, 42))
+    c.head(0.26 * f, "panic"); c.hair(152, 234, (128, 80, 42))
     ball_cap(c, (48, 112, 184), f)
     return c.done()
 
@@ -401,8 +480,21 @@ def grade(c, g=DAY):
     return np.clip(src + (np.clip(c, 0, 1) - src) * g["amount"], 0, 1)
 
 
+def expression_sheet(out, D=210):
+    from PIL import ImageFont
+    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 30)
+    cw, ch = 360, 420; sheet = Image.new("RGB", (cw * 4, ch * 3), (237, 233, 226)); dr = ImageDraw.Draw(sheet)
+    for i, e in enumerate(Char.EXPRESSIONS):
+        c = Char(D, left=-0.82, right=0.82, top=-0.82, bottom=0.82); c.head(0.18, e)
+        img = Image.fromarray(c.done()[0], "RGBA"); x0, y0 = (i % 4) * cw, (i // 4) * ch
+        sheet.paste(img, (x0 + (cw - img.size[0]) // 2, y0 + 12), img)
+        tw = dr.textlength(e, font=font); dr.text((x0 + (cw - tw) / 2, y0 + ch - 58), e, fill=(35, 24, 16), font=font)
+    sheet.save(out)
+
+
 if __name__ == "__main__":
     # group shot (screen x of the feet, ground depth z)
     main(sys.argv[1], sys.argv[2], [(carpenter, 198, 32.4), (sarah, 440, 25.8), (foreman, 650, 30.6), (tourist, 890, 28.2)])
+    if len(sys.argv) > 4: expression_sheet(sys.argv[4])
     if len(sys.argv) > 3:   # medium two-shot like Rick's thumbnails: closer, feet out of frame
         main(sys.argv[1], sys.argv[3], [(foreman, 800, 37.2), (carpenter, 255, 37.9)])

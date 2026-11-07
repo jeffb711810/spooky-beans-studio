@@ -40,3 +40,8 @@ Unit: 1 D = head width. Everything measured in D.
   centre-line the face FLIPS to the other side in ONE frame (3/4-left -> 3/4-right, cartoon-style snap)
 - past 95% the face TURNS OFF: once the face is turned more than 95% of the way away from camera (toward the
   silhouette edge / back of head), hide it completely instead of drawing a squashed sliver on the rim
+## Camera: every shot uses one of 3 moves (Rick's originals all move the same way)
+1. PUSH-IN: camera travels straight toward the subject
+2. ORBIT: camera arcs around the subject (keeps looking at it) - this is when the face flip happens
+3. WHIP: fast move that STOPS IN 1 FRAME - no settle, no wobble, no ease-out at the end
+- example frame: low camera skimming along the rails/structure, strong perspective, warm low sun

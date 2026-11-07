@@ -54,3 +54,5 @@ Unit: 1 D = head width. Everything measured in D.
 - orbit(center, { az0: -44, az1: 55, el: 17.5 })   -> azimuth -44 deg to +55 deg (= 99 deg arc), elevation 17.5 deg
 - if (K[i].stop) return 0;  // whip lands: hard stop (zero velocity in 1 frame)
 - shake: nz = sin(t*4.59)*.5 + sin(t*8.61)*.3 + ...  (sum of incommensurate sines = handheld noise)
+## 5 camera styles (built on top of the 3 moves) - details TBD from user
+1. Dread Cuts  2. One Take  3. Found Footage  4. The Watcher  5. Through the Steel

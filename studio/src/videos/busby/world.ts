@@ -16,7 +16,7 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { buildFoyer } from "./foyer";
 import { buildMansion, mansionMood } from "./mansion";
 import { buildProps, propsApply } from "./whprops";
-import { buildMuseum, buildBench } from "./hero";
+import { buildMuseum, buildBench, heroApply } from "./hero";
 import { buildPub, pubApply } from "./pub";
 import { logsTex, quiltTex, shinglesTex, dirtTex, tickingTex, stoneTex, moonTex, rugTex, samplerTex, pageTex, doorTex } from "./textures";
 import { Atmos, halo, pool, cobwebTex } from "./fx3d";
@@ -1021,7 +1021,7 @@ export class World {
     // ---- light + atmosphere layer ----
     this.atmos.update(f, outside, cam, this.moonFor(s), s.id, [1, 19, 24, 25].includes(s.id), s.id >= 24);
     const DAY = s.mood === "day" || (getInputProps() as { day?: boolean }).day; if (DAY) this.atmos.group.visible = false; // daylight: no moon / night clouds
-    mansionMood(DAY ? "day" : s.light === "night" ? "night" : "int"); propsApply(); pubApply();
+    mansionMood(DAY ? "day" : s.light === "night" ? "night" : "int"); propsApply(); pubApply(); heroApply();
     this.winGlow.forEach((g, i) => {
       const on = st.props.windows[i] ?? 0; g.h.visible = g.p.visible = outside && on > 0.05;
       g.h.material.opacity = on; (g.p.material as THREE.MeshBasicMaterial).opacity = on;

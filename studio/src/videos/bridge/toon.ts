@@ -1217,6 +1217,7 @@ export type FrontOpts = {
   pose?: Pose; pa?: number; ps?: -1 | 1;
   /** lip flap 0..1 while the character talks (overrides the expression's mouth) */
   talk?: number;
+  seatM?: number; // sitting on a chair: seat height in metres (feet stay on the floor, the hips rest on the seat)
   /** extra raise (u) of the facing-side brow */
   browUp?: number;
 };
@@ -1268,7 +1269,7 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   const tall = (1 + Bd.torso + Bd.legs) * HH, sole = 975;
   // body bob 5 % (march) / 3 % (stroll) of the height, lowest at contact (phase 0 and 0.5)
   const bob = mode === "march" ? 0.025 * tall * Math.cos(2 * two * phase) : mode === "stroll" ? 0.015 * tall * Math.cos(2 * two * phase) : 0;
-  const torsoBot = mode === "sit" ? sole - 0.2 * HH : sole - Bd.legs * HH + bob;
+  const torsoBot = mode === "sit" ? sole - (opts.seatM ? opts.seatM / 0.002219 : 0.2 * HH) : sole - Bd.legs * HH + bob;
   const chin = torsoBot - Bd.torso * HH, hc = chin - H.b, crown = hc - H.b, hipY = torsoBot - 0.12 * HH;
   const thick = thickOf(light), ow = 5 * u;
   const legCol = STYLE.v3 ? INK : o.limb ?? mix(o.pants, INK, 0.55), armCol = STYLE.v3 ? INK : o.limb ?? mix(o.jacket, INK, 0.5), footCol = STYLE.v3 ? INK : o.boots;
@@ -1278,7 +1279,7 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   if (opts.bust) { /* lying under a quilt: no legs */ }
   else if (mode === "sit") {
     for (const side of [-1, 1]) {
-      const h: P2 = [300 + side * 15 * u, hipY], k: P2 = [300 + side * 36 * u, hipY + 0.2 * HH], f: P2 = [300 + side * 44 * u, sole - 8 * u];
+      const ch = !!opts.seatM, h: P2 = [300 + side * 15 * u, hipY], k: P2 = ch ? [300 + side * 30 * u, hipY + 0.1 * HH] : [300 + side * 36 * u, hipY + 0.2 * HH], f: P2 = ch ? [300 + side * 36 * u, sole - 5 * u] : [300 + side * 44 * u, sole - 8 * u];
       p.stroke(curve(h, k, f), legW, legCol);
       footStroke(p, [f[0] - side * 2 * u, f[1]], [f[0] + side * 12 * u, f[1] - 5 * u], footW, footCol);
     }

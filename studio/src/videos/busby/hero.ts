@@ -16,6 +16,19 @@ import { parquetTex, stoneTex } from "./textures";
 export const BX = 600; // museum: back wall z = -3, the chair's seat top at y = SEAT_Y
 export const CX = 640; // forgers' bench: top at y = BENCH_Y, centred on z = 0
 export const SEAT_Y = 2.38, BENCH_Y = 0.9;
+/** per-frame state set by the staging: the museum chair's offset (it is hoisted onto the shelf), the ladder, the coin tumble */
+export const MUS = { dy: 0, dz: 0, rx: 0, on: 1, ladder: 0 };
+export const BENCH = { t: 0 };
+let MCHAIR: THREE.Group | null = null, MLADDER: THREE.Group | null = null; const HERO_COINS: THREE.Mesh[] = [];
+export const heroApply = () => {
+  if (MCHAIR) { MCHAIR.visible = MUS.on > 0; MCHAIR.position.set(BX, SEAT_Y + MUS.dy, -3 + 0.31 + MUS.dz); MCHAIR.rotation.set(MUS.rx, 0, 0); }
+  if (MLADDER) MLADDER.visible = MUS.ladder > 0;
+  HERO_COINS.forEach((c, i) => { // out of the mould cavities, a hop each, onto the pile (staggered)
+    const u = Math.max(0, Math.min(1, BENCH.t * 1.6 - i * 0.2)), a = c.userData.a as number[], b = c.userData.b as number[];
+    c.position.set(a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u + 0.09 * Math.sin(Math.PI * u), a[2] + (b[2] - a[2]) * u);
+    c.rotation.set(Math.PI * 2 * u * (i % 2 ? 1 : -1) + (u >= 1 ? 0 : 0), i * 1.3, 0.3 * Math.sin(Math.PI * u)); c.visible = BENCH.t > 0 || i < 2;
+  });
+};
 export const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 export const R01 = (seed: number) => { let s = seed >>> 0 || 1; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); };
 
@@ -342,7 +355,11 @@ export const buildMuseum = (R: THREE.Object3D) => {
     const m = new THREE.Mesh(cone, new THREE.MeshBasicMaterial({ map: tx, color: new THREE.Color(0.32, 0.27, 0.2), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false }));
     m.position.copy(spot).addScaledVector(tgt.clone().sub(spot).normalize(), 0.24); m.quaternion.setFromUnitVectors(V(0, -1, 0), tgt.clone().sub(spot).normalize()); m.layers.set(NOINK); m.renderOrder = 1; g.add(m); }
   // THE CHAIR on its shelf, back against the wall
-  const chair = buildChair(); chair.position.set(x0, SEAT_Y, zW + 0.31); g.add(chair);
+  const chair = buildChair(); chair.position.set(x0, SEAT_Y, zW + 0.31); g.add(chair); MCHAIR = chair;
+  { const L = new THREE.Group(), lb = new Batch(); // the workers' wooden step ladder, leaning on the wall right of the shelf
+    for (const sx of [-0.2, 0.2]) lb.add(new THREE.BoxGeometry(0.05, 2.6, 0.06).translate(sx, 1.3, 0), M.oak);
+    for (let k = 0; k < 8; k++) lb.add(new THREE.CylinderGeometry(0.018, 0.018, 0.4, 10).rotateZ(Math.PI / 2).translate(0, 0.3 + k * 0.3, 0), M.oak);
+    lb.build(L, true); L.position.set(x0 + 0.62, 0, zW + 0.42); L.rotation.x = -0.16; g.add(L); MLADDER = L; L.visible = false; }
   R.add(g);
 };
 
@@ -386,6 +403,10 @@ export const buildBench = (R: THREE.Object3D) => {
     coinAt(x, y0 + ct / 2 + (tilt ? 0.006 : 0) + (i % 5 === 0 ? ct : 0), z, flip + tilt, r() * 6.3, tilt * 0.5);
   }
   coinAt(0.115, y0 + cr, 0.06, Math.PI / 2, 0.5, 0.18); // one coin rolling on its edge
+  for (let i = 0; i < 4; i++) { // fresh fakes: from the mould onto the pile (BENCH.t)
+    const m = new THREE.Mesh(coinGeo, [M.edge, M.face0, M.face1]); m.castShadow = true;
+    m.userData.a = [x0 + 0.24, y0 + 0.04 + i * 0.004, -0.17 + (i % 2) * 0.06]; m.userData.b = [x0 + 0.03 + i * 0.03, y0 + 0.05 + i * 0.0035, 0.02 + (i % 2) * 0.03];
+    g.add(m); HERO_COINS.push(m); }
   // leather pouch (lathe sack) with a tied neck, lying on its side, mouth toward the spill
   { const p = new THREE.LatheGeometry([[0, 0], [0.04, 0.005], [0.065, 0.03], [0.072, 0.07], [0.06, 0.11], [0.03, 0.13], [0.022, 0.14], [0.03, 0.155], [0.036, 0.17], [0.03, 0.172]].map(([a, c]) => new THREE.Vector2(a, c)), 26);
     const m = new THREE.Mesh(p, M.leather); m.rotation.set(0, 0, -Math.PI / 2 + 0.25); m.position.set(x0 - 0.33, y0 + 0.062, -0.07); m.rotateY(0.3); m.castShadow = true; g.add(m);

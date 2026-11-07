@@ -20,12 +20,16 @@ export const PX = 680;
 /** the chair's place in the pub (floor point under the seat centre; facing = rotation about y) */
 export const PUB_CHAIR = { x: -2.75, z: -2.2, ry: 0.7 };
 /** per-frame state, set by the staging; pubApply() applies it */
-export const PUB = { era: 2, chair: 1, fire: 1 };
+export const PUB = { era: 2, chair: 1, fire: 1, lamps: 1, rock: 0, dx: 0, dz: 0, tilt: 0, out: 0, night: 0 };
+/** outside the door / windows: 0 day sky, 1 red dusk, 2 night */
+const OUTSIDE: THREE.Mesh[][] = [[], [], []]; const NIGHTWIN: THREE.Object3D[] = [];
 const ERA: THREE.Group[] = [new THREE.Group(), new THREE.Group(), new THREE.Group()];
 let PCHAIR: THREE.Group | null = null; const FIRE: THREE.Object3D[] = [];
 export const pubApply = () => {
-  ERA.forEach((g, i) => (g.visible = i === PUB.era));
-  if (PCHAIR) PCHAIR.visible = PUB.chair > 0;
+  ERA.forEach((g, i) => (g.visible = i === PUB.era && PUB.lamps > 0));
+  if (PCHAIR) { PCHAIR.visible = PUB.chair > 0; PCHAIR.position.set(PX + PUB_CHAIR.x + PUB.dx, 0.44 + 0.03 * Math.abs(PUB.tilt), PUB_CHAIR.z + PUB.dz); PCHAIR.rotation.set(PUB.tilt, PUB_CHAIR.ry, PUB.rock); }
+  OUTSIDE.forEach((l, i) => l.forEach((m) => (m.visible = i === PUB.out)));
+  NIGHTWIN.forEach((o) => (o.visible = PUB.night > 0));
   FIRE.forEach((o) => (o.visible = PUB.fire > 0));
 };
 
@@ -295,6 +299,16 @@ export const buildPub = (R: THREE.Object3D) => {
   { const rug = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.0).rotateX(-Math.PI / 2), lam("pbRug", () => ({ map: rugTex() }))); rug.position.set(x0 + W - 1.2, 0.006, fz); rug.rotation.y = Math.PI / 2; rug.receiveShadow = true; g.add(rug); }
   b.add(turned([[0, 0], [0.16, 0], [0.16, 0.03], [0.03, 0.06], [0.022, 0.3], [0.028, 0.6], [0.022, 0.95], [0.04, 0.97], [0, 1]], V(x0 - W + 0.35, 0, 2.9), V(x0 - W + 0.35, 1.85, 2.9), 20), M.mahogV); // coat stand
   for (let k = 0; k < 4; k++) { const a = k * 1.5708 + 0.4; b.add(turned([[0, 0], [0.012, 0], [0.01, 0.7], [0.018, 0.9], [0, 1]], V(x0 - W + 0.35, 1.7, 2.9), V(x0 - W + 0.35 + Math.cos(a) * 0.16, 1.82, 2.9 + Math.sin(a) * 0.16), 10), M.brass); }
+  // ---- the front door (front wall, left): frame, an open leaf, the outside (day / dusk / night) ----
+  { const dx0 = -2.5, dx1 = -1.55, zf = ZF - 0.01;
+    b.add(rb(dx0 - 0.12, 0, zf - 0.08, dx0, 2.2, zf, 0.01), M.beam); b.add(rb(dx1, 0, zf - 0.08, dx1 + 0.12, 2.2, zf, 0.01), M.beam); b.add(rb(dx0 - 0.12, 2.2, zf - 0.08, dx1 + 0.12, 2.34, zf, 0.01), M.beam);
+    b.add(new THREE.BoxGeometry(0.06, 2.18, 0.86).translate(x0 + dx0 + 0.03, 1.09, zf - 0.47), M.mahogV);
+    const cols = ["#9fd0f0", "#e2583a", "#1c2a4a"];
+    cols.forEach((c, i) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(dx1 - dx0, 2.2), new THREE.MeshBasicMaterial({ color: new THREE.Color(c).multiplyScalar(i === 2 ? 1 : 1.25), side: THREE.DoubleSide }));
+      m.position.set(x0 + (dx0 + dx1) / 2, 1.1, zf - 0.004); m.rotation.y = Math.PI; m.layers.set(NOINK); g.add(m); OUTSIDE[i].push(m); });
+    for (const zc of [-0.75, 1.55]) { const n = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 1.02), new THREE.MeshBasicMaterial({ color: new THREE.Color("#1b2748") })); n.rotation.y = Math.PI / 2; n.position.set(x0 - W - 0.08, 1.55, zc); n.layers.set(NOINK); g.add(n); NIGHTWIN.push(n);
+      const moon = new THREE.Mesh(new THREE.CircleGeometry(0.09, 24), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 2.2, 1.9) })); moon.rotation.y = Math.PI / 2; moon.position.set(x0 - W - 0.07, 1.8, zc + 0.2); moon.layers.set(NOINK); g.add(moon); NIGHTWIN.push(moon); }
+  }
   b.build(g, true);
   // ---- era lights (switch per shot) ----
   const glow = (grp: THREE.Group, p: THREE.Vector3, col: THREE.Color, s: number, flameCol = new THREE.Color(3.2, 2.1, 0.8)) => {

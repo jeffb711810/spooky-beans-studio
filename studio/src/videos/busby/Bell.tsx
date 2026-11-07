@@ -20,7 +20,7 @@ import { LensBlur } from "../bridge/lensblur";
 import { GradeEffect } from "../bridge/grade";
 import { GRADE_NIGHT_BW, GRADE_CANDLE, GRADE_STRENGTH, BLOOM } from "./grade";
 import { World } from "./world";
-import { TOTAL, shotAtT, flashAt, camAt, focusAt, cInfAt, WHIP_PXF, isCut } from "./story";
+import { TOTAL, shotAtT, flashAt, blackAt, camAt, focusAt, cInfAt, WHIP_PXF, isCut } from "./story";
 import { CAPTIONS } from "./captions";
 import { lookOv, ov, tailOf, lookFor } from "./look";
 import "@fontsource/montserrat/800.css";
@@ -203,8 +203,9 @@ export const BellWitch: React.FC = () => {
         <Inner kit={kit} />
       </ThreeCanvas>
       {flash > 0 && <AbsoluteFill style={{ background: "#ffffff", opacity: flash }} />}
+      {blackAt(f) > 0 && <AbsoluteFill style={{ background: "#000000" }} />}
       {(getInputProps() as { captions?: boolean }).captions !== false && <Captions f={f} />}
-      {(getInputProps() as { withAudio?: boolean }).withAudio && <Audio src={staticFile("winchester_mix.wav")} />}
+      {(getInputProps() as { withAudio?: boolean }).withAudio && <Audio src={staticFile("busby_mix.wav")} />}
     </AbsoluteFill>
   );
 };

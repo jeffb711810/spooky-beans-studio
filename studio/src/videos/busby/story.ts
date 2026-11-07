@@ -5,8 +5,9 @@
 // impact kicks that flip sign every frame and decay over 7 f. Composition: head tops ~0.2-0.35 of the frame, eyes on the
 // upper third, no faces cut by the frame edge, focus (lens blur) on the eyes in close-ups, wides sharp.
 export const FPS = 30;
-export const TOTAL = 690; // BUSBY look-dev
-const BXv = 600, CXv = 640, PXv = 680; // hero.ts BX / CX (story.ts must not import three-heavy modules)
+export const TOTAL = 1826; // THE CHAIR: voice f6-1814 + tail; loops
+const BXv = 600, CXv = 640, PXv = 680;
+const MU = (x: number, y: number, z: number): V3 => [600 + x, y, z], PB = (x: number, y: number, z: number): V3 => [680 + x, y, z], BN = (x: number, y: number, z: number): V3 => [640 + x, y, z]; // hero.ts BX / CX (story.ts must not import three-heavy modules)
 export type V3 = [number, number, number];
 export const X0 = 200; // bedroom centre x
 export const GRAVE: V3 = [-34, 0, -26];
@@ -28,7 +29,7 @@ export type Key = {
   cInf?: number;   // lens blur override for this key (glides with the move: blurred close-up -> sharp wide)
 };
 export type Shot = {
-  id: number; a: number; b: number; light: Light; keys: Key[]; mood?: "day" | "dayInt" | "night" | "candle" | "pubDay";
+  id: number; a: number; b: number; light: Light; keys: Key[]; mood?: "day" | "dayInt" | "night" | "candle" | "pubDay" | "pubNight";
   creep?: number;      // push-in per frame as a fraction of the camera-target distance (0.0025 = 0.25 %/f)
   cInf?: number;       // lens blur: CoC (px at 1080 wide) of things at infinity, 0 = sharp; keys may override it (cInfAt)
   focus?: V3;          // focus point (default: the key focus, else the look target)
@@ -54,26 +55,76 @@ const Wv = (x: number, y: number, z: number): V3 => [-900 + x, y, z];
 const Fv = (x: number, y: number, z: number): V3 => [-600 + x, y, z];
 const Mv = (x: number, y: number, z: number): V3 => [-300 + x, y, z];
 export const SHOTS: Shot[] = [
-  // BUSBY LOOK-DEV (hero props): 901 the museum wall, low and rising; 902 the chair close (orbit past the wheel splat);
-  // 903 the forgers' bench macro (push to the coin on its edge)
-  { id: 901, a: 0, b: 120, light: "candle", mood: "dayInt", cInf: 0, keys: [{ f: 0, pos: [BXv - 0.55, 0.62, 0.9], look: [BXv, 2.3, -2.7], fov: 36 },
-    { f: 119, glide: 119, pos: [BXv - 0.25, 0.95, 0.05], look: [BXv, 2.35, -2.7], fov: 36 }] },
-  { id: 902, a: 120, b: 240, light: "candle", mood: "dayInt", cInf: 8, keys: [{ f: 120, pos: [BXv + 0.62, 2.62, -1.78], look: [BXv + 0.02, 2.68, -2.72], fov: 34 },
-    { f: 239, glide: 119, pos: [BXv + 0.28, 2.5, -1.68], look: [BXv, 2.7, -2.74], fov: 34 }] },
-  { id: 903, a: 240, b: 360, light: "candle", mood: "candle", cInf: 16, keys: [{ f: 240, pos: [CXv + 0.16, 1.16, 0.42], look: [CXv + 0.02, 0.92, 0.03], fov: 32 },
-    { f: 359, glide: 119, pos: [CXv + 0.12, 1.06, 0.3], look: [CXv + 0.06, 0.925, 0.05], fov: 32 }] },
-  // 904 the pub wide (from the door side, the chair's corner + bar + window)
-  { id: 904, a: 360, b: 420, light: "candle", mood: "pubDay", cInf: 0, keys: [{ f: 360, pos: [PXv + 1.7, 1.35, 1.6], look: [PXv - 1.0, 1.0, -1.7], fov: 50 }] },
-  // 905 the chair in its corner, low, the dare plaque above it
-  { id: 905, a: 420, b: 480, light: "candle", mood: "pubDay", cInf: 10, keys: [{ f: 420, pos: [PXv - 1.35, 0.85, -0.45], look: [PXv - 2.72, 0.95, -2.25], fov: 40 }] },
-  // 906 character test in the pub: our v3 cast next to the bar (compare with the reference characters)
-  { id: 906, a: 480, b: 540, light: "candle", mood: "pubDay", cInf: 5, focus: [PXv + 0.3, 1.4, -0.9], keys: [{ f: 480, pos: [PXv + 0.3, 1.25, 4.5], look: [PXv + 0.3, 1.0, -0.9], fov: 40 }] },
-  // 907 walk + light test: the landlord crosses the pub in profile, the camera trucks with him; a low key throws long shadows
-  { id: 907, a: 540, b: 630, light: "candle", mood: "pubDay", cInf: 4, focus: [PXv - 0.2, 1.0, 0.2], keys: [{ f: 540, pos: [PXv - 1.6, 1.15, 3.6], look: [PXv - 1.5, 0.9, 0.2], fov: 34 },
-    { f: 629, glide: 89, ramp: 12, pos: [PXv + 1.1, 1.15, 3.6], look: [PXv + 1.2, 0.9, 0.2], fov: 34 }] },
-  // 908 / 909 cast lineup (museum floor, bright): five + five
-  { id: 908, a: 630, b: 660, light: "candle", mood: "dayInt", cInf: 0, keys: [{ f: 630, pos: [BXv, 1.1, 10.6], look: [BXv, 1.0, -0.6], fov: 30 }] },
-  { id: 909, a: 660, b: 690, light: "candle", mood: "dayInt", cInf: 0, keys: [{ f: 660, pos: [BXv, 1.1, 10.6], look: [BXv, 1.0, -0.6], fov: 30 }] },
+  // ===== THE CHAIR NOBODY IS ALLOWED TO SIT IN (60.9 s). Voice from f6; three sets: the museum (MU), the pub through
+  // 300 years (PB), the forgers' bench (BN). The last shot lands on the first frame, so the film loops. =====
+  // 1 "They hang a chair high up a wall": floor level behind the rope, a fast crane up the ladder to the chair
+  { id: 201, a: 0, b: 66, light: "candle", mood: "dayInt", cInf: 6, keys: [{ f: 0, pos: MU(0.75, 0.32, -0.2), look: MU(0.05, 1.75, -2.7), fov: 38 },
+    { f: 60, glide: 52, skew: 0.6, pos: MU(0.4, 1.95, -1.0), look: MU(0.0, 2.5, -2.75), fov: 36 }] },
+  // 2 "so nobody can sit in it again": the visitor reaches, the guard slaps, punch-in on PLEASE DO NOT SIT
+  { id: 202, a: 66, b: 132, light: "candle", mood: "dayInt", cInf: 4, keys: [{ f: 66, pos: MU(-1.05, 1.35, 0.9), look: MU(0.0, 1.2, -1.5), fov: 38 },
+    { f: 104, glide: 1, pos: MU(0.0, 1.5, -1.6), look: MU(0.0, 1.42, -2.98), fov: 38 }, { f: 112, glide: 7, ease: "out", pos: MU(0.0, 1.45, -2.28), look: MU(0.0, 1.42, -2.98), fov: 34 }] },
+  // 3 "You see, in 1702,": push into the wheel of the chair's back...
+  { id: 203, a: 132, b: 171, light: "candle", mood: "dayInt", cInf: 6, keys: [{ f: 132, pos: MU(0.0, 2.72, -1.75), look: MU(0.0, 2.67, -2.72), fov: 34 },
+    { f: 170, glide: 36, skew: 0.5, pos: MU(0.0, 2.67, -2.56), look: MU(0.0, 2.67, -2.8), fov: 30 }] },
+  // ...and out of the same wheel in 1702: the same pub corner by candlelight
+  { id: 204, a: 171, b: 196, light: "candle", mood: "candle", cInf: 10, keys: [{ f: 171, pos: PB(-2.79, 0.74, -2.21), look: PB(-2.88, 0.73, -2.36), fov: 30 },
+    { f: 195, glide: 24, pos: PB(-1.45, 1.25, -0.6), look: PB(-2.8, 0.8, -2.3), fov: 38 }] },
+  // "Thomas Busby and his father-in-law make fake coins": top-down on the mould, the fresh fakes tumble out...
+  { id: 205, a: 196, b: 232, light: "candle", mood: "candle", cInf: 12, keys: [{ f: 196, pos: BN(0.2, 1.38, 0.02), look: BN(0.17, 0.9, -0.06), fov: 34 },
+    { f: 231, glide: 35, pos: BN(0.1, 1.2, 0.12), look: BN(0.1, 0.9, -0.01), fov: 32 }] },
+  // ...whip up to the two forgers grinning over the bench
+  { id: 206, a: 232, b: 270, light: "candle", mood: "candle", cInf: 10, focus: BN(0.05, 1.4, -0.5), keys: [{ f: 232, pos: BN(0.05, 1.28, 1.4), look: BN(0.05, 1.3, -0.5), fov: 36 }] },
+  // 4 "One night, Busby finds him sitting in his chair": over Busby's shoulder (huge, soft), Auty lounging in the chair
+  { id: 207, a: 270, b: 354, light: "candle", mood: "candle", cInf: 14, focus: PB(-2.7, 1.0, -2.1), keys: [{ f: 270, pos: PB(-0.7, 1.5, 0.6), look: PB(-2.75, 0.9, -2.2), fov: 38 }] },
+  // 5 "Get out of my chair.": Busby, close, yelling
+  { id: 208, a: 354, b: 393, light: "candle", mood: "candle", cInf: 14, focus: PB(-1.55, 1.45, -0.6), keys: [{ f: 354, pos: PB(-0.92, 1.48, 0.38), look: PB(-1.55, 1.45, -0.6), fov: 34 }] },
+  // 6 "They fight. Busby kills him.": the fight cloud, the candle goes out, the empty chair rocking, one slipper
+  { id: 209, a: 393, b: 456, light: "candle", mood: "candle", cInf: 8, keys: [{ f: 393, pos: PB(-0.95, 1.3, 0.65), look: PB(-2.6, 0.85, -2.0), fov: 38 },
+    { f: 455, glide: 24, pos: PB(-1.7, 1.0, -0.85), look: PB(-2.75, 0.7, -2.2), fov: 36 }] },
+  // 7 "Before he hangs, he curses it: whoever sits in that chair... dies.": low hero angle in the doorway, whip to the chair
+  { id: 210, a: 456, b: 594, light: "candle", mood: "candle", cInf: 10, focus: PB(-1.95, 1.45, 2.55), keys: [{ f: 456, pos: PB(-2.15, 0.5, 1.3), look: PB(-2.0, 1.45, 2.6), fov: 38 },
+    { f: 552, glide: 1, pos: PB(-1.55, 1.1, -0.6), look: PB(-2.8, 0.75, -2.3), fov: 36, focus: PB(-2.8, 0.8, -2.25) }, { f: 593, glide: 40, pos: PB(-2.2, 0.95, -1.45), look: PB(-2.86, 0.75, -2.33), fov: 34, focus: PB(-2.86, 0.75, -2.3) }] },
+  // 8 "For two hundred years, it sits in a village pub...": orbit the chair while the room changes around it
+  { id: 211, a: 594, b: 735, light: "candle", mood: "pubDay", cInf: 6, focus: PB(-2.75, 0.8, -2.2), keys: [{ f: 594, pos: PB(-3.13, 1.49, -0.04), look: PB(-2.75, 0.8, -2.2), fov: 38 },
+    { f: 734, glide: 140, orbit: true, pos: PB(-0.96, 1.49, -0.94), look: PB(-2.75, 0.8, -2.2), fov: 38 }] },
+  // 9 "Go on, sit in the dead man's chair!": past the pints on a table, then whip to the scared friend
+  { id: 212, a: 735, b: 807, light: "candle", mood: "pubDay", cInf: 12, focus: PB(-1.1, 1.4, -0.8), keys: [{ f: 735, pos: PB(0.85, 0.98, 1.5), look: PB(-0.8, 1.25, -0.7), fov: 38 },
+    { f: 772, glide: 1, pos: PB(-0.7, 1.5, 0.55), look: PB(-1.35, 1.45, -0.85), fov: 34, focus: PB(-1.35, 1.45, -0.85) }] },
+  // 10 "Then something weird happens... allegedly.": creep on the chair; the landlord's eyebrow
+  { id: 213, a: 807, b: 879, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 807, pos: PB(-1.75, 0.35, -1.05), look: PB(-2.75, 0.8, -2.2), fov: 36, roll: 0.12 }] },
+  { id: 214, a: 879, b: 900, light: "candle", mood: "pubDay", cInf: 12, focus: PB(1.75, 1.45, -2.45), keys: [{ f: 879, pos: PB(1.75, 1.5, -0.7), look: PB(1.75, 1.46, -2.45), fov: 34 }] },
+  // 11 "In the war, bomber crews dare each other to sit in it... and never come home."
+  { id: 215, a: 900, b: 975, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 900, pos: PB(-1.4, 1.3, -0.5), look: PB(-2.65, 1.0, -2.2), fov: 38 }] },
+  { id: 216, a: 975, b: 1035, light: "candle", mood: "candle", cInf: 6, focus: PB(-2.4, 0.8, -2.15), keys: [{ f: 975, pos: PB(-1.5, 1.15, -0.55), look: PB(-2.55, 0.8, -2.15), fov: 38 }] },
+  // 12 "A chimney sweep sits for one drink. Next morning, he falls off a roof."
+  { id: 217, a: 1035, b: 1098, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 1035, pos: PB(-1.55, 1.2, -0.85), look: PB(-2.75, 1.05, -2.2), fov: 36 }] },
+  { id: 218, a: 1098, b: 1155, light: "candle", mood: "pubDay", cInf: 6, focus: PB(-3.4, 1.5, 1.55), keys: [{ f: 1098, pos: PB(-0.9, 1.45, 2.0), look: PB(-3.55, 1.5, 1.55), fov: 38 }] },
+  // 13 "Two pilots sit in it for a laugh. On the drive home... crash."
+  { id: 219, a: 1155, b: 1221, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 1155, pos: PB(-1.45, 1.25, -0.7), look: PB(-2.7, 1.05, -2.2), fov: 38 }] },
+  { id: 220, a: 1221, b: 1281, light: "candle", mood: "candle", cInf: 4, keys: [{ f: 1221, pos: PB(-0.3, 1.25, 1.6), look: PB(-2.4, 1.0, -1.2), fov: 38 }] },
+  // 14 "And the chair just sits there. Waiting.": night, the lamps out, moonlight; the slowest push in the film
+  { id: 221, a: 1281, b: 1350, light: "candle", mood: "pubNight", cInf: 8, keys: [{ f: 1281, pos: PB(-1.85, 0.95, -1.15), look: PB(-2.86, 0.75, -2.33), fov: 34 },
+    { f: 1349, glide: 68, pos: PB(-2.3, 0.8, -1.72), look: PB(-2.88, 0.73, -2.35), fov: 32 }] },
+  // 15 "The jokes stop.": from the chair's point of view, the whole pub frozen, staring at us
+  { id: 222, a: 1350, b: 1383, light: "candle", mood: "pubDay", cInf: 4, focus: PB(0.0, 1.4, 0.4), keys: [{ f: 1350, pos: PB(-2.35, 1.0, -1.8), look: PB(0.0, 1.3, 0.4), fov: 38 },
+    { f: 1382, glide: 32, pos: PB(-2.45, 1.0, -1.88), look: PB(0.0, 1.3, 0.4), fov: 32 }] },
+  // 16 "The landlord drags it to the museum.": a truck alongside the drag...
+  { id: 223, a: 1383, b: 1446, light: "candle", mood: "pubDay", cInf: 4, focus: PB(-2.1, 1.0, -1.7), keys: [{ f: 1383, pos: PB(0.2, 1.25, -1.75), look: PB(-2.35, 0.95, -1.75), fov: 38 },
+    { f: 1445, glide: 62, ramp: 10, pos: PB(0.2, 1.25, 2.85), look: PB(-1.6, 0.95, 2.85), fov: 38, focus: PB(-1.6, 1.0, 2.85) }] },
+  // ..."Put it where nobody can sit.": the curator points up; tilt to the empty shelf
+  { id: 224, a: 1446, b: 1494, light: "candle", mood: "dayInt", cInf: 6, focus: MU(-0.2, 1.45, -1.6), keys: [{ f: 1446, pos: MU(0.1, 1.3, 1.1), look: MU(0.05, 1.3, -1.8), fov: 38 },
+    { f: 1492, glide: 34, pos: MU(0.0, 1.55, 0.3), look: MU(0.0, 2.35, -2.8), fov: 38, focus: MU(0.0, 2.2, -2.7) }] },
+  // 17 "An expert checks the wood...": the expert on the ladder, then THROUGH his magnifier at the turned spindle
+  { id: 225, a: 1494, b: 1542, light: "candle", mood: "dayInt", cInf: 6, keys: [{ f: 1494, pos: MU(-0.45, 2.25, -1.15), look: MU(0.3, 2.45, -2.6), fov: 36 },
+    { f: 1520, glide: 1, pos: MU(0.12, 2.82, -2.38), look: MU(0.12, 2.8, -2.88), fov: 30, focus: MU(0.12, 2.8, -2.86) }] },
+  // 18 "...and that chair was built a hundred years after Busby died.": the date slam, the expert's jaw drops
+  { id: 226, a: 1542, b: 1650, light: "candle", mood: "dayInt", cInf: 4, keys: [{ f: 1542, pos: MU(-0.2, 2.15, -0.75), look: MU(0.25, 2.35, -2.5), fov: 38 }] },
+  // 19 "So whose chair is it? Nobody knows.": everyone under the chair, staring up, one big shrug; crane back
+  { id: 227, a: 1650, b: 1728, light: "candle", mood: "dayInt", cInf: 0, keys: [{ f: 1650, pos: MU(0.0, 1.6, 0.4), look: MU(0.0, 1.75, -2.0), fov: 38 },
+    { f: 1726, glide: 76, pos: MU(0.0, 2.3, 3.6), look: MU(0.0, 1.6, -2.2), fov: 38 }] },
+  // 20 "Everyone agrees on one thing... which is why": the workers lift the chair again; ends on frame 0 (loop)
+  { id: 228, a: 1728, b: 1826, light: "candle", mood: "dayInt", cInf: 6, keys: [{ f: 1728, pos: MU(0.4, 1.95, -1.0), look: MU(0.0, 2.5, -2.75), fov: 36 },
+    { f: 1822, glide: 76, pos: MU(0.75, 0.32, -0.2), look: MU(0.05, 1.75, -2.7), fov: 38 }] },
 ];
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 /** shot at f; in a TAIL render (tail = a DISSOLVES boundary) the shot that ENDS there keeps running through its dissolve */
@@ -83,11 +134,13 @@ export const shotAtT = (f: number, tail?: number) => {
 };
 
 /** white flashes: 4-frame fade [1, .75, .45, .2] */
-export const DIPS: [number, number, number][] = []; // BUSBY: no Winchester white dips
+export const DIPS: [number, number, number][] = [[568, 576, 592]]; // the thunder on "dies"
+/** the crash: a hard black cut */
+export const blackAt = (f: number) => (f >= 1257 && f < 1266 ? 1 : 0);
 export const flashAt = (f: number) => { for (const [a, m, e] of DIPS) { if (f >= a && f < m) return smooth((f - a) / (m - a)); if (f >= m && f < e) return 1 - smooth((f - m) / (e - m)); } return 0; };
 
 /** impact kicks: frame, strength (radians of roll at the first frame) */
-export const KICKS: [number, number][] = []; // BUSBY: kicks come with the new timeline
+export const KICKS: [number, number][] = [[100, 0.014], [362, 0.014], [398, 0.012], [408, 0.012], [418, 0.012], [576, 0.03], [1257, 0.03], [1266, 0.012], [1548, 0.02], [1690, 0.008]];
 const kickAt = (f: number) => {
   let r = 0;
   for (const [k, a] of KICKS) { const n = f - k; if (n >= 0 && n < 7) r += (a / 0.012) * (n % 2 ? -1 : 1) * Math.pow(1 - n / 7, 1.5); }

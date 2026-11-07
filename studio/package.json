@@ -13,7 +13,9 @@
     "final": "node scripts/render-final.mjs",
     "final-1080": "node scripts/render-final.mjs --1080",
     "final-safe": "node scripts/render-final.mjs --safe",
-    "final-cpu": "node scripts/render-final.mjs --cpu"
+    "final-cpu": "node scripts/render-final.mjs --cpu",
+    "final-busby": "node scripts/render-final.mjs --comp Busby",
+    "final-busby-1080": "node scripts/render-final.mjs --comp Busby --1080"
   },
   "dependencies": {
     "@fontsource/montserrat": "^5.3.0",

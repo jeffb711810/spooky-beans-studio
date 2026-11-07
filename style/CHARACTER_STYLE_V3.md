@@ -16,3 +16,8 @@ Unit: 1 D = head width. Everything measured in D.
 - hands: balls of ink, no fingers, one tiny pale highlight dot
 - total height about 3 heads (3 D)
 - captions: big bold white letters with dark outline
+## Animation: a NEW POSE EVERY SINGLE FRAME (why it's addicting)
+- every frame redraws the pose: arms, head tilt, body lean, legs, brows, mouth all shift a little (no held drawing)
+- big emotions: angry = slanted brows, squinted eyes, gritted-teeth mouth (rounded box with tooth grid);
+  rage = whole head turns a strong colour (e.g. purple) + steam puffs from the head; mouth opens to a dark oval when shouting
+- the hat stays on and moves with the head; a dark hair patch can show at the side of the head

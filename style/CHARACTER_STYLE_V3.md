@@ -83,3 +83,9 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
   down-left, long soft grey ellipse-like shape)
 - the sun pass is JUST for the shadow: characters are NOT lit/shaded by the scene lights (no sun shading, no receiving
   world shadows on the body); their look comes only from their own drawn colours + the fixed left-light gradient/streak
+## Frame pipeline: 9 steps, in this ORDER
+1 world (3D set render)  2 FOG  3 haze  4 DEPTH OF FIELD  5 BLOOM  6 screen (composite/screen-space pass)
+7 characters  8 PARTICLES  9 COLOUR GRADE
+- characters are layered AFTER fog/haze/DOF/bloom -> they are never blurred, fogged or bloomed (always crisp)
+- particles (dust specks, floating motes) go OVER the characters; the colour grade goes over everything last
+- (red on the slide = the real effects: fog, DOF, bloom, particles, grade; grey = layers/passes)

@@ -36,13 +36,13 @@ export const pubApply = () => {
 // ---------------------------------------------------------------- textures
 const plasterWarm = () => ctex("pbPlaster", 1024, 1024, (g) => {
   const S = 1024, r = R01(12);
-  g.fillStyle = "#2f6a52"; g.fillRect(0, 0, S, S); // deep green upper walls (warm wood + green: the reference porch palette)
+  g.fillStyle = "#7fb8a0"; g.fillRect(0, 0, S, S); // light sage-green upper walls (warm wood + green: the reference porch palette)
   for (let i = 0; i < 1400; i++) { const x = r() * S, y = r() * S, rr = 8 + r() * 70; g.fillStyle = r() < 0.55 ? "rgba(120,80,30,0.03)" : "rgba(255,250,230,0.05)"; g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill(); }
   g.strokeStyle = "rgba(90,60,30,0.35)"; g.lineWidth = 1.5; // hairline cracks
   for (let i = 0; i < 6; i++) { let x = r() * S, y = r() * S; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 7; k++) { x += (r() - 0.5) * 60; y += 10 + r() * 30; g.lineTo(x, y); } g.stroke(); }
 });
 const boardsTex = () => ctex("pbBoards", 1024, 1024, (g) => {
-  const S = 1024, r = R01(21), grain = grainTex("pbGrainD", "#6a3c1a", "#2e160a", "#8c5428", 2, 512).image as HTMLCanvasElement;
+  const S = 1024, r = R01(21), grain = grainTex("pbGrainD", "#c08a58", "#8a5a34", "#d8a878", 2, 512).image as HTMLCanvasElement;
   for (let i = 0; i < 8; i++) {
     g.drawImage(grain, (i * 97) % 300, 0, 128, 512, i * 128, 0, 128, S);
     g.fillStyle = `rgba(${r() < 0.5 ? "0,0,0" : "255,220,170"},${0.03 + r() * 0.06})`; g.fillRect(i * 128, 0, 128, S);
@@ -138,12 +138,12 @@ const plateTex = () => ctex("pbPlate", 512, 512, (g) => {
 export const buildPub = (R: THREE.Object3D) => {
   const x0 = PX, g = new THREE.Group(), b = new Batch(), r = R01(1971), env = envTex();
   const M = {
-    floor: lam("pbFloor", () => ({ map: rep(planksHD(true), 3.5, 3), color: "#b98a62" })),
+    floor: lam("pbFloor", () => ({ map: rep(planksHD(true), 3.5, 3), color: "#f0d2aa" })),
     plaster: lam("pbPlasterM", () => ({ map: rep(plasterWarm(), 3, 1.2) })), boards: lam("pbBoardsM", () => ({ map: rep(boardsTex(), 4, 1) })),
-    beam: lam("pbBeam", () => ({ map: rep(grainTex("pbGrainBeam", "#3e2414", "#1a0c05", "#5a3620", 4, 1024), 1, 1) })),
-    beamT: lam("pbBeamT", () => { const t = rep(grainTex("pbGrainBeam", "#3e2414", "#1a0c05", "#5a3620", 4, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; }),
-    mahog: lam("pbMahog", () => { const t = rep(grainTex("pbGrainMah", "#7e3e18", "#34140a", "#a85e2c", 2, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; }),
-    mahogV: lam("pbMahogV", () => ({ map: rep(grainTex("pbGrainMah", "#7e3e18", "#34140a", "#a85e2c", 2, 1024), 1, 1) })),
+    beam: lam("pbBeam", () => ({ map: rep(grainTex("pbGrainBeam", "#8a5a36", "#5a3820", "#a87448", 4, 1024), 1, 1) })),
+    beamT: lam("pbBeamT", () => { const t = rep(grainTex("pbGrainBeam", "#8a5a36", "#5a3820", "#a87448", 4, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; }),
+    mahog: lam("pbMahog", () => { const t = rep(grainTex("pbGrainMah", "#b0663a", "#7a3e1c", "#cc8250", 2, 1024), 1, 1); t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; return { map: t }; }),
+    mahogV: lam("pbMahogV", () => ({ map: rep(grainTex("pbGrainMah", "#b0663a", "#7a3e1c", "#cc8250", 2, 1024), 1, 1) })),
     brass: lam("pbBrass", () => ({ color: "#e2ac40", envMap: env, reflectivity: 0.35, combine: THREE.MixOperation })),
     pewter: lam("pbPewter", () => ({ color: "#a7abb4", envMap: env, reflectivity: 0.32, combine: THREE.MixOperation })),
     iron: lam("pbIron", () => ({ color: "#2c2e33" })), porc: lam("pbPorc", () => ({ color: "#f7f3ea" })),

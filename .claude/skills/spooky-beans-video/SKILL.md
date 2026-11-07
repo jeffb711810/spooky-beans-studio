@@ -24,6 +24,11 @@ Check every item before ANY render and say which ones you verified.
 - Cast shadows are BLUE-GREY (#7793A7-#8AA6B3), crisp but soft (6-12 px penumbra). Weak AO (~10%). Vignette 5-10%.
 - Every scene has its own colour mood: warm practicals with glow, floating dust, and story light landing on faces.
 
+**World look: HIGH-KEY like his rooms (measured 2026-11-07, the biggest single difference)**
+- Median V 0.67-0.87. Dark areas (L < 0.25) 5-14 % of the frame. Ink / dark-line coverage 1.5-9 %. Median saturation 0.18-0.44.
+- Light woods and painted surfaces, not dark brown everywhere. Soft bright shade (~2x below lit). Weak AO.
+- Measure every look still with these numbers before rendering.
+
 **Colour (measured targets; check with numbers, not by eye)**
 - Median V 0.56-0.82. 95th-percentile V 0.95-1.0 (real white shine). Colourfulness 0.25-0.30.
 - Large single-hue areas at V 85-98 and S 45-70. Use complementary pairs (warm wood / teal-green, orange / blue). Neutrals are tinted.

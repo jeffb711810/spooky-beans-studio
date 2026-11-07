@@ -137,7 +137,9 @@ const nod = (f: number) => 6 * Math.min(0.6, Math.max(0, (VENV[f] ?? 0) - (VENV[
 const shake = (f: number, a: number) => a * Math.sin(f * 2.9) * Math.cos(f * 1.7);
 const BEAT = 2 * Math.PI / 0.8 * 2;   // one beat of the score (2 hammer swings) in frames
 /** pose blend in over n frames from `at` (and out over m frames from `until`) */
-const poseIn = (f: number, at: number, n = 5, until = 1e9, m = 6) => (f < at ? 0 : smooth((f - at) / n) * (1 - smooth((f - until) / m)));
+// his timing (framework 7): outCubic over 12-19 f, 60-70 % of the move in the first 4-5 f, then a slow settle; release the same way
+const outC = (u: number) => { const v = clamp01(u); return 1 - (1 - v) * (1 - v) * (1 - v); };
+const poseIn = (f: number, at: number, n = 5, until = 1e9, m = 6) => (f < at ? 0 : outC((f - at) / Math.max(12, n * 2.6)) * (1 - outC((f - until) / Math.max(10, m * 2))));
 /** lip flap while the character speaks the given words ([start, end) frames): syllable-ish open / close, 5 levels */
 const talkAt = (f: number, words: [number, number][]) => {
   const f2 = f - (f & 1); // v3: the mouth changes on twos
@@ -340,8 +342,8 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     case 211: { // 200 years in one orbit: candles -> oil lamps -> bulbs, tricorns -> top hats -> flat caps, everyone laughing at it
       const era = f < 640 ? 0 : f < 690 ? 1 : 2; PUB.era = era; props.pools = era === 0 ? CPOOLS : PPOOLS;
       const C = era === 0 ? [BZ.old1, BZ.old2] : era === 1 ? [BZ.vic1, BZ.vic2] : [BZ.local1, BZ.local2];
-      add(C[0], 677.72, 0, -2.66, { f, expr: "laugh", look: -1, pose: "point", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
-      add(C[1], 676.88, 0, -2.5, { f, expr: "laugh", look: 1, pose: "belly", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.45 + 1)) });
+      add(C[0], 677.72, bounce(f, 10, 0.012), -2.66, { f, expr: "laugh", look: -1, pose: Math.floor((f - 594) / 14) % 2 ? "belly" : "point", pa: poseIn(f, 594 + 14 * Math.floor((f - 594) / 14), 5), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
+      add(C[1], 676.88, bounce(f, 11, 0.012, 4), -2.5, { f, expr: "laugh", look: 1, pose: Math.floor((f - 600) / 16) % 2 ? "point" : "belly", pa: poseIn(f, 600 + 16 * Math.floor((f - 600) / 16), 5), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.45 + 1)) });
       break;
     }
     case 212: { props.pools = PPOOLS; // "Go on, sit in the dead man's chair!"
@@ -350,7 +352,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       sweatFx({ x: 678.65, y: 0, z: -0.85, b: "adult" }, 745, -1, 20);
       break; }
     case 213: props.pools = PPOOLS; break;
-    case 214: { props.pools = PPOOLS; add(BZ.landlord, 681.75, 0, -2.69, { f, expr: "suspicious", look: 0, browUp: 14, pose: "chin", pa: 1 }); break; }
+    case 214: { props.pools = PPOOLS; add(BZ.landlord, 681.75, 0, -2.69, { f, expr: "suspicious", look: 0, browUp: 14 * outC((f - 879) / 8), pose: "chin", pa: poseIn(f, 879, 4), headTilt: 7 * outC((f - 881) / 14) }); break; }
     case 215: { props.pools = PPOOLS;
       sitOn(BZ.airman, "grin", { pose: "up", pa: poseIn(f, 912, 5), sy: stretch(f, 912, 0.08) });
       add(BZ.airman2, 678.0, hop(f, 930, 0.07, 10) + hop(f, 948, 0.07, 10), -1.75, { f, expr: "laugh", look: -1, pose: "fists", pa: 1 });
@@ -360,7 +362,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       F.push(fx("bzhelmet", 300, 300, (p) => v3Hat(p, BZ.airman.o, 150, 190, 200, 0, -0.8), 677.62, 0.7, -2.0, 0.24, 0.24, {}));
       break; }
     case 217: { props.pools = PPOOLS;
-      sitOn(BZ.sweep, f >= 1070 ? "smile_closed" : "smile", { pose: "hold", pa: 1 });
+      sitOn(BZ.sweep, f >= 1066 && f < 1086 ? "smile_closed" : "smile", { pose: "hold", pa: 1, headTilt: f >= 1064 && f < 1088 ? -9 * outC((f - 1064) / 6) * (1 - outC((f - 1082) / 6)) : 0 });
       F.push(fx("bzpint2", 160, 220, (p) => fxPint(p), CHX + 0.19, 0.93 + 0.04 * smooth((f - 1065) / 6) * (1 - smooth((f - 1082) / 6)), CHZ + 0.1, 0.12, 0.17, {})); break; }
     case 218: { props.pools = PPOOLS; // next morning: through the window, the top hat and the brush fall past
       add(BZ.local1, 677.25, 0, 1.05, { f, side: true, so: { mode: "stand", expr: f >= 1122 ? "shock" : "neutral" }, mirror: true });
@@ -372,7 +374,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       break; }
     case 219: { props.pools = PPOOLS; // two pilots, one chair
       sitOn(BZ.pilot, "laugh", { pose: "belly", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
-      add(BZ.pilot2, CHX + 0.24, 0.16, CHZ + 0.12, { f, mode: "sit", seatM: 0.52, expr: "laugh", look: -1, pose: "up", pa: 1, roll: -0.12, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5 + 1)) }); break; }
+      add(BZ.pilot2, CHX + 0.24, 0.16, CHZ + 0.12, { f, mode: "sit", seatM: 0.52, expr: "laugh", look: -1, pose: f >= 1175 ? "up" : "belly", pa: poseIn(f, f >= 1175 ? 1175 : 1155, 5), roll: -0.12 + 0.05 * Math.sin(f * 0.3), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5 + 1)) }); break; }
     case 220: { PUB.out = 2; PUB.night = 1; props.pools = CPOOLS; // headlights sweep the wall... crash (black)... a hubcap rolls in
       if (f >= 1225 && f < 1257) { const u = (f - 1225) / 32; F.push(fx("bzbeam", 512, 256, (p) => fxBeam(p), 676.0 + 4.6 * u, 1.55, -2.92, 2.4 * (0.6 + u), 1.2 * (0.6 + u), { soft: true, glow: 1.6 })); }
       if (f >= 1266) { const u = clamp01((f - 1266) / 15), x = 678.0 - 0.55 * u, z = 2.8 - 3.9 * u;
@@ -390,7 +392,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       add(BZ.curator, 599.8, 0, -1.55, { f, expr: "stern", look: 1, pose: "up", pa: poseIn(f, 1452, 6), talk: talkV(f, 1448, 1494) });
       add(BZ.landlord, 600.4, 0, -1.65, { f, expr: "relief", look: -1, pose: "hips", pa: 1 }); break; }
     case 225: { props.pools = MPOOLS; MUS.ladder = 1; // the expert on the ladder; through his lens
-      add(BZ.expert, 600.62, 1.2, -2.58, { f, expr: "suspicious", look: -1, pose: "hold", pa: 1 });
+      add(BZ.expert, 600.62, 1.2, -2.58, { f, expr: "suspicious", look: -1, pose: "hold", pa: 1, tilt: -6 * outC((f - 1496) / 16), headTilt: 4 * Math.sin((f - 1494) * 0.12) });
       if (f < 1520) F.push(fx("bzlens", 300, 300, (p) => fxRing(p), 600.45, 2.62, -2.5, 0.22, 0.22, {}));
       else F.push(fx("bzlensbig", 600, 600, (p) => fxRing(p), 600.14, 2.79, -2.62, 0.15, 0.15, {}));
       break; }

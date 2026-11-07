@@ -1,9 +1,16 @@
 ---
 name: spooky-beans-video
-description: Make an "Allegedly Haunted" / Spooky Beans vertical short (60-80 s): goofy 2D paper-cutout characters living in a painted 3D world (Remotion + three.js), Aiden narration, captions, original bouncy-mystery score + SFX, rendered in true 4K with phone-safe encodes. Use for any new Spooky Beans / Allegedly Haunted video, edits to the Winchester or Bell Witch shorts, character / world / camera / audio work in this repo, or when the user says "make another one like Winchester".
+description: Make an "Allegedly Haunted" / Spooky Beans vertical short (60-80 s): 2D cartoon characters built by the v3 framework (style/CARTOON_FRAMEWORK.md) living in a painted 3D world (Remotion + three.js), Aiden narration, captions, original bouncy-mystery score + SFX, rendered in true 4K with phone-safe encodes. Use for any new Spooky Beans / Allegedly Haunted video, edits to the Winchester or Bell Witch shorts, character / world / camera / audio work in this repo, or when the user says "make another one like Winchester".
 ---
 
 # Spooky Beans studio (this repo)
+
+## READ FIRST: style/CARTOON_FRAMEWORK.md (user, 2026-11-07, permanent, every project)
+The framework is the ONLY valid source for character design, the face kit, animation timing, camera moves/styles and the
+9-step frame pipeline. The user trashed every earlier character-art rule (paper cards, googly/mixed eyes, noses, wobble
+heads, idle bobbing, creeps/crane-backs, wide lenses). Anything below that conflicts with the framework is OBSOLETE: the
+framework wins. What still applies from below: the 3D world, engine, audio, captions, render/encode and QA workflow.
+Code lives on the `studio` branch (the repo's default branch is `downloads`).
 
 ## Project layout (studio/)
 - `src/videos/bellwitch/` - the film engine: `story.ts` (shots, camera keys, moods, cuts), `stage.ts` (who stands where,
@@ -33,7 +40,7 @@ description: Make an "Allegedly Haunted" / Spooky Beans vertical short (60-80 s)
   the story shorts themselves stay in Remotion + three.js. The Remotion Claude plugin (remotion-best-practices etc.)
   is enabled on the account for API questions.
 
-## Current house style: SPOOKY BEANS v2 (user, 2026-11-07)
+## OBSOLETE (trashed by the user 2026-11-07; use style/CARTOON_FRAMEWORK.md): SPOOKY BEANS v2 characters
 "Same 3D world, 2D paperish characters, complete new assets, funny looking goofy characters", matching the narrator's
 voice: fun, exciting, mysterious, bouncy, silly, engaging. Scissor-cut white paper edge round every character; eyes mix
 by moment (black dots calm / -_- deadpan / googly shock, half-lid googly smug); a peach cartoon nose each; every person
@@ -67,7 +74,7 @@ User rules that apply:
 - Save after every step.
 - "Just do it" once the script is approved.
 
-## SPOOKY BEANS house style (READ FIRST for any Spooky Beans video) - proven on "The Bell Witch" (2026-11-05)
+## SPOOKY BEANS house style (Bell Witch) - world/audio/caption rules only; its character rules are OBSOLETE - proven on "The Bell Witch" (2026-11-05)
 Code: `src/videos/bellwitch/` (+ shared `src/videos/bridge/`), notes `HANDOFF.md`, lessons `references/BELL_WITCH_LESSONS.md`.
 Start a new story by COPYING bellwitch/ and replacing story.ts / stage.ts / world.ts content; keep every look value.
 User rules (override the bridge rules above where they differ):
@@ -287,7 +294,7 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - Balcony/railing rails at chest height through characters: put the lens ~2.5 m up so rails cross legs, not torsos.
 - Flat holds read as freezes in QA (frozen span ≥12 f): every hold needs a creeping push-in.
 
-### Winchester round (2026-11-07) - standing rules, apply to EVERY Spooky Beans video
+### Winchester round (2026-11-07) - standing rules (character-art items here are OBSOLETE; see the framework), apply to EVERY Spooky Beans video
 - CHARACTERS: one unique person per role (never reuse the same worker across gags); clothing true to the era of the scene
   (1880s-1920s: shirtsleeves, waistcoats, braces, leather aprons, flat caps / felt / straw hats, moustaches, beards;
   present day: tees, jeans, sneakers, ball caps, blazers). Builders live in bellwitch/cast.ts CREW.

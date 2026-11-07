@@ -34,3 +34,5 @@ Unit: 1 D = head width. Everything measured in D.
   triangles (thin strokes = ribbon meshes) -> each vertex projected onto the head sphere surface (sit just above it)
 - so the face wraps around the head and turns/foreshortens correctly when the head rotates; expressions = swapping/
   morphing the curves
+- face meshes are CACHED: once a face (expression) is built it is stored, up to 24 cached faces per character
+  (LRU); every later frame only re-uses/rotates the cached mesh with the head - never rebuilt per frame

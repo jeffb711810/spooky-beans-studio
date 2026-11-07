@@ -87,9 +87,28 @@ export const fxHubcap = (p: Pen, t: number) => {
   for (let i = 0; i < 6; i++) { const a = (i / 6) * TAU; p.stroke([[120 + Math.cos(a) * 22, 120 + Math.sin(a) * 22], [120 + Math.cos(a) * 62, 120 + Math.sin(a) * 62]], 6, "#6a7078"); }
   g.fillStyle = "rgba(255,255,255,0.6)"; g.beginPath(); g.ellipse(88, 82, 26, 12, -0.6, 0, TAU); g.fill(); g.restore();
 };
-/** a pint in a hand (160 x 220) */
+/** a pint (160 x 220), his prop finish: a nonic glass (bulge near the rim), amber beer darker at the foot, rising
+ *  bubbles, a lumpy foam head, glass rim + two reflections, one heavy ink outline */
 export const fxPint = (p: Pen) => {
-  p.poly([[40, 40], [120, 40], [112, 200], [48, 200]], "#d88a1c", 7); p.ell(80, 42, 44, 16, "#fff6e0", 6); p.poly([[52, 60], [62, 60], [60, 185], [54, 185]], "rgba(255,255,255,0.55)", 0);
+  const g = p.g, glass: [number, number][] = [[34, 34], [126, 34], [128, 58], [121, 70], [112, 204], [48, 204], [39, 70], [32, 58]];
+  const beer: [number, number][] = [[40, 52], [120, 52], [122, 60], [116, 72], [108, 198], [52, 198], [44, 72], [38, 60]];
+  p.poly(glass, "rgba(236,244,246,0.55)", 0); // the glass itself (pale, see-through feel)
+  const gr = g.createLinearGradient(0, 52, 0, 200); gr.addColorStop(0, "#f6b636"); gr.addColorStop(0.45, "#e8962a"); gr.addColorStop(1, "#b9661a");
+  p.poly(beer, gr as unknown as string, 0);
+  g.save(); p.path(beer.map(([x, y]) => [x, y] as [number, number]), true); g.clip();
+  for (let i = 0; i < 14; i++) { const x = 54 + ((i * 37) % 56), y = 80 + ((i * 53) % 110), r = 1.6 + (i % 3) * 0.8; p.ell(x, y, r, r, "rgba(255,240,200,0.75)", 0); }
+  g.fillStyle = "rgba(255,255,255,0.10)"; g.fillRect(40, 52, 26, 150); // the lit side of the glass
+  g.restore();
+  // foam: a lumpy head sitting just over the rim, with a few bubbles
+  const foam: [number, number][] = [];
+  for (let i = 0; i <= 12; i++) { const x = 34 + (92 * i) / 12, y = 40 - 9 * Math.sin((i / 12) * Math.PI) - (i % 2 ? 4 : 0); foam.push([x, y]); }
+  foam.push([126, 56], [34, 56]);
+  p.poly(foam, "#fff8ea", 6);
+  for (const [x, y, r] of [[56, 44, 3], [74, 40, 2.4], [98, 45, 3.2], [112, 41, 2]] as const) p.ell(x, y, r, r, "rgba(226,206,170,0.9)", 0);
+  // glass reflections + rim, then the heavy ink outline around the whole glass
+  p.poly([[44, 74], [52, 74], [58, 192], [52, 192]], "rgba(255,255,255,0.62)", 0);
+  p.poly([[104, 80], [108, 80], [104, 180], [101, 180]], "rgba(255,255,255,0.35)", 0);
+  p.poly(glass, null, 8);
 };
 /** foam bubbles settling in an abandoned pint (twinkle-ish dots, 200 x 200) */
 export const fxBubbles = (p: Pen, t: number) => {

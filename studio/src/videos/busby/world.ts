@@ -944,7 +944,32 @@ export class World {
     return v;
   }
 
+  /** THE CHAIR (user: "no shadows"): every prop casts the sun's shadow and every solid surface receives it; the room
+   *  shell (walls, floors, ceilings, long beams) only receives. Glass, halos, pools, unlit things and the cards (their
+   *  own actorShadow flag) are left alone. Each mesh is tagged once. */
+  private shadowify() {
+    let fresh = false;
+    this.root.traverse((o) => { if ((o as THREE.Mesh).isMesh && !o.userData.shDone) fresh = true; });
+    if (!fresh) return;
+    this.root.updateMatrixWorld(true);
+    const box = new THREE.Box3(), sz = new THREE.Vector3();
+    this.root.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (!m.isMesh || m.userData.shDone) return;
+      m.userData.shDone = true;
+      if (m === this.sky || m.layers.isEnabled(NOINK)) return;
+      const mat = m.material as THREE.Material | THREE.Material[], m0 = Array.isArray(mat) ? mat[0] : mat;
+      if (!m0 || m0.transparent || !m0.depthWrite || m0.opacity < 1 || (m0 as THREE.MeshBasicMaterial).isMeshBasicMaterial) return;
+      m.receiveShadow = true;
+      box.setFromObject(m); box.getSize(sz);
+      // casters: furniture and props only. The room shell never blocks the key light: walls, floors, ceilings, the
+      // ceiling boards and beams (anything that starts above head height or is wall-sized)
+      const yMin = box.min.y; // every interior floor is at y = 0
+      m.castShadow = Math.max(sz.x, sz.y, sz.z) < 3.2 && sz.y < 2.4 && yMin < 1.9;
+    });
+  }
   update(f: number, cam: THREE.PerspectiveCamera, scene: THREE.Scene) {
+    this.shadowify();
     type T3 = [number, number, number];
     const LK = (getInputProps() as { look3?: { pos?: T3; look?: T3; fov?: number; noCast?: boolean; lock?: number; path?: number[][] } }).look3; // v3 tests: camera path / fixed camera, no cast
     const fCam = f; if (LK?.lock !== undefined) f = LK.lock;                       // lock the story context (light, mood, grade) to one frame

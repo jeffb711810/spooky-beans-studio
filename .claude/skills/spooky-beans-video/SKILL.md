@@ -378,3 +378,11 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - QC: render test stills per changed shot + a full low-res pass scanned by scripts/scan.py (pops / flat frames / purple)
   BEFORE the 4K. Never run the audio build (several GB) alongside a render: the stills batch was OOM-killed.
 - VOICE: Aiden only. New takes: voice2/conform.py (fit to timeline_target.json) + adopt.py (captions + VENV).
+
+## Rick-match rules learned on The Chair (Nov 7) - apply every video
+- HEADS: his traced head (near-round ball, a touch wider than tall, slightly flat top) on most of the cast; a few people keep their own shape (`shape.geo`: wide / tall / round). Hats are SMALL and sit HIGH (lowest edge ~0.3 D above the head centre) so the big white face shows; hair fringes sit high too.
+- INK: near-black (#0d080a at source, survives the high-key grade), heaviest low on the LEFT (~7 % of the head), thinnest top-right (~1.5 %).
+- FACES: warm cream white (~255,251,245 on screen) with a soft shade just inside the left edge. Features: lids 0.075 D above the head middle, mouth 0.143 D below, eyes 0.138 D off centre; brows 0.042 D thick with blunt ends.
+- EXPRESSIONS: never the same face on everyone. Mix his set per scene: deadpan (lid over a big pupil, one brow cocked, flat lozenge mouth), alert (white rings, small o), excited (rings + crescent teeth), toothy grin (dot eyes), sly/evil, nervous = gritted box teeth + sweat (NOT a grin), laugh. Neutral mouth is flat, never a smile curve.
+- TALKING: small dark mouth shapes swapped on twos; only a shout opens wide with teeth. Rage gag: colour rises from the chin (red, never purple) + steam puffs + head shake.
+- WORLD: every prop and piece of furniture casts the key light's shadow; every solid surface receives it; the room shell (walls, ceilings, beams) never casts. Shadows blue-grey, ~40 % darker than the lit floor. Backgrounds and foregrounds stay crisp (light background blur only, near blur x0.25). Props get real detail (e.g. the pint: nonic glass, amber gradient, bubbles, foam, highlights, heavy outline).

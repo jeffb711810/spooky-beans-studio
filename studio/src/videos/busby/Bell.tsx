@@ -46,7 +46,7 @@ const makeBloom = () => {
 };
 /** background blur strength (round 9, user on the sharp test frame: "that looks good! the last photo"): 0 = every
  *  background stays sharp, all the little details readable; 1 = the old strong close-up blur */
-const BG_BLUR = 1; // WINCHESTER: his medium shots blur the background (clean), wides stay sharp (per-shot cInf)
+const BG_BLUR = 0.35; // THE CHAIR (user: "low res"): his backgrounds stay crisp; only a light blur behind close-ups // WINCHESTER: his medium shots blur the background (clean), wides stay sharp (per-shot cInf)
 const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 // ---- whip-pan motion blur (camera agent; reference: the one whip pan is always smeared). A 12-tap directional blur
 // along the camera's screen motion x 0.5 shutter. Its pass is switched off on every other frame (no cost there). ----
@@ -100,7 +100,7 @@ const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
   const world = useMemo(() => new World(kit), [kit]);
   const fx = useMemo(() => ({
     ink: new InkPass(scene, camera as THREE.PerspectiveCamera, INK_LIGHT.night),
-    lens: new LensBlur({ maxCoC: 30, nearScale: 1.2 }), // camera round 2: cInf 22-50 inside, foreground framing up to 30 px
+    lens: new LensBlur({ maxCoC: 30, nearScale: 0.25 }), // THE CHAIR (user: "the beer looks bad"): his foreground props stay sharp // camera round 2: cInf 22-50 inside, foreground framing up to 30 px
     whip: new WhipBlur(),
     bloom: makeBloom(),
     tone: new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }),

@@ -318,7 +318,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
         if (f >= 330) emoteFx({ x: CHX, y: 0, z: CHZ, b: "adult", sit: true }, "bang", 330, 16, 1);
       }
       if (s.id === 208) {
-        add(BZ.busby, 678.8, hop(f, 360, 0.04, 6), -0.55, { f, expr: f >= 362 ? "scream" : "angry", look: 1, pose: f >= 362 ? "fists" : "point", pa: poseIn(f, 356, 4), talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.14), headTilt: f >= 362 ? 7 * Math.sin((f - 362) * 0.9) * Math.exp(-(f - 362) / 14) : 0 });
+        add(BZ.busby, 678.8, hop(f, 360, 0.04, 6), -0.55, { f, flush: smooth((f - 364) / 12), expr: f >= 362 ? "scream" : "angry", look: 1, pose: f >= 362 ? "fists" : "point", pa: poseIn(f, 356, 4), talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.14), headTilt: f >= 362 ? 7 * Math.sin((f - 362) * 0.9) * Math.exp(-(f - 362) / 14) : 0 });
         if (f >= 368) { const u = qt(((f - 368) % 14) / 14, 8); F.push(fx(`bzsteam${u}`, 240, 300, (p) => bzSteam(p, u), 678.85, 2.0, -0.55, 0.45, 0.56, { soft: true })); }
       }
       if (s.id === 209) {

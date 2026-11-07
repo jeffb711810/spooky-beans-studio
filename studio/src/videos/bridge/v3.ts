@@ -246,7 +246,12 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
       M(() => RK ? lozenge(0, 0.235, 0.12, 0.03) : line(bez2([-0.06, 0.225], [0, 0.25], [0.06, 0.225], 14), 0.03));
   }
   // talking: the mouth changes on twos (the stage samples the voice envelope); 3 sizes, dark inside
-  if (talking && !mouthDone) {
+  if (talking && !mouthDone && RK) { // HIS talking mouths (studied frame by frame): small dark shapes swapped on twos; only a shout opens wide with teeth
+    if (talk < 0.35) openMouth(0.075, 0.035, 0.225);
+    else if (talk < 0.6) openMouth(0.1, 0.055, 0.22);
+    else if (talk < 0.85) openMouth(0.13, 0.08, 0.215, true);
+    else openMouth(0.19, 0.12, 0.205, true);
+  } else if (talking && !mouthDone) {
     if (talk < 0.45) openMouth(0.13, 0.055, 0.21);
     else if (talk < 0.8) openMouth(0.17, 0.09, 0.205, true);
     else openMouth(0.21, 0.13, 0.2, true);

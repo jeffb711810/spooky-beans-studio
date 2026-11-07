@@ -1218,6 +1218,8 @@ const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number 
 };
 
 export type FrontOpts = {
+  /** reference cast rage gag: the face fills with red from the chin up (0..1) */
+  flush?: number;
   phase?: number; expr?: Expr; mode?: "march" | "stroll" | "stand" | "sit" | "fall"; look?: number; blink?: boolean | number; lift?: number;
   prop?: Prop; tilt?: number; headTilt?: number; wave?: number;
   /** canvas angle the key light comes FROM (painted crescent + thick outline side) */
@@ -1483,6 +1485,10 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   const hp = blobPts(300, hc, H);
   const cover = coverLine(o, H, 300, hc, seed, facing);
   if (STYLE.v3) v3HeadFill(p, hp, 300, hc, H.a, light, undefined, o.rick ? 1.35 : 1);
+  if (STYLE.v3 && (opts.flush ?? 0) > 0) p.clip(hp, () => { // HIS rage gag: colour rises from the chin (red here: no purple)
+    const g = p.g, top = hc + H.b * (1.05 - 2.1 * Math.min(1, opts.flush!)), gr = g.createLinearGradient(0, top - 0.14 * H.b, 0, top + 0.14 * H.b);
+    gr.addColorStop(0, "rgba(222,70,48,0)"); gr.addColorStop(1, "rgba(222,70,48,0.94)"); g.fillStyle = gr; g.fillRect(300 - 2 * H.a, top - 0.14 * H.b, 4 * H.a, 3 * H.b);
+  });
   else if (STYLE.paper) p.paperFill(hp, skin, light, H.a, 300, hc);
   else p.sphereFill(hp, skin, light, H.a, 300, hc, mul(skin, isPale(skin) ? SH_PALE : SH_SKIN), SHEEN, cover && cover[1] >= 0.7 ? -0.08 : 0.12); // under a hat the shine sits lower
   if (!STYLE.v3) hatShadow(p, o, hp, H, 300, hc, light, seed, facing, skin);

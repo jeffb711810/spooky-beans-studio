@@ -243,12 +243,15 @@ import type { Outfit } from "./toon";
 type X2 = (x: number, y: number) => P2;
 const lin = (n: number, a: number, b: number) => Array.from({ length: n + 1 }, (_, i) => a + ((b - a) * i) / n);
 /** a filled, shaded, outlined piece of cloth (gradient light-left, x0.75 on the far side) */
+/** outline weight for hats / wear (reference cast, measured: his outlines are ~0.55 of ours); set per card by toon.ts */
+let INKK = 1;
+export const v3InkScale = (k: number) => { INKK = k; };
 const cloth = (p: Pen, pts: P2[], col: string, light: number, D: number, ol = 0.048, gl?: [P2, P2], ga = 0.2) => {
   p.gradFill(pts, col, v3cloth(col), light, 0.08);
-  if (gl) p.clip(pts, () => p.stroke([gl[0], gl[1]], 0.05 * D, `rgba(255,255,255,${ga})`));
-  if (ol) p.poly(pts, null, ol * D);
+  if (gl && INKK > 0.9) p.clip(pts, () => p.stroke([gl[0], gl[1]], 0.05 * D, `rgba(255,255,255,${ga})`));
+  if (ol) p.poly(pts, null, ol * INKK * D);
 };
-const flat = (p: Pen, pts: P2[], col: string, D: number, ol = 0) => { p.path(pts, true); p.g.fillStyle = col; p.g.fill(); if (ol) p.poly(pts, null, ol * D); };
+const flat = (p: Pen, pts: P2[], col: string, D: number, ol = 0) => { p.path(pts, true); p.g.fillStyle = col; p.g.fill(); if (ol) p.poly(pts, null, ol * INKK * D); };
 const ellX = (X: X2, cx: number, cy: number, rx: number, ry: number, n = 40) => lin(n, 0, Math.PI * 2).slice(0, -1).map((t) => X(cx + rx * Math.cos(t), cy + ry * Math.sin(t)));
 const B2 = (X: X2, a: P2, b: P2, c: P2, n = 16) => bez2(a, b, c, n).map(([x, y]) => X(x, y));
 const B3 = (X: X2, a: P2, b: P2, c: P2, d: P2, n = 24) => bez3(a, b, c, d, n).map(([x, y]) => X(x, y));

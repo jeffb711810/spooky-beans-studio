@@ -68,3 +68,7 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
    (hammer hit, creak, footstep, bell, whisper) pulls the camera toward / whips it to the thing making it; push-ins on
    sustained sounds, whip + hard stop on sharp hits; silence = camera drifts toward the next sound source.
    (Winchester: follow the endless hammering through the house.)
+## Finish = DETAIL (matters more than anything else)
+- characters: costume details that read as identity (watch chains, buttons, stitching, plaid, badges, tools/props in hand)
+- world: every frame dressed with small details (props, debris, plants, particles/floating specks, signage, wear)
+- effects: emotion FX (steam puffs, colour-flushed heads), dust, sparks, shavings on hits

@@ -20,16 +20,23 @@ Tags: **[U]** the user's rule (taught from Rick's breakdown) - **[M]** measured 
 - [U] 2 solid ovals, a small mouth, short brush brows. NO nose, NO ears, NO cheeks.
 - [M] Geometry (head centre = 0, +y = down):
   - eyes: solid warm-ink vertical ovals 0.091 x 0.107 D, centres at (+-0.132 D, +0.04 D), so 0.264 D apart, just below centre
-  - brows: arcs 0.14 D long, ~0.03 D thick, tapered ends, centred at (+-0.137 D, -0.106 D) (0.146 D above the eye centres)
-  - mouth: centred at x = 0, about +0.21 D; neutral dash ~0.07 D [R], slight smile up to ~0.24 D wide
+  - brows: THICK tapered brush strokes, ~0.18 D long and ~0.05 D thick ([M] Rick's frames: 0.17-0.21 x 0.05-0.06 D; the
+    kit diagram's thin 0.14 D brows read too weak), ~0.16 D above the eye centres
+  - mouth: 0.03 D ink strokes centred at x = 0, about +0.22 to +0.25 D; dash ~0.07 D, smirk ~0.14 D, deadpan line up to 0.3 D
+- [M] Eye types (all part of the kit):
+  - dot: the vertical oval above (0.09 x 0.115 D) - neutral, worried
+  - LIDDED (Rick's most common look: deadpan / smug): a wide dark half-disc 0.17 x 0.095 D, flat top, under a thick lid line
+    (~0.034 D thick, ~0.2 D wide, outer end a touch lower); brows sit ~0.10 D above the lid
+  - startled: white rings ~0.21 D across with ink rims, almost touching (gap ~0.02 D), small pupils ~0.06 D
 - [R] Expressions are the same kit with changed shapes:
   - worried / sad: inner brow ends raised, mouth a dash or small frown
   - smug: a flat top lid cuts ~40% off both eyes, one brow raised, small closed smile
   - angry: brows slanted down to the centre, squinted eyes, gritted teeth (rounded box with a tooth grid); shouting = a dark open oval
   - tired / resigned: droopy half lids or -_- closed lines, sad brows, tiny mouth
-  - startled: white rings with dot pupils, brows high, open mouth [? confirm it belongs to the kit]
+  - startled: white-ring eyes with small pupils, brows high, small open "o" mouth (confirmed in Rick's thumbnails)
 - [R] Emotion FX: rage = the whole head flushes one strong colour + steam puffs. Rick uses purple; WE use crimson, because
-  the channel rule bans purple / violet / magenta. [?] Pink cheek dots appeared once on a happy face; never by default.
+  the channel rule bans purple / violet / magenta. [R] Happy faces can get two soft pink blush dots and ^ ^ closed eyes
+  (seen in his "Job Nobody Wants" frame); never by default. Sweat drops for fear.
 
 ## 3. Building a character
 - [U] One skin colour for everyone, and it is WHITE (user, 2026-11-07: "the same white as RicksClips"). Warm ink
@@ -42,23 +49,30 @@ Tags: **[U]** the user's rule (taught from Rick's breakdown) - **[M]** measured 
     - his shade side and night heads lean lavender; WE use neutral-cool / blue only (channel no-purple rule)
 - [U] A HAT on every character: the biggest shape after the head, and the make-or-break.
 - [U] Silhouette test: fill every character solid black; each one must still be recognisable by shape alone.
-- [U] Identity = hat + body. [R] Also hair, beards, glasses and props. Hair can stand in for the hat (a red ponytail); hair is a
-  flat dark patch on the head with a ragged edge.
-- Proportions, about 3 heads tall ([U]; [M] 3.13 D):
+- [U] Identity = hat + body. [R] Also hair, beards, glasses and props. Hair can stand in for the hat (a red ponytail, an orange
+  quiff); hair is a dark shape on the back / top of the head with a ragged edge and a few strand lines.
+- [M] Hats are 3D-looking, never flat side shapes: seen slightly from above (the base is an elliptical arc that curves down in
+  front, tops show an ellipse), clothes-style gradient plus a gloss streak, seams and buttons on caps, and they sit LOW
+  (base ~0.20-0.25 D above the head centre, just over the brows).
+- [R] Bodies carry the costume detail: lapels, collars, ties / bow ties, buttons, belts, pockets, badges, plaid and polka dots.
+- Proportions, about 3 heads tall ([U]; the diagram measures 3.13 D; [M] Rick's real adults are 3.2-3.5 D with bean torsos).
+  [I] Our build: 3.25 D (head 1, bean body, soles at +2.75 D from the head centre):
   - head: a clean circle 1 D wide (the silhouette of a sphere), outline about 0.045 D [M]
-  - body: an upright oval, fill 0.76 x 0.91 D (about 0.84 x 1.0 D with its outline); its top tucks ~0.05-0.1 D under the head; no neck [M]
+  - body: a BEAN, not an ellipse: a superellipse capsule ~0.70 x 1.08 D, the lower half ~6% wider, its top tucked 0.10 D
+    under the head, no neck ([M] Rick's frames: 0.62-0.75 D wide, 1.0-1.2 D tall; the diagram's 0.76 x 0.91 oval is a simplification)
   - legs: 1.27 D from the body bottom to the soles, 0.40 D apart at the hips, bowing to ~0.46 D mid-leg [M]
   - feet: the leg line turns outward into a short flat toe, ~0.14 D past the leg [M]
   - arms: from the upper sides of the body, about 0.65 D long [I]
-  - limbs: rubber lines 0.06 D wide ([U]; the drawings measure ~0.052 D), warm ink, smooth curves, no elbows or knees
+  - limbs: rubber lines 0.06 D wide ([U]; the drawings measure ~0.052 D; [I] we draw 0.055), warm ink, smooth curves, no elbows or knees
   - hands: balls of ink about 0.07 D (1.3x the limb width) [M], no fingers, one tiny pale dot [U]
 
 ## 4. Shading
 - [U] Clothes: a soft horizontal gradient, light on the left, the right side 1.4-2x darker
   ([M] the example is 1.35x darker in sRGB value, about 1.9x in linear light), plus a thin PALE STREAK just inside the left
   edge ([M] ~40% of the height, upper middle, about half the outline width), then the warm ink outline.
-- [M] Head: the same fixed left light, subtle: the right side x(0.93, 0.93, 0.955) (Rick's measured x(0.94, 0.92, 0.95) minus
-  the lavender), plus a soft darker rim (~10%) just inside the outline.
+- [M] Head: shaded like a soft ball lit from the upper left and front (light direction about (-0.55, 0.45, 0.70)). The
+  lower-right side falls off to ~15% darker blue-grey, x(0.84, 0.85, 0.90), through a soft terminator (Rick's measured shade
+  side is 10-25% darker and lavender; ours stays blue-grey). Plus a faint darker rim (~6%) just inside the 0.05 D outline.
 - [I] Characters are NOT lit by the scene lights (read from "the sun pass is just for the shadow"). Their colours come only
   from this fixed shading, then the final grade.
 
@@ -178,8 +192,7 @@ Rick's reference clips are private study material (never publish, never commit).
 - Details everywhere: no bare frame.
 
 ## 15. Open questions for the user
-1. Startled white-ring eyes: part of the face kit?
-2. What is step 6, "screen"?
-3. Shake amplitude.
-4. Who lip-syncs.
-5. Hats: 3D models or drawn shapes?
+1. What is step 6, "screen"?
+2. Shake amplitude.
+3. Who lip-syncs.
+(Answered by Rick's thumbnails 2026-11-07: white-ring eyes ARE part of the kit; hats look 3D.)

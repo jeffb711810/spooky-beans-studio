@@ -22,3 +22,7 @@ Unit: 1 D = head width. Everything measured in D.
 - big emotions: angry = slanted brows, squinted eyes, gritted-teeth mouth (rounded box with tooth grid);
   rage = whole head turns a strong colour (e.g. purple) + steam puffs from the head; mouth opens to a dark oval when shouting
 - the hat stays on and moves with the head; a dark hair patch can show at the side of the head
+## Timing curve of every move
+- 60-70% of the move happens in the first 4-5 frames (fast snap out), then a slow settle over the remaining frames
+  (strong ease-out; no slow ease-in at the start)
+- smug face: half-lidded eyes (flat top lid), one brow raised, small closed smile

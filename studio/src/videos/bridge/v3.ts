@@ -23,20 +23,29 @@ const bez3 = (a: P2, b: P2, c: P2, d: P2, n = 20): P2[] => arc(n, 0, 1).map((t) 
 });
 
 /** the head: a matte white ball, lit toward the key, soft blue-grey terminator on the far side */
-export const v3HeadFill = (p: Pen, pts: P2[], cx: number, cy: number, R: number, light: number, skin = V3_SKIN) => {
-  const g = p.g, lx = Math.cos(light), ly = Math.sin(light), sh = v3mul(skin, [0.84, 0.85, 0.9]);
-  const [gx, gy] = p.P(cx + lx * 0.36 * R, cy + ly * 0.36 * R);
-  const k = Math.hypot(g.getTransform().a, g.getTransform().b) || 1;
-  void k;
+export const v3HeadFill = (p: Pen, pts: P2[], cx: number, cy: number, R: number, light: number, skin = V3_SKIN, k = 1) => {
+  const g = p.g, lx = Math.cos(light), ly = Math.sin(light), sh = v3mul(skin, k > 1 ? [0.8, 0.81, 0.87] : [0.84, 0.85, 0.9]);
+  const [gx, gy] = p.P(cx + lx * 0.36 * k * R, cy + ly * 0.36 * k * R);
   const gr = g.createRadialGradient(gx, gy, 0, gx, gy, 1.5 * R);
-  gr.addColorStop(0, skin); gr.addColorStop(0.5, skin); gr.addColorStop(0.74, v3mix(skin, sh, 0.55)); gr.addColorStop(0.92, sh); gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
+  const K = k > 1 ? [0.36, 0.58, 0.8] : [0.5, 0.74, 0.92]; // reference cast: the soft shadow side reaches further round the head
+  gr.addColorStop(0, skin); gr.addColorStop(K[0], skin); gr.addColorStop(K[1], v3mix(skin, sh, 0.55)); gr.addColorStop(K[2], sh); gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
   p.path(pts, true); g.fillStyle = gr; g.fill();
 };
 
 /** ink-ball hand with one tiny pale dot (framework 3) */
-export const v3Hand = (p: Pen, x: number, y: number, D: number) => {
-  p.dot(x, y, 0.04 * D, V3_INK);
-  p.dot(x - 0.0136 * D, y - 0.0136 * D, 0.011 * D, "#ece2d0");
+export const v3Hand = (p: Pen, x: number, y: number, D: number, solid = false) => {
+  p.dot(x, y, (solid ? 0.044 : 0.04) * D, V3_INK);
+  if (!solid) p.dot(x - 0.0136 * D, y - 0.0136 * D, 0.011 * D, "#ece2d0"); // reference cast: a plain black ball
+};
+/** reference cast: soft matte form shading across a body (lit side a touch lighter, the far side cooler and darker)
+ *  instead of the glossy streak */
+export const v3BodyShade = (p: Pen, tcx: number, tcy: number, a: number, b: number, light: number) => {
+  const g = p.g, lx = Math.cos(light) >= 0 ? 1 : -1;
+  const [x0, y0] = p.P(tcx - lx * a, tcy), [x1, y1] = p.P(tcx + lx * a, tcy);
+  const gr = g.createLinearGradient(x0, y0, x1, y1);
+  gr.addColorStop(0, "rgba(255,248,232,0.16)"); gr.addColorStop(0.42, "rgba(255,248,232,0)"); gr.addColorStop(0.62, "rgba(24,28,48,0)"); gr.addColorStop(1, "rgba(24,28,48,0.34)");
+  g.fillStyle = gr; const [qx, qy] = p.P(tcx - 1.3 * a, tcy - 1.3 * b), [rx, ry] = p.P(tcx + 1.3 * a, tcy + 1.3 * b);
+  g.fillRect(Math.min(qx, rx), Math.min(qy, ry), Math.abs(rx - qx), Math.abs(ry - qy));
 };
 
 /** pale streak just inside the LEFT edge of a body, upper middle (framework 4) */
@@ -62,7 +71,7 @@ const taper = (p: Pen, pts: P2[], w: number, fill: string, ends = 0.25) => {
 };
 
 /** the face kit: the same face on everyone; expressions only change the shapes. `e` is the engine's Expr. */
-export type V3Opts = { yaw: number; look: number; lid: number; talk?: number; browUp?: number; fore?: number; tongue?: number };
+export type V3Opts = { yaw: number; look: number; lid: number; talk?: number; browUp?: number; fore?: number; tongue?: number; glasses?: boolean; stache?: string };
 export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: V3Opts) => {
   const yaw = o.yaw, R = 0.5;
   // face-plane (u, v) in D -> design units, wrapped on the head sphere (lon = u / R + yaw)
@@ -209,6 +218,13 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
     else if (talk < 0.8) openMouth(0.17, 0.09, 0.205, true);
     else openMouth(0.21, 0.13, 0.2, true);
   }
+  // BUSBY (reference cast): round ink-rimmed glasses and a moustache are allowed again, drawn on the same face sphere
+  if (o.glasses) {
+    for (const sx of S) { const ex = sx * EX; if (!vis(ex)) continue; line(arc(40).map((t) => [ex + 0.092 * Math.cos(t), EY - 0.008 + 0.084 * Math.sin(t)] as P2), 0.024); }
+    if (vis(0)) line([[-EX + 0.09, EY - 0.03], [0, EY - 0.045], [EX - 0.09, EY - 0.03]], 0.02);
+  }
+  if (o.stache) for (const sx of S) { const c = sx * 0.062; if (!vis(c)) continue;
+    fill(arc(28).map((t) => { const u = 0.072 * Math.cos(t), v = 0.028 * Math.sin(t) + (Math.cos(t) * sx > 0.6 ? -0.012 : 0); const a = -sx * 0.22; return [c + u * Math.cos(a) - v * Math.sin(a), 0.148 + u * Math.sin(a) + v * Math.cos(a)] as P2; }), o.stache, 0.016); }
   // sweat / tears fly off the head (drawn last: over hats)
   for (const [phi, r, sz] of sweat) {
     const a = (phi * Math.PI) / 180, ca = Math.cos(a), sa = Math.sin(a), x0 = r * ca, y0 = r * sa;
@@ -321,6 +337,40 @@ export const v3Hat = (p: Pen, o: Outfit, cx: number, hc: number, D: number, f: n
       flat(p, ellX(X, 0, -0.665, 0.05, 0.028, 20), v3mul(col, [0.8, 0.8, 0.8]), D, 0.02);
       if (front) visorFront(0.0, 0.42, v3mul(col, [0.88, 0.88, 0.88]));
       else cloth(p, [...B3(X, [0.25, -0.18], [0.62, -0.33], [1.02, -0.26], [1.0, -0.15], 24), ...B2(X, [1.0, -0.15], [0.64, -0.08], [0.28, -0.07], 18)], v3mul(col, [0.88, 0.88, 0.88]), light, D);
+      return true;
+    }
+    case "tricorn": { // 1702: black felt, three brims turned up, a gold galloon on the edge
+      sideHair(p, cx, hc, D, hair, f);
+      const c = o.cap ?? "#2a2420";
+      cloth(p, [...B3(X, [-0.4, -0.3], [-0.42, -0.9], [0.42, -0.9], [0.4, -0.3], 30), X(0.4, -0.28), X(-0.4, -0.28)], c, light, D, 0.048, [X(-0.22, -0.7), X(0.0, -0.8)], 0.16);
+      const brim = [X(-0.74, -0.58), ...B2(X, [-0.66, -0.4], [-0.3, -0.22], [0, -0.17], 14), ...B2(X, [0, -0.17], [0.3, -0.22], [0.66, -0.4], 14), X(0.74, -0.58), ...B2(X, [0.6, -0.5], [0.3, -0.42], [0, -0.36], 12), ...B2(X, [0, -0.36], [-0.3, -0.42], [-0.6, -0.5], 12)];
+      cloth(p, brim, lighter(c, 1.12), light, D);
+      p.stroke([...B2(X, [-0.68, -0.48], [-0.3, -0.27], [0, -0.215], 14), ...B2(X, [0, -0.215], [0.3, -0.27], [0.68, -0.48], 14)], 0.026 * D, o.ribbon ?? "#d9a83a");
+      return true;
+    }
+    case "nightcap": { // a long soft cone flopping over to one side, a pompom on the tip
+      sideHair(p, cx, hc, D, hair, f);
+      const c = o.cap ?? "#e0b04a";
+      cloth(p, [...B2(X, [-0.5, -0.24], [-0.56, -0.8], [0.02, -0.98], 16), ...B2(X, [0.02, -0.98], [0.5, -1.02], [0.82, -0.5], 16), ...B2(X, [0.74, -0.48], [0.44, -0.78], [0.48, -0.26], 14)], c, light, D, 0.048, [X(-0.3, -0.6), X(0.0, -0.86)], 0.18);
+      cloth(p, [...B2(X, [-0.54, -0.18], [0, -0.3], [0.54, -0.18], 16), ...B2(X, [0.54, -0.3], [0, -0.42], [-0.54, -0.3], 16)], o.ribbon ?? "#f4efe2", light, D);
+      flat(p, ellX(X, 0.84, -0.46, 0.1, 0.1, 28), o.ribbon ?? "#f4efe2", D, 0.04);
+      return true;
+    }
+    case "peaked": { // guard / pilot / constable: crown wider than the band, a badge, a black peak
+      sideHair(p, cx, hc, D, hair, f);
+      const c = o.cap ?? "#24304a";
+      cloth(p, [...B3(X, [-0.5, -0.3], [-0.74, -0.62], [-0.6, -0.8], [0, -0.82], 20), ...B3(X, [0, -0.82], [0.6, -0.8], [0.74, -0.62], [0.5, -0.3], 20)], c, light, D, 0.048, [X(-0.4, -0.64), X(-0.1, -0.74)], 0.16);
+      cloth(p, [X(-0.5, -0.36), X(0.5, -0.36), X(0.52, -0.2), X(-0.52, -0.2)], o.ribbon ?? v3mul(c, [0.7, 0.7, 0.7]), light, D);
+      flat(p, ellX(X, 0, -0.5, 0.07, 0.085, 24), o.buttons ?? "#e0b04a", D, 0.03);
+      if (front) visorFront(0.02, 0.46, "#1c1a1a"); else cloth(p, [...B3(X, [0.3, -0.22], [0.6, -0.3], [0.9, -0.22], [0.86, -0.14], 20), ...B2(X, [0.86, -0.14], [0.6, -0.12], [0.3, -0.12], 14)], "#1c1a1a", light, D);
+      return true;
+    }
+    case "flight": { // WWII leather flying helmet: tight dome, ear flaps, goggles pushed up on the forehead
+      const c = o.cap ?? "#7a4a2a";
+      cloth(p, [...B3(X, [-0.54, 0.05], [-0.62, -0.86], [0.62, -0.86], [0.54, 0.05], 34), X(0.4, 0.06), ...B2(X, [0.42, -0.2], [0, -0.36], [-0.42, -0.2], 14), X(-0.4, 0.06)], c, light, D, 0.048, [X(-0.3, -0.62), X(0.0, -0.74)], 0.2);
+      for (const sx of front ? [-1, 1] : [-1]) cloth(p, ellX(X, sx * 0.5, 0.08, 0.11, 0.17, 24), v3mul(c, [0.86, 0.86, 0.86]), light, D);
+      p.stroke(B2(X, [-0.56, -0.36], [0, -0.48], [0.56, -0.36], 18), 0.04 * D, "#3a2a1c");
+      for (const sx of [-1, 1]) { flat(p, ellX(X, sx * 0.17, -0.44, 0.13, 0.1, 28), "#a8b8c0", D, 0.04); flat(p, ellX(X, sx * 0.17 - 0.03, -0.47, 0.04, 0.03, 12), "#eef6f8", D); }
       return true;
     }
     case "tophat": case "brim": case "straw": {

@@ -26,7 +26,7 @@ export const RIM_CANDLE: [number, [number, number, number]] = [0, [1.0, 0.76, 0.
 // side (cap 155) so the back walls / headboards behind the characters are LIT and their cast shadows land there
 const SWING = (a: number) => a; // (a +35 deg swing hid every shadow straight behind its character: keep the side keys)
 export const SUN_INT: Record<number, [number, number]> = Object.fromEntries(Object.entries({
-  97: [-80, 30], 96: [-80, 30], 901: [-150, 52], 902: [-120, 48], 903: [-70, 34], 904: [-60, 42], 905: [80, 40],
+  97: [-80, 30], 96: [-80, 30], 901: [-150, 52], 902: [-120, 48], 903: [-70, 34], 904: [-60, 42], 905: [80, 40], 906: [-55, 38],
   3: [105, 38], 4: [110, 40], 5: [115, 42], 6: [110, 42], 7: [105, 40], 8: [120, 38], 9: [110, 42], 10: [-120, 36], 11: [105, 38],
   12: [100, 38], 14: [110, 38], 15: [100, 40], 16: [140, 42], 17: [-95, 34], 18: [120, 44], 20: [-95, 34], 21: [100, 40],
   // light round 2: the candle close-ups (17, 20) take a true side key from the candle side (form + shadow toward the lens)

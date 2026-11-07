@@ -148,3 +148,19 @@ look(C.nt3, { head: 1.0, torso: 0.95, legs: 0.78, tw: 1.2, feet: 1.4 }, "bulb");
  [{ head: 1.0, torso: 1.05, legs: 0.8, tw: 1.22, feet: 1.3 }, "bulb"], [{ head: 1.15, torso: 1.0, legs: 1.0, tw: 1.0, feet: 1.5 }, "button"]]
   .forEach(([sh, n], i) => look(TOURISTS[i], sh as Outfit["shape"], n as Outfit["nose"]));
 
+
+// ===== BUSBY cast (user: "make them look more like his: human character"): the reference proportions and finish
+// (rick: lanky, matte form shading, solid hands; glasses and moustaches allowed), our own people for our own story
+const R_ = (o: Partial<Outfit>, k: string, seed: number) => B({ rick: true, ...o }, k, seed);
+export const BZ = {
+  busby: R_({ jacket: "#7a2a22", pants: "#3a2a22", vest: "#c9a24a", buttons: "#e8c060", hat: "tricorn", cap: "#2a2420", ribbon: "#d9a83a", hair: "#3a281c", collar: "#f4efe2" }, "bz_busby", 61),
+  auty: R_({ jacket: "#4f73a6", pants: "#ece4d2", hat: "nightcap", cap: "#e0b04a", ribbon: "#f4efe2", hair: "#d8d2c8", moustache: "#d8d2c8" }, "bz_auty", 62),
+  local1: R_({ jacket: "#ece2cc", vest: "#5a3a28", buttons: "#d9c08a", pants: "#3a3a40", hat: "cap", cap: "#6a5a48", moustache: "#5a3a22" }, "bz_local1", 63),
+  local2: R_({ jacket: "#3f6f9a", pants: "#4a3a2c", suspenders: "#7a3a28", hat: "hair", hair: "#c8642a", hairdo: "tousled" }, "bz_local2", 64),
+  airman: R_({ jacket: "#7a4a2a", collar: "#f2e8d6", pants: "#4a5a3a", hat: "flight", cap: "#6a3e22" }, "bz_airman", 65),
+  sweep: R_({ jacket: "#2e2e34", pants: "#2e2e34", hat: "tophat", cap: "#1e1e22", ribbon: "#3a3a40", hair: "#2a1d17" }, "bz_sweep", 66),
+  pilot: R_({ jacket: "#5a6f9a", pants: "#4a5a7a", shirt: "#cfd8e6", collar: "#cfd8e6", tie: "#1e2a40", buttons: "#e0b04a", hat: "peaked", cap: "#3e4f72", ribbon: "#1e2a40" }, "bz_pilot", 67),
+  guard: R_({ jacket: "#24304a", pants: "#24304a", buttons: "#e0b04a", hat: "peaked", cap: "#1e2840", moustache: "#3a281c" }, "bz_guard", 68),
+  expert: R_({ jacket: "#8a6a3c", pants: "#4a4a52", shirt: "#e6eef6", collar: "#e6eef6", tie: "#2f6fb5", hat: "hair", hair: "#b8b2a8", hairdo: "parted", glasses: true }, "bz_expert", 69),
+  landlord: R_({ build: "stout", jacket: "#efe6d2", pants: "#4e4438", apron: "#f4efe2", hat: "hair", hair: "#3a281c", hairdo: "parted", moustache: "#3a281c" }, "bz_landlord", 70),
+};

@@ -5,7 +5,7 @@
 // impact kicks that flip sign every frame and decay over 7 f. Composition: head tops ~0.2-0.35 of the frame, eyes on the
 // upper third, no faces cut by the frame edge, focus (lens blur) on the eyes in close-ups, wides sharp.
 export const FPS = 30;
-export const TOTAL = 480; // BUSBY look-dev
+export const TOTAL = 540; // BUSBY look-dev
 const BXv = 600, CXv = 640, PXv = 680; // hero.ts BX / CX (story.ts must not import three-heavy modules)
 export type V3 = [number, number, number];
 export const X0 = 200; // bedroom centre x
@@ -66,6 +66,8 @@ export const SHOTS: Shot[] = [
   { id: 904, a: 360, b: 420, light: "candle", mood: "pubDay", cInf: 0, keys: [{ f: 360, pos: [PXv + 1.7, 1.35, 1.6], look: [PXv - 1.0, 1.0, -1.7], fov: 50 }] },
   // 905 the chair in its corner, low, the dare plaque above it
   { id: 905, a: 420, b: 480, light: "candle", mood: "pubDay", cInf: 10, keys: [{ f: 420, pos: [PXv - 1.35, 0.85, -0.45], look: [PXv - 2.72, 0.95, -2.25], fov: 40 }] },
+  // 906 character test in the pub: our v3 cast next to the bar (compare with the reference characters)
+  { id: 906, a: 480, b: 540, light: "candle", mood: "pubDay", cInf: 5, focus: [PXv + 0.3, 1.4, -0.9], keys: [{ f: 480, pos: [PXv + 0.3, 1.25, 4.5], look: [PXv + 0.3, 1.0, -0.9], fov: 40 }] },
 ];
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 /** shot at f; in a TAIL render (tail = a DISSOLVES boundary) the shot that ENDS there keeps running through its dissolve */

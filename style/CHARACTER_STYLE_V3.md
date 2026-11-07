@@ -26,3 +26,6 @@ Unit: 1 D = head width. Everything measured in D.
 - 60-70% of the move happens in the first 4-5 frames (fast snap out), then a slow settle over the remaining frames
   (strong ease-out; no slow ease-in at the start)
 - smug face: half-lidded eyes (flat top lid), one brow raised, small closed smile
+## When a character STOPS it is COMPLETELY STILL
+- no breathing, no sway, no head bob, no idle loop: the final settled pose is frozen (identical frames)
+- "new pose every frame" applies only WHILE a move/action/expression change is happening

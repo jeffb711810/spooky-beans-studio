@@ -152,6 +152,7 @@ const sub3 = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const len3 = (a: V3) => Math.hypot(a[0], a[1], a[2]);
 /** shots whose holds are locked dead still like the reference's action / explanation holds (round 9) */
 const STILL_HOLDS = new Set<number>([95, 96, 97, 98, 99, 108, 109, 110, 111, 116, 120]); // round 10: + 8 ("just the wind") and 16 (the rack to Lucy) hold still
+const WH_LOCKED = new Set<number>([109, 110, 111, 112]);
 const NORM = new WeakMap<Shot, Key[]>();
 const GLIDE_MAX = 36; // round 9: his flights run 0.8-1.5 s with an S-curve (was 30)
 /** keys with every glide >= 18 f (cuts = glide 1 stay cuts); a short "out" punch is re-centred on its old peak frame */
@@ -319,8 +320,17 @@ export const camAt = (s: Shot, f: number): Cam => {
   const { fov, roll } = poseAt(s, f);
   // continuous creep toward the target (every hold moves); restarts at every in-shot cut
   // ROUND 9: his holds are LOCKED (action / explanation beats) or creep ~0.1 %/f; ours had a 0.15 %/f floor (never still)
-  const cr = STILL_HOLDS.has(s.id) || (s.id > 100 && s.keys.length > 1) ? 0 : Math.min(0.0011, Math.max(0.0008, s.creep ?? 0.001));
-  const c = Math.min(0.5, cr * (f - cutStart(s, f)));
+  // V3 FRAMEWORK (camera still on <= 4.5 % of frames): every hold creeps, also between the glides of multi-key shots;
+  // each landing starts a new creep segment and the old one fades out with the glide (no jumps). Only the day/night
+  // flicker gag (109-112, one locked framing) stays dead still.
+  const cr = s.id > 100 ? (WH_LOCKED.has(s.id) ? 0 : Math.min(0.0011, Math.max(0.0008, s.creep ?? 0.0009)))
+    : STILL_HOLDS.has(s.id) || s.keys.length > 1 ? 0 : Math.min(0.0011, Math.max(0.0008, s.creep ?? 0.001));
+  let c0 = cutStart(s, f), fade = 1;
+  if (s.id > 100) for (const k of keysOf(s)) {
+    if (k.glide === undefined || k.glide <= 1) continue;
+    if (f >= k.f) c0 = Math.max(c0, k.f); else if (f > k.f - k.glide) fade = Math.min(fade, 1 - smooth((f - (k.f - k.glide)) / k.glide));
+  }
+  const c = Math.min(0.5, cr * (f - c0)) * fade;
   pos = lerp3(pos, look, c);
   // kick: ~3 px at 720p per unit (image offset, camera and target move together), roll 0.004 rad per unit
   const kk = kickAt(f), L = Math.hypot(look[0] - pos[0], look[1] - pos[1], look[2] - pos[2]);

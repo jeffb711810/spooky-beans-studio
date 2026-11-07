@@ -120,7 +120,7 @@ export const TOURISTS = [
 // ===== SPOOKY BEANS v2 character design (user: "complete new assets, funny looking goofy characters", "match the
 // narrator's voice: fun, exciting, mysterious, bouncy, silly"): scissor-cut paper edge, mixed eye assets (dots / -_- /
 // googly), a cartoon nose each, and every person their own goofy silhouette (noodle, ball, pear, big head, stubby legs)
-STYLE.googly = true; CARD_FX.paperCut = true;
+STYLE.googly = true; CARD_FX.paperCut = !STYLE.v3; // v3: no paper-cut border (Rick: ink outline only)
 const look = (w: Who, shape: Outfit["shape"], nose: Outfit["nose"]) => { Object.assign(w.o, { shape, nose }); };
 look(SARAH, { head: 1.12, torso: 0.9, legs: 0.7, tw: 1.06, feet: 1.2 }, "button");          // the real Sarah was 4'10": tiny, big head
 look(PSYCHIC, { head: 1.05, torso: 1.0, legs: 0.72, tw: 1.3, feet: 1.3 }, "potato");          // round as a crystal ball

@@ -141,7 +141,7 @@ const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
   fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
   fx.lens.cInf = P3 ? P3[10] : LK?.cInf !== undefined ? LK.cInf : cInfAt(s, f) * BG_BLUR * (s.light === "candle" ? 1.1 : 1.15); // user: "blur the background for close up" like his (was .55 / .8; wides with cInf 0 stay sharp)
   // whip blur: uv streak = camera screen motion x 0.5 shutter; its pass runs only on whip frames
-  const wv = LK ? null : whipVel(f);                                                    // no motion blur, ever (v3)
+  const wv: ReturnType<typeof whipVel> = null;                                                    // no motion blur, ever (v3)
   fx.whip.vel.set(wv ? wv[0] * 0.5 : 0, wv ? wv[1] * 0.5 : 0); fx.whip.zoom = wv ? wv[2] * 0.5 : 0;
   const wp = composer.current?.passes.find((p) => p instanceof EffectPass && (p as unknown as { effects: Effect[] }).effects.includes(fx.whip));
   if (wp) wp.enabled = !!wv;

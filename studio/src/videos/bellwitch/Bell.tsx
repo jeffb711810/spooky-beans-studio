@@ -133,10 +133,11 @@ const Inner: React.FC<{ kit: Kit }> = ({ kit }) => {
   cam.getWorldDirection(fwd);
   // focus on the speaking / reacting face; it travels and racks with the camera keys (story.ts focusAt), the blur
   // strength glides with them too (blurred close-up -> sharp wide). `target` (stage focus) is the fallback.
-  const fo = focusAt(s, f);
+  const LK = (getInputProps() as { look3?: { focus?: [number, number, number]; cInf?: number } }).look3;
+  const fo = LK?.focus ?? focusAt(s, f);
   fpt.set(...(fo ?? [target.x, target.y, target.z]));
   fx.lens.focus = Math.max(0.3, fpt.sub(cam.position).dot(fwd));
-  fx.lens.cInf = cInfAt(s, f) * BG_BLUR * (s.light === "candle" ? 1.1 : 1.15); // user: "blur the background for close up" like his (was .55 / .8; wides with cInf 0 stay sharp)
+  fx.lens.cInf = LK?.cInf !== undefined ? LK.cInf : cInfAt(s, f) * BG_BLUR * (s.light === "candle" ? 1.1 : 1.15); // user: "blur the background for close up" like his (was .55 / .8; wides with cInf 0 stay sharp)
   // whip blur: uv streak = camera screen motion x 0.5 shutter; its pass runs only on whip frames
   const wv = whipVel(f);
   fx.whip.vel.set(wv ? wv[0] * 0.5 : 0, wv ? wv[1] * 0.5 : 0); fx.whip.zoom = wv ? wv[2] * 0.5 : 0;

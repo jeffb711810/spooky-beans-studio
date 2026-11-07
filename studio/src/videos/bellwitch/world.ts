@@ -890,7 +890,8 @@ export class World {
   }
 
   update(f: number, cam: THREE.PerspectiveCamera, scene: THREE.Scene) {
-    const s = shotAtT(f, tailOf()), c = camAt(s, f), L = presetOf(s), t = f / FPS, outside = s.light === "night";
+    const LK = (getInputProps() as { look3?: { pos: [number, number, number]; look: [number, number, number]; fov: number; noCast?: boolean } }).look3; // v3 look tests: fixed camera, no cast
+    const s = shotAtT(f, tailOf()), c0 = camAt(s, f), c = LK ? { ...c0, pos: LK.pos, look: LK.look, fov: LK.fov, roll: 0 } : c0, L = presetOf(s), t = f / FPS, outside = s.light === "night";
     { const BP: [number, number, number, number][] = [[-312, 15.5, -12, 0.8], [-316.5, 13.8, -10, 0.55], [-309, 13.2, -9, 0.45], [-319, 17.2, -15, 0.45], [-313.5, 18.4, -16, 0.6]];
       this.bats.forEach((b, i) => { b.visible = s.id === 99; const q = BP[i]; b.position.set(q[0], q[1], q[2]); b.scale.setScalar(q[3]); b.rotation.set(0, 0, (i % 2 ? 0.25 : -0.2)); b.lookAt(c.pos[0], c.pos[1], c.pos[2]); b.rotateZ(i % 2 ? 0.25 : -0.2); }); }
     cam.position.set(...c.pos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);
@@ -990,6 +991,7 @@ export class World {
     const cardOrder = (x: number, z: number) => -0.05 - 0.2 * Math.min(1, Math.hypot(x - cam.position.x, z - cam.position.z) / 200);
     let ai = 0; const used: Actor[] = [];
     for (const p of st.places) {
+      if (LK?.noCast) continue;
       const sc2 = p.scale ?? 1;
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(p.x, p.y + 1.1 * sc2, p.z), 3))) continue;
       const a = this.actor(ai++), [w, h, k] = p.size ?? [300, 500, 0.5];

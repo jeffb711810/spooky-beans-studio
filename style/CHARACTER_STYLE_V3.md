@@ -91,3 +91,5 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
 - (red on the slide = the real effects: fog, DOF, bloom, particles, grade; grey = layers/passes)
 ## Performance lesson (Rick's frame time: 84 ms, every character updated 3x a frame, even ones in another place)
 - do better: update each character ONCE per frame, and only characters in the current shot/set (skip off-set ones)
+- Rick's frames spend 34% (a third) rebuilding faces -> our face cache (build once, then only rotate) removes that cost
+- (frame ref: dark tunnel scene, hammer-hit spark star on the hammer, tired face = droopy half lids + raised inner brows)

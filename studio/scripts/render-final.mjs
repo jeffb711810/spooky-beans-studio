@@ -7,14 +7,16 @@ import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
 
 const cpu = process.argv.includes("--cpu"), hd = process.argv.includes("--1080"), safe = process.argv.includes("--safe");
+// which video: --comp <id> (default the Winchester short, composition "BellWitch"); output named after it
+const ci = process.argv.indexOf("--comp"), COMP = ci > 0 ? process.argv[ci + 1] : "BellWitch", NAME = COMP === "BellWitch" ? "winchester" : COMP.toLowerCase();
 const gl = cpu || process.platform === "linux" ? "swangle" : "angle";
-const out = path.resolve(hd ? "out/winchester_1080x1920.mp4" : "out/winchester_4K_2160x3840.mp4");
+const out = path.resolve(hd ? `out/${NAME}_1080x1920.mp4` : `out/${NAME}_4K_2160x3840.mp4`);
 const inputProps = { post: { dpr: 2 }, withAudio: true };
 console.log(`Bundling... (renderer: ${gl}, ${os.cpus().length} CPU threads)`);
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts"), publicDir: path.resolve("public") });
 const chromiumOptions = { gl };
 const browserExecutable = process.env.CHROME_PATH || null; // optional; by default Remotion downloads its own headless Chrome once
-const composition = await selectComposition({ serveUrl, id: "BellWitch", inputProps, chromiumOptions, browserExecutable, timeoutInMilliseconds: 600000 });
+const composition = await selectComposition({ serveUrl, id: COMP, inputProps, chromiumOptions, browserExecutable, timeoutInMilliseconds: 600000 });
 const level = hd ? "4.1" : "5.1";
 const range = process.env.FRAMES ? process.env.FRAMES.split("-").map(Number) : null;
 const total = range ? range[1] - range[0] + 1 : composition.durationInFrames;

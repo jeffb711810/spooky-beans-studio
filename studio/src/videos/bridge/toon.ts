@@ -1519,7 +1519,7 @@ const bodySide0 = (p: Pen, o: Outfit, opts: SideOpts) => {
   const legs: LegS[] = [];
   let hipY = ankY - legLen * 0.995, lean = 0, nearFwd = 0;
   if (mode === "march") {
-    const S = 370 * stride, liftH = Math.max(22, 40 + 70 * (stomp - 1));
+    const S = (o.rick ? 430 : 370) * stride, liftH = o.rick ? Math.max(10, 16 + 40 * (stomp - 1)) : Math.max(22, 40 + 70 * (stomp - 1));
     const st = (ph: number) => {
       const c = (((phase + ph) % 1) + 1) % 1;
       if (c < 0.5) { const s = c / 0.5; return { x: S / 2 - S * s, h: 0, stance: true, s }; }
@@ -1527,11 +1527,11 @@ const bodySide0 = (p: Pen, o: Outfit, opts: SideOpts) => {
       return { x: -S / 2 + S * s - (S / Math.PI) * Math.sin(2 * Math.PI * s), h: liftH * Math.sin(Math.PI * s), stance: false, s };
     };
     const nL = st(0), fL = st(0.5), stance = nL.stance ? nL : fL;
-    const Leff = legLen * (1 - 0.035 * Math.sin(Math.PI * stance.s));
+    const Leff = legLen * (1 - (o.rick ? 0.012 : 0.035) * Math.sin(Math.PI * stance.s)); // reference: the stance leg stays straight
     hipY = ankY - Math.sqrt(Math.max(1, Leff * Leff - stance.x * stance.x));
     for (const [L, near] of [[fL, false], [nL, true]] as const)
       legs.push({ ank: [300 + L.x, ankY - L.h], pitch: L.stance ? 0 : rad(35 * Math.sin(Math.PI * L.s) * (1 - 1.6 * L.s)), near });
-    lean = 4 + 3 * Math.cos(2 * two * phase); // 7 deg at contact, 1 deg at passing
+    lean = o.rick ? 5 + 1.5 * Math.cos(2 * two * phase) : 4 + 3 * Math.cos(2 * two * phase); // 7 deg at contact, 1 deg at passing (reference: a steadier forward lean)
     nearFwd = nL.x / (S / 2);
   } else if (mode === "push") {
     hipY = ankY - 0.87 * legLen;
@@ -1552,7 +1552,7 @@ const bodySide0 = (p: Pen, o: Outfit, opts: SideOpts) => {
   for (const L of legs) {
     const knee = mode === "swing" ? ([300 + l1 * 0.98 + (L.near ? 0 : -6 * u), hipY + 6 * u] as P2) : ik(hip, L.ank, l1, l2);
     const hp0: P2 = [300 + (L.near ? 0 : -5 * u), hipY];
-    p.stroke([hp0, knee, L.ank], (STYLE.v3 ? 5.5 : 5.8) * u, L.near ? nearCol : farCol);
+    p.stroke([hp0, knee, L.ank], (STYLE.v3 ? (o.rick ? 7.4 : 5.5) : 5.8) * u, L.near ? nearCol : farCol);
     const c = Math.cos(L.pitch), s = Math.sin(L.pitch);
     footStroke(p, [L.ank[0] - 3 * u * c, L.ank[1] - 3 * u * s], [L.ank[0] + 13 * u * c, L.ank[1] + 13 * u * s + 0.5 * u],
       7.5 * u, L.near ? footCol : footCol === INK ? INK : shade(footCol, 0.82));

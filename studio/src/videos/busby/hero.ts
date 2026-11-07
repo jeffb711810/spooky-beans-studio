@@ -9,7 +9,7 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { Batch, lam } from "../bridge/build";
 import { GLOSS_OF } from "../bridge/shade";
 import { NOINK } from "../bridge/ink";
-import { ctex, rep } from "../bridge/paint";
+import { ctex, rep, planksHD } from "../bridge/paint";
 import { halo } from "./fx3d";
 import { parquetTex, stoneTex } from "./textures";
 
@@ -270,7 +270,7 @@ export const buildChair = () => {
 export const buildMuseum = (R: THREE.Object3D) => {
   const g = new THREE.Group(), b = new Batch(), x0 = BX, zW = -3;
   const M = {
-    floor: lam("bzFloor", () => ({ map: rep(parquetTex(), 3, 3) })),
+    floor: lam("bzFloor", () => ({ map: rep(planksHD(true), 3, 2.5), color: "#c8a27c" })), // wide boards (the parquet aliased into stripes at distance)
     wall: lam("bzWall", () => ({ map: rep(plasterTex(), 3, 1.5) })),
     wains: lam("bzWainsM", () => ({ map: rep(wainsTex(), 4, 1) })),
     trim: lam("bzTrim", () => ({ color: "#f1e6cf" })),

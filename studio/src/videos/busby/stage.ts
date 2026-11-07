@@ -274,6 +274,14 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     case 906: { props.pools = [[677.4, 1.75, -1.8], [681.1, 2.0, -1.55], [683.3, 0.5, 0.9]]; // reference-cast test in the pub
       add(BZ.busby, 679.25, 0, -0.95, { f, expr: "angry", look: 1, pose: "point", pa: 1 }); add(BZ.local1, 679.95, 0, -0.8, { f, expr: "laugh", look: -1, pose: "hips", pa: 1 });
       add(BZ.expert, 680.65, 0, -0.95, { f, expr: "suspicious", look: -1, pose: "chin", pa: 1 }); add(BZ.guard, 681.35, 0, -1.05, { f, expr: "stern", look: -1 }); break; }
+    case 907: { props.pools = [[677.4, 1.75, -1.8], [681.1, 2.0, -1.55], [683.3, 0.5, 0.9]]; // walk + light test
+      const t = (f - 540) / 89, x = 678.0 + 3.0 * t;
+      add(BZ.landlord, x, 0, 0.2, { f, side: true, so: { mode: "march", phase: (f - 540) * 0.075, stride: 1, expr: "grin" }, mirror: false });
+      add(BZ.local1, 681.6, 0, -0.5, { f, expr: "laugh", look: -1, pose: "hips", pa: 1 }); break; }
+    case 908: case 909: { const L = s.id === 908
+        ? [[BZ.busby, "angry", "point"], [BZ.auty, "smug", "belly"], [BZ.local1, "laugh", "hips"], [BZ.local2, "grin", "up"], [BZ.airman, "grin", "fists"]]
+        : [[BZ.sweep, "nervous", "hold"], [BZ.pilot, "laugh", "point"], [BZ.guard, "smug", "hips"], [BZ.expert, "suspicious", "chin"], [BZ.landlord, "grin", "belly"]];
+      L.forEach(([who, e, po], i) => add(who as typeof BZ.busby, 598.76 + i * 0.62, 0, -0.6, { f, expr: e as Expr, look: i < 2 ? 1 : i > 2 ? -1 : 0, pose: po as Pose, pa: 1 })); break; }
     case 904: case 905: props.pools = [[677.4, 1.75, -1.8], [681.1, 2.0, -1.55], [683.3, 0.5, 0.9]]; break; // BUSBY pub: chair-corner lamp, bar pendants, fire
     case 1: { // the farmhouse; John on the porch with a lantern; lights go out on "didn't exist"
       // opening close-up (frame 0 stops the scroll): already uneasy, eyes cut hard off-screen left as if he heard

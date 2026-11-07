@@ -5,7 +5,7 @@
 // impact kicks that flip sign every frame and decay over 7 f. Composition: head tops ~0.2-0.35 of the frame, eyes on the
 // upper third, no faces cut by the frame edge, focus (lens blur) on the eyes in close-ups, wides sharp.
 export const FPS = 30;
-export const TOTAL = 540; // BUSBY look-dev
+export const TOTAL = 690; // BUSBY look-dev
 const BXv = 600, CXv = 640, PXv = 680; // hero.ts BX / CX (story.ts must not import three-heavy modules)
 export type V3 = [number, number, number];
 export const X0 = 200; // bedroom centre x
@@ -68,6 +68,12 @@ export const SHOTS: Shot[] = [
   { id: 905, a: 420, b: 480, light: "candle", mood: "pubDay", cInf: 10, keys: [{ f: 420, pos: [PXv - 1.35, 0.85, -0.45], look: [PXv - 2.72, 0.95, -2.25], fov: 40 }] },
   // 906 character test in the pub: our v3 cast next to the bar (compare with the reference characters)
   { id: 906, a: 480, b: 540, light: "candle", mood: "pubDay", cInf: 5, focus: [PXv + 0.3, 1.4, -0.9], keys: [{ f: 480, pos: [PXv + 0.3, 1.25, 4.5], look: [PXv + 0.3, 1.0, -0.9], fov: 40 }] },
+  // 907 walk + light test: the landlord crosses the pub in profile, the camera trucks with him; a low key throws long shadows
+  { id: 907, a: 540, b: 630, light: "candle", mood: "pubDay", cInf: 4, focus: [PXv - 0.2, 1.0, 0.2], keys: [{ f: 540, pos: [PXv - 1.6, 1.15, 3.6], look: [PXv - 1.5, 0.9, 0.2], fov: 34 },
+    { f: 629, glide: 89, ramp: 12, pos: [PXv + 1.1, 1.15, 3.6], look: [PXv + 1.2, 0.9, 0.2], fov: 34 }] },
+  // 908 / 909 cast lineup (museum floor, bright): five + five
+  { id: 908, a: 630, b: 660, light: "candle", mood: "dayInt", cInf: 0, keys: [{ f: 630, pos: [BXv, 1.1, 10.6], look: [BXv, 1.0, -0.6], fov: 30 }] },
+  { id: 909, a: 660, b: 690, light: "candle", mood: "dayInt", cInf: 0, keys: [{ f: 660, pos: [BXv, 1.1, 10.6], look: [BXv, 1.0, -0.6], fov: 30 }] },
 ];
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 /** shot at f; in a TAIL render (tail = a DISSOLVES boundary) the shot that ENDS there keeps running through its dissolve */

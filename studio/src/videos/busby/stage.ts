@@ -364,7 +364,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       add(BZ.airman2, 678.0, hop(f, 930, 0.07, 10) + hop(f, 948, 0.07, 10), -1.75, { f, expr: "laugh", look: -1, pose: "fists", pa: 1 });
       break; }
     case 216: { PUB.out = 2; PUB.night = 1; props.pools = CPOOLS; // the empty seat, the unfinished pints, the helmet; a bomber crosses the moon
-      F.push(fx(`bzbub${qt(((f - 975) % 30) / 30, 10)}`, 200, 200, (p) => fxBubbles(p, qt(((f - 975) % 30) / 30, 10)), 677.91, 0.72, -2.16, 0.1, 0.1, { soft: true }));
+      F.push(fx(`bzbub${qt(((f - 975) % 30) / 30, 10)}`, 200, 200, (p) => fxBubbles(p, qt(((f - 975) % 30) / 30, 10)), 678.09, 0.72, -2.16, 0.1, 0.1, { soft: true }));
       F.push(fx("bzhelmet", 300, 300, (p) => v3Hat(p, BZ.airman.o, 150, 190, 200, 0, -0.8), 677.62, 0.7, -2.0, 0.24, 0.24, {}));
       break; }
     case 217: { props.pools = PPOOLS;

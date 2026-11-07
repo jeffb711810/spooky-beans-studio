@@ -266,14 +266,14 @@ export const buildPub = (R: THREE.Object3D) => {
   }
   // ---- the chair's corner: little round table + a pint, the dare plaque on the wall, the chair itself ----
   const cx = PUB_CHAIR.x, cz = PUB_CHAIR.z;
-  b.add(lathe([[0, 0], [0.2, 0], [0.2, 0.02], [0.05, 0.05], [0.035, 0.12], [0.03, 0.5], [0.045, 0.56], [0.03, 0.62], [0, 0.62]], cx + 0.62, 0, cz + 0.05, 24), M.mahogV);
-  b.add(lathe([[0, 0], [0.3, 0], [0.31, 0.015], [0.3, 0.035], [0, 0.035]], cx + 0.62, 0.62, cz + 0.05, 40), M.mahog);
-  pint(cx + 0.66, 0.655, cz + 0.02);
+  b.add(lathe([[0, 0], [0.2, 0], [0.2, 0.02], [0.05, 0.05], [0.035, 0.12], [0.03, 0.5], [0.045, 0.56], [0.03, 0.62], [0, 0.62]], cx + 0.8, 0, cz + 0.05, 24), M.mahogV); // (user: the chair clipped the table: 18 cm clear now)
+  b.add(lathe([[0, 0], [0.3, 0], [0.31, 0.015], [0.3, 0.035], [0, 0.035]], cx + 0.8, 0.62, cz + 0.05, 40), M.mahog);
+  pint(cx + 0.84, 0.655, cz + 0.02);
   b.add(rb(cx - 0.2, 1.62, ZB, cx + 0.42, 1.94, ZB + 0.02, 0.006), M.beam);
   b.add(new THREE.PlaneGeometry(0.6, 0.3).translate(x0 + cx + 0.11, 1.78, ZB + 0.022), M.dare);
   { const ch = buildChair(); ch.position.set(x0 + cx, 0.44, cz); ch.rotation.y = PUB_CHAIR.ry; g.add(ch); PCHAIR = ch; }
   // ---- tables, stools, a settle ----
-  for (const [tx, tz] of [[0.6, 0.9], [-1.2, 1.6]]) {
+  for (const [tx, tz] of [[1.35, 0.9], [-1.2, 1.6]]) { // (the first moved off the camera line of "Go on, sit in the dead man's chair!")
     b.add(lathe([[0, 0], [0.24, 0], [0.24, 0.02], [0.05, 0.05], [0.04, 0.12], [0.035, 0.66], [0.05, 0.7], [0, 0.7]], tx, 0, tz, 24), M.mahogV);
     b.add(lathe([[0, 0], [0.42, 0], [0.43, 0.02], [0.42, 0.045], [0, 0.045]], tx, 0.7, tz, 48), M.mahog);
     for (let k = 0; k < 3; k++) { const a = k * 2.1 + r(), sx = tx + Math.cos(a) * 0.62, sz = tz + Math.sin(a) * 0.62;

@@ -73,3 +73,7 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
 - characters: costume details that read as identity (watch chains, buttons, stitching, plaid, badges, tools/props in hand)
 - world: every frame dressed with small details (props, debris, plants, particles/floating specks, signage, wear)
 - effects: emotion FX (steam puffs, colour-flushed heads), dust, sparks, shavings on hits
+## Clothes shading
+- soft horizontal gradient: LIGHT on the left -> DARKER on the right (right side 1.4x to 2x darker than the left)
+- a thin PALE STREAK (rim highlight) just inside the LEFT edge, following the outline curve (top-to-mid, not full length)
+- warm ink outline on top

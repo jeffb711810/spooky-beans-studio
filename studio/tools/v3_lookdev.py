@@ -13,7 +13,7 @@ from scipy import ndimage as nd
 
 SS = 4                                   # supersampling for smooth edges
 INK = np.array([35, 24, 16], float)      # warm ink, never pure black (measured from Rick's frames)
-SKIN = np.array([243, 233, 207], float)  # one skin colour for everyone
+SKIN = np.array([254, 251, 245], float)  # one skin colour for everyone: WHITE (Rick day heads read #FBF9F2, L* 98 on screen)
 OUTLINE = 0.045                          # D
 LIMB = 0.06                              # D
 HAND = 0.078                             # D, ink ball
@@ -102,8 +102,9 @@ class Char:
         R = 0.5; m = self.ell(0, 0, R, R)
         X, Y = np.meshgrid((np.arange(self.W) / self.k + self.left), (np.arange(self.H) / self.k + self.top))
         r = np.hypot(X, Y) / R
-        shade = (1 - 0.055 * np.clip((X + R) / (2 * R), 0, 1)) * (1 - 0.13 * np.clip((r - 0.78) / 0.22, 0, 1) ** 2)
-        self.paint(m, SKIN[None, None, :] * shade[..., None])
+        t = np.clip((X + R) / (2 * R), 0, 1)[..., None]; rim = (1 - 0.10 * np.clip((r - 0.80) / 0.20, 0, 1) ** 2)[..., None]
+        SH = np.array([0.93, 0.93, 0.955])             # measured white-head shade side (Rick x(.94,.92,.95) lavender -> neutral-cool, no purple)
+        self.paint(m, SKIN[None, None, :] * (1 - t * (1 - SH)) * rim)
         self.outline(m)
         self.face(yaw, expr)
 
@@ -328,10 +329,29 @@ def main(world, out, cast, seed=7):
         d.ellipse([x - r, y - r, x + r, y + r], fill=(255, 248, 225, int(rnd.uniform(14, 28))))
     lay = np.asarray(lay.filter(ImageFilter.GaussianBlur(0.8))).astype(float); la = lay[..., 3:4] / 255.0
     bg = bg * (1 - la) + lay[..., :3] * la
-    # step 9: colour grade over everything (gentle S-curve, a little warmth and saturation)
-    x = bg / 255.0; x = x + 0.07 * (x - 0.5) * (1 - abs(2 * x - 1))
-    g = x.mean(-1, keepdims=True); x = g + (x - g) * 1.06; x *= np.array([1.015, 1.0, 0.975])
-    Image.fromarray(np.clip(x * 255, 0, 255).astype(np.uint8)).save(out)
+    # step 9: colour grade over everything, toward Rick's measured DAY grade (references/reports/grade.md):
+    # deeper mids + full whites (S-curve), more mid/high saturation, warm-lifted blacks, soft vignette
+    Image.fromarray(np.clip(grade(bg / 255.0) * 255, 0, 255).astype(np.uint8)).save(out)
+
+
+def smoothstep(a, b, x): t = np.clip((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t)
+
+
+DAY = dict(kx=[0, 0.30, 0.55, 0.75, 0.86, 0.95, 1.0], ky=[0.035, 0.17, 0.42, 0.63, 0.82, 0.975, 1.0],
+           sat=(1.0, 1.12, 1.06), tintS=(6, 0, 3), tintM=(0, 0, 4), tintH=(0, 0, 0), vig=(0.12, 0.42), amount=1.0)
+
+
+def grade(c, g=DAY):
+    from scipy.interpolate import PchipInterpolator
+    cur = PchipInterpolator(g["kx"], g["ky"]); src = c.copy(); c = cur(np.clip(c, 0, 1))
+    y = c @ np.array([0.2126, 0.7152, 0.0722]); wS = 1 - smoothstep(0, 0.55, y); wH = smoothstep(0.45, 1, y); wM = 1 - wS - wH
+    sS, sM, sH = g["sat"]; sv = sM + (sS - sM) * wS + (sH - sM) * wH
+    c = y[..., None] + sv[..., None] * (c - y[..., None])
+    c = c + (wS[..., None] * np.array(g["tintS"]) + wM[..., None] * np.array(g["tintM"]) + wH[..., None] * np.array(g["tintH"])) / 255.0
+    h, w = y.shape; yy, xx = np.mgrid[0:h, 0:w]; r = np.hypot(xx / w * 2 - 1, yy / h * 2 - 1) * 0.70710678
+    c = c * (1 - g["vig"][0] * smoothstep(g["vig"][1], 1, r))[..., None]
+    return np.clip(src + (np.clip(c, 0, 1) - src) * g["amount"], 0, 1)
+
 
 
 if __name__ == "__main__":

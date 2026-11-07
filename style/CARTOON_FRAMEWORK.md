@@ -32,9 +32,14 @@ Tags: **[U]** the user's rule (taught from Rick's breakdown) - **[M]** measured 
   the channel rule bans purple / violet / magenta. [?] Pink cheek dots appeared once on a happy face; never by default.
 
 ## 3. Building a character
-- [U] One skin colour for everyone. Warm ink everywhere, never pure black.
-  - [M] Rick's ink is a very dark warm brown, about #1E140F to #28190E.
-  - [M] His graded skin reads about #DACBA5 in moody scenes. [I] Our base skin is #F3E9CF; the grade does the rest.
+- [U] One skin colour for everyone, and it is WHITE (user, 2026-11-07: "the same white as RicksClips"). Warm ink
+  everywhere, never pure black ([M] Rick's ink is a very dark warm brown, about #1E140F to #28190E).
+  - [I] Base fill #FEFBF5. The character itself is never tinted; the colour grade (step 9) does all the tinting.
+  - [M] Rick's white heads ON SCREEN (measured in his frames):
+    - day: #FBF9F0 to #FBF8F4 (L* 98, luma 0.97-0.98, a hair warm), shade side about x(0.94, 0.92, 0.95)
+    - warm interiors: the grade turns them cream, #E2CFA0 to #E9E2BF (luma 0.81-0.88, b* +17 to +26)
+    - dark / night: cool grey-blue around #85859D (luma 0.53); next to a lamp they stay near white
+    - his shade side and night heads lean lavender; WE use neutral-cool / blue only (channel no-purple rule)
 - [U] A HAT on every character: the biggest shape after the head, and the make-or-break.
 - [U] Silhouette test: fill every character solid black; each one must still be recognisable by shape alone.
 - [U] Identity = hat + body. [R] Also hair, beards, glasses and props. Hair can stand in for the hat (a red ponytail); hair is a
@@ -52,7 +57,8 @@ Tags: **[U]** the user's rule (taught from Rick's breakdown) - **[M]** measured 
 - [U] Clothes: a soft horizontal gradient, light on the left, the right side 1.4-2x darker
   ([M] the example is 1.35x darker in sRGB value, about 1.9x in linear light), plus a thin PALE STREAK just inside the left
   edge ([M] ~40% of the height, upper middle, about half the outline width), then the warm ink outline.
-- [R] Head: the same fixed left light, but subtle (right side ~5% darker), plus a soft darker rim inside the outline.
+- [M] Head: the same fixed left light, subtle: the right side x(0.93, 0.93, 0.955) (Rick's measured x(0.94, 0.92, 0.95) minus
+  the lavender), plus a soft darker rim (~10%) just inside the outline.
 - [I] Characters are NOT lit by the scene lights (read from "the sun pass is just for the shadow"). Their colours come only
   from this fixed shading, then the final grade.
 
@@ -116,6 +122,30 @@ Tags: **[U]** the user's rule (taught from Rick's breakdown) - **[M]** measured 
 - [I] Characters keep their 3D depth, so a banister in front still covers them.
 - [?] What "screen" is. [I] Until we know: a screen-space finish of the world layer only.
 
+## 10b. Colour grade (step 9), measured from Rick
+[M] From the earlier 20-video analysis (2,164 frames, references/reports/grade.md) plus the user's new frames. Luma Y' (Rec.709)
+percentiles p1 / p5 / p25 / p50 / p75 / p95 / p99 of the whole frame:
+
+| scene | Y' percentiles | saturation (HSV S p50) | black point | vignette (corner / centre) |
+|---|---|---|---|---|
+| day | .13 / .21 / .42 / .57 / .71 / .90 / .97 | .43 | warm-lifted (35, 19, 20) | .86 |
+| golden | .12 / .18 / .36 / .52 / .67 / .83 / .91 | .45 | not measured | .75 |
+| night | .07 / .09 / .15 / .24 / .37 / .67 / .82 | .61 (saturated darks) | not measured | .46 (heavy) |
+| interior | .08 / .12 / .26 / .45 / .61 / .87 / .94 | .42 | not measured | .67 |
+
+- [M] What the grade does: deeper mids with full whites (an S-curve), richer mid and high saturation, blacks lifted and warm
+  (never blue-black, never pure black), a soft vignette. White heads stay at L* ~98 in daylight.
+- [R] Rick paints his day shadows blue-violet (b* -20 to -30, lit/shadow 2.8-4.4 : 1 in linear light). WE use blue, not violet.
+- [I] Our DAY grade (studio/tools/v3_lookdev.py `DAY`), on the look-dev still:
+  - PCHIP tone curve: x 0 / .30 / .55 / .75 / .86 / .95 / 1 maps to y .035 / .17 / .42 / .63 / .82 / .975 / 1
+  - saturation (shadows / mids / highlights): 1.0 / 1.12 / 1.06
+  - tints: shadow (+6, 0, +3)/255, mid (0, 0, +4)/255
+  - vignette: k .12, r0 .42
+  - result: Y' .07/.22/.45/.60/.75/.87/.97, S .48, vignette .87, white heads #FCF9F3
+- [I] TODO when the engine gets v3: the world render alone is too flat and bright (Y' p50 .75, blue-grey blacks
+  (77, 81, 105), no vignette). Re-fit the engine grade to the table above per scene type, then measure every new set
+  against it.
+
 ## 11. Performance
 - [U] Rick's start point: 84 ms a frame, every character updated 3x a frame (even ones in another place), and rebuilding faces
   took 34% of every frame.
@@ -140,7 +170,7 @@ Rick's reference clips are private study material (never publish, never commit).
 ## 14. Check every frame
 - The face kit is identical on every character; no nose, ears or cheeks; the eyes are 0.264 D apart.
 - The silhouette test passes; every character has a hat (or hair that does the job).
-- The ink is never pure black; there is one skin colour.
+- The ink is never pure black; skin is one WHITE (day heads L* >= 96 on screen); the frame grade sits inside the table in 10b.
 - Holds are pixel-identical; there is no motion blur anywhere (whips included).
 - The face leads the body by 1 frame; mouths change on ~2s; no blinks during speech.
 - Characters are crisp on top (no blur or fog); particles are over them.

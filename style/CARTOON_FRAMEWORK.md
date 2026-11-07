@@ -214,3 +214,38 @@ glasses dropped (same face on everyone); v3 hats for every hat type; grade re-fi
 ~.45); face leads body by 1 f (stage built twice per frame); mouths on twos; no blinks while talking; a per-frame
 character mask keeps characters out of the lens blur and fog; camera still 2.8 % of frames; 26 deg lens by backing
 off along the view line (near plane = old camera, capped 4.5 m in / 3 m out); bare shots restaged (127, 126, 103).
+
+## 17. The reference cast (Busby, 2026-11-07): his style down to a T
+[M] Measured on his standing characters (outer ink edge, private frames, never published). Code: `Outfit.rick` in
+`bridge/toon.ts` + `bridge/v3.ts`; the Busby cast is `BZ` in `busby/cast.ts`. Earlier videos render unchanged.
+- Proportions: body width ~0.53 of the head width, torso 1.12 head heights, legs 1.66 head heights (lanky). Head sizes
+  vary a little per person (most 1.0; a few 0.9-1.12).
+- Head: never a perfect ball. H/W 0.925, widest at mid-height, round crown (n ~2.1), the jaw narrows a touch toward the
+  chin (n ~1.9, egg -0.045); seeded per person (small lean, wobble, a soft bulge).
+- Ink (fractions of head width): head outline ~2.6 % average, heavier on ONE side (low-left or low-right, per person,
+  brush k 0.6); body outline ~2.5 %; hats and wear ~0.58 of the old weight; legs THICK ~7.4 %, arms ~6.6 %; hands are
+  solid black balls. Face features carry heavier ink (x1.36): lids, brows, mouths.
+- Finish: matte form shading (lit side a touch lighter, the far side cooler and darker), a darker soft shadow side on
+  the head; no glossy streaks. Glasses (round, ink rims) and moustaches are allowed again.
+- Acting: every character DOES something (points, hands on hips, chin scratch, holds a prop, leans). Poses carry the
+  personality as much as the face.
+
+### Animation (sections 7 + 16, unchanged, checked every shot)
+- Act on ones, outCubic moves over 12-19 f (60-70 % in the first 4-5 f), then dead-still holds (pixel-identical).
+- Face leads the body by 1 f; mouths on twos; no blinks while talking.
+- Slapstick physics for the gags: flails, things flying off-screen spinning, impact cracks, rage lines.
+
+### Camera (section 8 + 16)
+- Position + target + 26 deg lens; still on <= 4.5 % of frames; slow creeps on every hold.
+- push-in 1.9x outCubic; orbit -44..+55 deg at 17.5 deg elevation; whip with a hard 1-frame stop; subtle shake.
+- His signature moves, at least one per shot: swoop / crane onto a prop, push past a face to the held prop, extreme
+  close-up of a story detail, fly through a doorway (or a hole) into the next place, dutch orbit, rise to top-down and
+  zoom into a texture as the transition, huge soft foreground objects, cross-dissolves (6-9 f) for time jumps.
+
+### Lighting (measured looks: prison, living room, kitchen, grave, snow)
+- ONE motivated key per scene (window sun, fluorescent tube, moon, candle) that throws CRISP character shadows onto a
+  wall or floor that is in frame: aim the key per shot so the shadow lands where we can see it.
+- A colour mood per scene (warm pub, cool museum, red dusk, blue night) with warm practical glows, dark vignettes and
+  floating dust in the light.
+- Story light lands ON the characters (the curse glow, headlights, the spotlight).
+- NO purple / violet / magenta anywhere (channel rule): dusk is red-orange, night is blue, never mauve.

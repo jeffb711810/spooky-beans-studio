@@ -380,7 +380,13 @@ export const blobPts = (cx: number, cy: number, B: Blob, n = 72): P2[] => {
 };
 
 /** measured head: H/W 0.94, slightly pointed crown (1.75), fuller jaw (2.3), chin taper -0.12, 8 % bulge to the facing side */
-export const headBlob = (seed: number, a = 118, facing = 0, pale = false): Blob => STYLE.v3 ? { a, b: a, nTop: 2, nBot: 2, egg: 0, asym: 0, rot: 0, noise: 0, seed } : STYLE.paper ? {
+export const headBlob = (seed: number, a = 118, facing = 0, pale = false, rick = false): Blob => STYLE.v3 ? (rick ? {
+  // reference cast (user: "even his heads aren't perfectly shaped"): a rounded dome over a fuller, squarer jaw, a hair
+  // squashed, each person a little lopsided (seeded wobble + a soft bulge low on one side), never a perfect circle
+  a, b: a * (0.95 + 0.05 * (rnd(seed, 1) - 0.5)), nTop: 2.05 + 0.2 * (rnd(seed, 2) - 0.5), nBot: 2.45 + 0.3 * (rnd(seed, 3) - 0.5),
+  egg: 0.04 + 0.04 * (rnd(seed, 4) - 0.5), asym: 0.015 * (facing || 1) + 0.04 * (rnd(seed, 5) - 0.5), rot: rad(8 * (rnd(seed, 7) - 0.5)),
+  noise: 0.012, seed, lobe: 0.03, lobeAt: rad(110 + 40 * rnd(seed, 8)),
+} : { a, b: a, nTop: 2, nBot: 2, egg: 0, asym: 0, rot: 0, noise: 0, seed }) : STYLE.paper ? {
   // PAPER (his heads): a clean, near-round ball with an even line, a hair fuller at the jaw, no lumps, no tilt
   // + hand-drawn flaws (user: "not perfect circles"): each person's own slightly lopsided ball - squash, crown / jaw,
   // a soft low-frequency wobble and a small bulge, a hair of tilt. Seeded, so it never changes between frames.
@@ -1254,7 +1260,7 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   const { phase = 0, expr = "neutral", mode = "march", look = 0, blink = false, lift = 60, prop = null, tilt = 0, headTilt = 0, wave,
     light = DEF_LIGHT, facing = 0, seed = 1 } = opts;
   const Bd = shaped(o), skin = STYLE.v3 ? V3_SKIN : o.skin ?? SKIN, two = Math.PI * 2, lid = lidOf(blink);
-  const pale = isPale(skin), H = headBlob(seed, Bd.a, facing, pale), W = 2 * H.a, HH = 2 * H.b, u = W / 100;
+  const pale = isPale(skin), H = headBlob(seed, Bd.a, facing, pale, !!o.rick), W = 2 * H.a, HH = 2 * H.b, u = W / 100;
   const tall = (1 + Bd.torso + Bd.legs) * HH, sole = 975;
   // body bob 5 % (march) / 3 % (stroll) of the height, lowest at contact (phase 0 and 0.5)
   const bob = mode === "march" ? 0.025 * tall * Math.cos(2 * two * phase) : mode === "stroll" ? 0.015 * tall * Math.cos(2 * two * phase) : 0;
@@ -1459,7 +1465,7 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   else if (STYLE.paper) p.paperFill(hp, skin, light, H.a, 300, hc);
   else p.sphereFill(hp, skin, light, H.a, 300, hc, mul(skin, isPale(skin) ? SH_PALE : SH_SKIN), SHEEN, cover && cover[1] >= 0.7 ? -0.08 : 0.12); // under a hat the shine sits lower
   if (!STYLE.v3) hatShadow(p, o, hp, H, 300, hc, light, seed, facing, skin);
-  if (STYLE.v3) p.inkRing(hp, 5 * u, thick, 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
+  if (STYLE.v3) p.inkRing(hp, (o.rick ? 5.6 : 5) * u, thick, o.rick ? 0.36 : 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
   p.mark("head", 300, hc, H.a, H.b);
   if (o.beard && !STYLE.v3) beardFront(p, o, H, 300, hc, light, thick, ow, facing);
   if (!(STYLE.v3 && v3Hat(p, o, 300, hc, W, facing, light))) hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
@@ -1467,7 +1473,7 @@ const bodyFront0 = (p: Pen, o: Outfit, opts: FrontOpts) => {
   const cl = cover, fxc = 300 + 7 * u * facing;
   const fore = cl ? Math.max(...cl[0].filter(([x]) => Math.abs(x - fxc) < 10 * u).map(([, y]) => y), hc - H.b) : hc - H.b;
   EYE_SEED = seed; WOB_SEED = seed; WOB = 0.055;
-  if (STYLE.v3) { v3Face(p, 300, hc, W, expr, { yaw: 0.42 * facing, look, lid, talk: opts.talk, browUp: opts.browUp, glasses: !!o.rick && !!o.glasses, stache: o.rick ? o.moustache : undefined }); } // v3: the same face on everyone (no glasses, beards or moustaches; the hat tells them apart)
+  if (STYLE.v3) { v3Face(p, 300, hc, W, expr, { yaw: 0.42 * facing, look, lid, talk: opts.talk, browUp: opts.browUp, glasses: !!o.rick && !!o.glasses, stache: o.rick ? o.moustache : undefined, bold: o.rick ? 1.36 : 1 }); } // v3: the same face on everyone (no glasses, beards or moustaches; the hat tells them apart)
   else faceFront(p, 300, hc, W, expr, facing, look, lid, brim, skin, o.moustache, o.build === "stout", !!o.glasses, { o, light, fore, tongue: opts.tongue, talk: opts.talk, browUp: opts.browUp });
   WOB = 0;
   if (o.tie && !STYLE.v3) { p.rot = A ? [rad(A), 300, hipY] : null; bowTie(p, o, tcx, chin, u); }
@@ -1499,7 +1505,7 @@ const SWING_HIP = 733;
 const bodySide0 = (p: Pen, o: Outfit, opts: SideOpts) => {
   const { phase = 0, expr = "neutral", mode = "march", blink = false, stomp = 1, pose = 0, stride = 1, light = DEF_LIGHT, seed = 1 } = opts;
   const Bd = shaped(o), skin = STYLE.v3 ? V3_SKIN : o.skin ?? SKIN, two = Math.PI * 2, lid = lidOf(blink);
-  const pale = isPale(skin), H: Blob = STYLE.v3 ? headBlob(seed, Bd.a, 1, pale) : { ...headBlob(seed, Bd.a, 1, pale), asym: pale ? 0.07 : 0.12, rot: rad(3 + 3 * (rnd(seed, 7) - 0.5)) };
+  const pale = isPale(skin), H: Blob = STYLE.v3 ? headBlob(seed, Bd.a, 1, pale, !!o.rick) : { ...headBlob(seed, Bd.a, 1, pale), asym: pale ? 0.07 : 0.12, rot: rad(3 + 3 * (rnd(seed, 7) - 0.5)) };
   const W = 2 * H.a, HH = 2 * H.b, u = W / 100, sole = 975, ankY = sole - 4 * u;
   const thick = thickOf(light), ow = 5 * u;
   const legLen = (Bd.legs + 0.12) * HH - 4 * u, l1 = legLen / 2, l2 = legLen / 2;
@@ -1598,11 +1604,11 @@ const bodySide0 = (p: Pen, o: Outfit, opts: SideOpts) => {
   if (STYLE.v3) v3HeadFill(p, hp, hx, hc, H.a, light, undefined, o.rick ? 1.35 : 1);
   else if (STYLE.paper) p.paperFill(hp, skin, light, H.a, hx, hc);
   else p.sphereFill(hp, skin, light, H.a, hx, hc, mul(skin, isPale(skin) ? SH_PALE : SH_SKIN));
-  if (STYLE.v3) p.inkRing(hp, 5 * u, thick, 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
+  if (STYLE.v3) p.inkRing(hp, (o.rick ? 5.6 : 5) * u, thick, o.rick ? 0.36 : 0.1); else if (pale) p.inkRing(hp, 0.95 * ow, thick, 0.62, INK, 0.85); else p.inkRing(hp, ow, thick);
   p.mark("head", hx, hc, H.a, H.b);
   if (!(STYLE.v3 && v3Hat(p, o, hx, hc, W, 1, light))) hatOn(p, o, hp, H, hx, hc, light, seed, 1, true);
   const brim = !!o.hat && o.hat !== "hair" && o.hat !== "bonnet" && o.hat !== "cap";
-  if (STYLE.v3) v3Face(p, hx, hc, W, expr, { yaw: 0.95, look: 0.6, lid, glasses: !!o.rick && !!o.glasses, stache: o.rick ? o.moustache : undefined }); else faceSide(p, hx, hc, W, expr, lid, brim, skin, o.moustache, o.build === "stout");
+  if (STYLE.v3) v3Face(p, hx, hc, W, expr, { yaw: 0.95, look: 0.6, lid, glasses: !!o.rick && !!o.glasses, stache: o.rick ? o.moustache : undefined, bold: o.rick ? 1.36 : 1 }); else faceSide(p, hx, hc, W, expr, lid, brim, skin, o.moustache, o.build === "stout");
   p.rot = null;
 };
 

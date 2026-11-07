@@ -24,10 +24,10 @@ const bez3 = (a: P2, b: P2, c: P2, d: P2, n = 20): P2[] => arc(n, 0, 1).map((t) 
 
 /** the head: a matte white ball, lit toward the key, soft blue-grey terminator on the far side */
 export const v3HeadFill = (p: Pen, pts: P2[], cx: number, cy: number, R: number, light: number, skin = V3_SKIN, k = 1) => {
-  const g = p.g, lx = Math.cos(light), ly = Math.sin(light), sh = v3mul(skin, k > 1 ? [0.8, 0.81, 0.87] : [0.84, 0.85, 0.9]);
+  const g = p.g, lx = Math.cos(light), ly = Math.sin(light), sh = v3mul(skin, k > 1 ? [0.76, 0.775, 0.84] : [0.84, 0.85, 0.9]);
   const [gx, gy] = p.P(cx + lx * 0.36 * k * R, cy + ly * 0.36 * k * R);
   const gr = g.createRadialGradient(gx, gy, 0, gx, gy, 1.5 * R);
-  const K = k > 1 ? [0.36, 0.58, 0.8] : [0.5, 0.74, 0.92]; // reference cast: the soft shadow side reaches further round the head
+  const K = k > 1 ? [0.3, 0.52, 0.76] : [0.5, 0.74, 0.92]; // reference cast: the soft shadow side reaches further round the head
   gr.addColorStop(0, skin); gr.addColorStop(K[0], skin); gr.addColorStop(K[1], v3mix(skin, sh, 0.55)); gr.addColorStop(K[2], sh); gr.addColorStop(1, v3mul(sh, [0.97, 0.97, 0.98]));
   p.path(pts, true); g.fillStyle = gr; g.fill();
 };
@@ -71,15 +71,16 @@ const taper = (p: Pen, pts: P2[], w: number, fill: string, ends = 0.25) => {
 };
 
 /** the face kit: the same face on everyone; expressions only change the shapes. `e` is the engine's Expr. */
-export type V3Opts = { yaw: number; look: number; lid: number; talk?: number; browUp?: number; fore?: number; tongue?: number; glasses?: boolean; stache?: string };
+export type V3Opts = { yaw: number; look: number; lid: number; talk?: number; browUp?: number; fore?: number; tongue?: number; glasses?: boolean; stache?: string; bold?: number };
 export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: V3Opts) => {
   const yaw = o.yaw, R = 0.5;
   // face-plane (u, v) in D -> design units, wrapped on the head sphere (lon = u / R + yaw)
   const F = (u: number, v: number): P2 => { const lon = u / R + yaw, lat = v / R; return [cx + D * R * Math.cos(lat) * Math.sin(Math.max(-1.55, Math.min(1.55, lon))), cy + D * R * Math.sin(lat)]; };
   const vis = (u: number) => Math.cos(u / R + yaw) > 0.05; // features past the limb are not drawn
-  const fill = (pts: P2[], col: string, ol = 0) => { const q = pts.map(([u, v]) => F(u, v)); p.path(q, true); p.g.fillStyle = col; p.g.fill(); if (ol) { p.g.lineWidth = ol * D; p.g.strokeStyle = V3_INK; p.g.lineJoin = "round"; p.g.stroke(); } };
-  const line = (pts: P2[], w: number, col = V3_INK) => p.stroke(pts.map(([u, v]) => F(u, v)), w * D, col);
-  const brush = (pts: P2[], w: number) => taper(p, pts.map(([u, v]) => F(u, v)), w * D, V3_INK);
+  const BW = o.bold ?? 1; // reference cast: heavier ink on every feature (lids, brows, mouths, outlines)
+  const fill = (pts: P2[], col: string, ol = 0) => { const q = pts.map(([u, v]) => F(u, v)); p.path(q, true); p.g.fillStyle = col; p.g.fill(); if (ol) { p.g.lineWidth = ol * BW * D; p.g.strokeStyle = V3_INK; p.g.lineJoin = "round"; p.g.stroke(); } };
+  const line = (pts: P2[], w: number, col = V3_INK) => p.stroke(pts.map(([u, v]) => F(u, v)), w * BW * D, col);
+  const brush = (pts: P2[], w: number) => taper(p, pts.map(([u, v]) => F(u, v)), w * BW * D, V3_INK);
   // brows stay under a low hat brim
   const foreV = o.fore !== undefined ? (o.fore - cy) / D + 0.035 : -9;
   const brow = (bx: number, by: number, ang: number, sag: number, ln = 0.095, w = 0.046, wavy = 0) => {

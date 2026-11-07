@@ -38,3 +38,5 @@ Unit: 1 D = head width. Everything measured in D.
   (LRU); every later frame only re-uses/rotates the cached mesh with the head - never rebuilt per frame
 - camera passing the front: the face does NOT slide smoothly across; when the camera crosses the character's front
   centre-line the face FLIPS to the other side in ONE frame (3/4-left -> 3/4-right, cartoon-style snap)
+- past 95% the face TURNS OFF: once the face is turned more than 95% of the way away from camera (toward the
+  silhouette edge / back of head), hide it completely instead of drawing a squashed sliver on the rim

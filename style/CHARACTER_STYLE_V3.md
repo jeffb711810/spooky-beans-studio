@@ -67,7 +67,8 @@ Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98
 5. THROUGH THE STEEL (invented by a subagent for Rick's submarine short: the camera just FOLLOWS THE SOUND through the hull) - the camera is driven by the soundtrack: each sound
    (hammer hit, creak, footstep, bell, whisper) pulls the camera toward / whips it to the thing making it; push-ins on
    sustained sounds, whip + hard stop on sharp hits; silence = camera drifts toward the next sound source.
-   (Winchester: follow the endless hammering through the house.)
+   The camera passes THROUGH WALLS AND WATER (clips straight through solid geometry: walls, floors, hull, water) to
+   reach the sound - no cut needed. (Winchester: follow the hammering through walls, floors and rooms of the house.)
 ## Finish = DETAIL (matters more than anything else)
 - characters: costume details that read as identity (watch chains, buttons, stitching, plaid, badges, tools/props in hand)
 - world: every frame dressed with small details (props, debris, plants, particles/floating specks, signage, wear)

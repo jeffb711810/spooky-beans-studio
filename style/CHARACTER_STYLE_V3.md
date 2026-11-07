@@ -29,3 +29,8 @@ Unit: 1 D = head width. Everything measured in D.
 ## When a character STOPS it is COMPLETELY STILL
 - no breathing, no sway, no head bob, no idle loop: the final settled pose is frozen (identical frames)
 - "new pose every frame" applies only WHILE a move/action/expression change is happening
+## How the face is built in code
+- the head is a 3D SPHERE; face features (eye ovals, brows, mouth) are 2D curves -> filled shapes triangulated into tiny
+  triangles (thin strokes = ribbon meshes) -> each vertex projected onto the head sphere surface (sit just above it)
+- so the face wraps around the head and turns/foreshortens correctly when the head rotates; expressions = swapping/
+  morphing the curves

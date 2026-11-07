@@ -5,6 +5,68 @@ description: Make an "Allegedly Haunted" / Spooky Beans vertical short (60-80 s)
 
 # Spooky Beans studio (this repo)
 
+## RICK'S RULES: NON-NEGOTIABLE, EVERY VIDEO, EVERY FRAME (user, 2026-11-07: "you NEED to remember those rules every time")
+The user taught these and measured them from RicksClips3000. "The Chair" (2026-11-07) failed because they were not
+applied. Its faults: dull colour, wrong sun, heads cut by the frame, clipping, stutter, jaggies, a reused score.
+Check every item before ANY render and say which ones you verified.
+
+**Characters (1:1 his look; our own people)**
+- Big oval heads: bigger than our Busby cast. Size them against his frames side by side, never by guess.
+- Heavier ink on the LEFT side of the head, consistently.
+- Bright white faces with a white shine (near-emissive; task #10). Soft shade side x(0.84, 0.85, 0.90).
+- Lanky bean bodies with thick dark limbs and solid black ball hands. Glasses and moustaches are allowed.
+- A hat or real hair on everyone.
+- Characters are NOT lit by the scene: they have fixed shading, and the sun pass is only for their shadow.
+
+**The sun / lighting**
+- ONE warm key (#FFF0D8-ish) from CAMERA-LEFT and HIGH. Top faces are brightest.
+- Form contrast (lit vs shade) is 1.5-2.3x linear. A sun patch vs shade is ~3.5x.
+- Cast shadows are BLUE-GREY (#7793A7-#8AA6B3), crisp but soft (6-12 px penumbra). Weak AO (~10%). Vignette 5-10%.
+- Every scene has its own colour mood: warm practicals with glow, floating dust, and story light landing on faces.
+
+**Colour (measured targets; check with numbers, not by eye)**
+- Median V 0.56-0.82. 95th-percentile V 0.95-1.0 (real white shine). Colourfulness 0.25-0.30.
+- Large single-hue areas at V 85-98 and S 45-70. Use complementary pairs (warm wood / teal-green, orange / blue). Neutrals are tinted.
+- NO purple, violet or magenta, ever.
+
+**Ink**
+- Close props 11-14 px, mid distance ~8, far ~3 (px at 1080 wide).
+- Characters 6-9 px in a medium shot.
+- Environment ink is near-black, tinted by the grade.
+- Every hard crease is inked. Pattern lines are 1.5-3 px.
+
+**Camera (his code)**
+- Every shot is `shot(t) -> { pos, target, fov 26 }`.
+- pushIn x1.9, outCubic.
+- orbit az -44 -> +55, el 17.5.
+- whip: a hard 1-frame stop, no settle.
+- Still on <= 4.5 % of frames.
+- Shake = a sum of sines (smooth), never a frame-to-frame flip.
+- Use his signature moves: swoop onto a prop, push past a face to the held prop, extreme close-up of a story detail,
+  fly through doors and holes, dutch orbit, rise to top-down -> zoom into a texture as the transition, huge soft
+  foreground objects, 6-9 f cross-dissolves for time jumps.
+- Camera styles (framework section 9): Dread Cuts, One Take, Found Footage, The Watcher, Through the Steel.
+
+**Animation**
+- A new pose every frame while acting. Moves are outCubic over 12-19 f (60-70 % done in the first 4-5 f).
+- Holds are pixel-identical, with no idle bob.
+- The face leads the body by 1 f. Mouths change on twos. No blinks while talking.
+- Real acting: weight shifts, reactions, props held in hands, slapstick physics. Walks use thick, straight, scissoring legs.
+
+**Framing and contact (zero tolerance)**
+- A head is NEVER cut by the frame edge.
+- Nobody inside furniture or walls, nobody floating. Sitters sit in front of the seat. The camera is never inside geometry.
+- Run the every-frame checker `out/busby/check/check.ts` (esbuild + shim; see its header) and get "NO ISSUES",
+  plus "camera jerks" limited to ease ends.
+
+**Picture quality**
+- No jaggies: characters at the top texture tier, and 4K finals supersampled (post dpr 3 at scale 2).
+- Judge from full-size frames side by side with his frames, never from thumbnails.
+
+**Music**
+- A NEW original score for every video, never a re-skin of the last one: fun, unique, with mystery.
+- Its own motif, instruments and groove, timed to the story beats. Silence for the scares.
+
 ## READ FIRST: style/CARTOON_FRAMEWORK.md (user, 2026-11-07, permanent, every project)
 The framework is the ONLY valid source for character design, the face kit, animation timing, camera moves/styles and the
 9-step frame pipeline. The user trashed every earlier character-art rule (paper cards, googly/mixed eyes, noses, wobble

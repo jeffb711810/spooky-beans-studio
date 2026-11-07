@@ -11,7 +11,8 @@ const cpu = process.argv.includes("--cpu"), hd = process.argv.includes("--1080")
 const ci = process.argv.indexOf("--comp"), COMP = ci > 0 ? process.argv[ci + 1] : "BellWitch", NAME = COMP === "BellWitch" ? "winchester" : COMP.toLowerCase();
 const gl = cpu || process.platform === "linux" ? "swangle" : "angle";
 const out = path.resolve(hd ? `out/${NAME}_1080x1920.mp4` : `out/${NAME}_4K_2160x3840.mp4`);
-const inputProps = { post: { dpr: 2 }, withAudio: true };
+// The Chair renders 1.5x and the browser downsamples to 4K: smooth ink lines, no stair-steps (about 2x the render time)
+const inputProps = { post: { dpr: COMP === "Busby" && !hd ? 3 : 2 }, withAudio: true };
 console.log(`Bundling... (renderer: ${gl}, ${os.cpus().length} CPU threads)`);
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts"), publicDir: path.resolve("public") });
 const chromiumOptions = { gl };

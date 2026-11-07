@@ -14,7 +14,7 @@ import { WORKER, CREW, PSYCHIC, GUY, HISTORIAN, TOURISTS, BZ } from "./cast";
 import { PUB } from "./pub";
 import { MUS, BENCH } from "./hero";
 import { fxCloud, fxCurse, fxSlipper, fxDate, fxSweepHat, fxBrush, fxSoot, fxBomber, fxBeam, fxHubcap, fxPint, fxBubbles, fxRing } from "./bzfx";
-import { fxSteam as bzSteam, fxDizzy as bzDizzy, fxSpeed as bzSpeed } from "./fxart";
+import { fxSteam as bzSteam, fxDizzy as bzDizzy, fxSpeed as bzSpeed, fxSpecks as bzSpecks } from "./fxart";
 
 import { Who, john, johnBed, lucy, lucyBed, betsy, betsyBed, son, writer, fisher, folk, tier } from "./cast";
 import {
@@ -277,11 +277,15 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     Object.assign(PUB, { era: 2, chair: 1, fire: 1, lamps: 1, rock: 0, dx: 0, dz: 0, tilt: 0, out: 0, night: 0 });
     Object.assign(MUS, { dy: 0, dz: 0, rx: 0, on: 1, ladder: 0 }); BENCH.t = 0;
   }
-  const CHX = 677.31, CHZ = -2.13; // a sitter on the pub chair (a hair forward of the seat centre, the backrest behind)
+  const CHX = 677.43, CHZ = -1.98; // a sitter on the pub chair (a hair forward of the seat centre, the backrest behind)
   const sitOn = (who: Who, e: Expr, o: Partial<PO> = {}) => add(who, CHX, 0, CHZ, { f, mode: "sit", seatM: 0.44, expr: e, look: 1, ...o });
   const MPOOLS: V3[] = [[600, 2.75, -2.62], [600, 1.47, -2.9], [601.75, 2.42, -2.9]];
   const PPOOLS: V3[] = [[677.4, 1.75, -1.8], [681.1, 2.0, -1.55], [683.3, 0.5, 0.9]];
   const CPOOLS: V3[] = [[677.9, 0.95, -2.05], [680.6, 1.0, 0.9], [683.3, 0.5, 0.9]];
+  // floating dust in the light (the reference rooms are never static): drifting specks, a slow 3 s loop per cloud
+  const dust = (x: number, y: number, z: number, w: number, h: number, ph = 0) => { const u = qt((((f + ph) % 90) + 90) % 90 / 90, 30); F.push(fx(`bzdust_${u}`, 300, 300, (p) => bzSpecks(p, u), x, y, z, w, h, { soft: true, glow: 1.2 })); };
+  if (s.id >= 200 && s.id <= 203 || s.id >= 224 && s.id <= 228) { dust(600.0, 2.9, -2.1, 1.3, 1.6); dust(600.3, 2.0, -1.4, 1.1, 1.3, 40); }
+  if (s.id >= 204 && s.id <= 223 && s.id !== 205 && s.id !== 206) { dust(677.6, 1.5, -1.6, 1.4, 1.4, 20); dust(678.6, 1.9, -0.6, 1.2, 1.2, 60); }
   const hoist = (u: number) => { const k = smoother(u); MUS.dy = -0.95 * (1 - k); MUS.dz = 0.42 * (1 - k) * (1 - 0.3 * Math.sin(Math.PI * k)); MUS.rx = -0.12 * Math.sin(Math.PI * k); };
   switch (s.id) {
     case 201: case 228: { // the hoist (228 runs it backwards into frame 0's picture)
@@ -290,16 +294,15 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       const up = u < 0.97;
       add(BZ.worker2, 599.82, 0, -2.05, { f, expr: up ? "pained" : "relief", look: 0, pose: up ? "up" : "hips", pa: up ? 1 : poseIn(f, 56, 6), sy: up ? 1 - 0.02 * Math.sin(f * 0.9) : 1, tilt: up ? -3 : 0 });
       add(BZ.worker1, 600.62, 0.9, -2.6, { f, expr: u > 0.5 ? "grin" : "nervous", look: -1, pose: "reach", pa: 1 });
-      if (s.id === 228) { add(BZ.curator, 598.75, 0, -1.55, { f, expr: "smug", look: 1, pose: "hips", pa: 1 }); add(BZ.guard, 601.45, 0, -1.6, { f, expr: "suspicious", look: -1 }); }
-      if (s.id === 201 && f >= 48 && f < 64) F.push(fx(`bzdust${qt((f - 48) / 16, 8)}`, 300, 300, (p) => fxSoot(p, qt((f - 48) / 16, 8) * 0.6), 600.0, 2.0, -2.5, 0.6, 0.6, { soft: true }));
+            if (s.id === 201 && f >= 48 && f < 64) F.push(fx(`bzdust${qt((f - 48) / 16, 8)}`, 300, 300, (p) => fxSoot(p, qt((f - 48) / 16, 8) * 0.6), 600.0, 2.0, -2.5, 0.6, 0.6, { soft: true }));
       break;
     }
     case 202: { // reach, SLAP, recoil
       props.pools = MPOOLS;
       const slap = f >= 98, rec = f >= 100;
-      add(BZ.visitor, 599.35, rec ? hop(f, 100, 0.06, 8) : 0, -0.95 + (rec ? 0.12 * smooth((f - 100) / 6) : 0), { f, expr: rec ? "shock" : "smile", look: 1, pose: rec ? "cheeks" : "reach", pa: rec ? poseIn(f, 100, 3) : poseIn(f, 70, 10), tilt: rec ? 0 : -8 * smooth((f - 70) / 14) });
-      add(BZ.guard, 600.55, 0, -1.05, { f, expr: slap ? "angry" : "suspicious", look: -1, pose: slap ? "point" : "hips", pa: slap ? poseIn(f, 98, 2) : 1 });
-      if (rec) emoteFx({ x: 599.35, y: 0, z: -0.85, b: "adult" }, "bang", 100, 16, -1);
+      add(BZ.visitor, 599.7, rec ? hop(f, 100, 0.06, 8) : 0, -0.95 + (rec ? 0.12 * smooth((f - 100) / 6) : 0), { f, expr: rec ? "shock" : "smile", look: 1, pose: rec ? "cheeks" : "reach", pa: rec ? poseIn(f, 100, 3) : poseIn(f, 70, 10), tilt: rec ? 0 : -8 * smooth((f - 70) / 14) });
+      add(BZ.guard, 600.4, 0, -1.05, { f, expr: slap ? "angry" : "suspicious", look: -1, pose: slap ? "point" : "hips", pa: slap ? poseIn(f, 98, 2) : 1 });
+      if (rec) emoteFx({ x: 599.7, y: 0, z: -0.85, b: "adult" }, "bang", 100, 16, -1);
       break;
     }
     case 203: props.pools = MPOOLS; break;
@@ -308,12 +311,12 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       if (s.id === 207) {
         sitOn(BZ.auty, f >= 330 ? "shock" : "smug", { pose: f >= 330 ? "cheeks" : "belly", pa: f >= 330 ? poseIn(f, 330, 3) : 1 });
         F.push(fx("bzmug", 160, 220, (p) => fxPint(p), CHX + 0.2, 0.86, CHZ + 0.1, 0.12, 0.17, {}));
-        add(BZ.busby, 679.0, 0, -0.15, { f, side: true, so: { mode: "stand", expr: "angry" }, mirror: true, scale: 1.0 });
+        add(BZ.busby, 679.05, 0, -0.45, { f, side: true, so: { mode: "stand", expr: "angry" }, mirror: true, scale: 1.0 });
         if (f >= 330) emoteFx({ x: CHX, y: 0, z: CHZ, b: "adult", sit: true }, "bang", 330, 16, 1);
       }
       if (s.id === 208) {
-        add(BZ.busby, 678.45, 0, -0.6, { f, expr: f >= 362 ? "scream" : "angry", look: 1, pose: "fists", pa: 1, talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.1) });
-        if (f >= 368) { const u = qt(((f - 368) % 14) / 14, 8); F.push(fx(`bzsteam${u}`, 240, 300, (p) => bzSteam(p, u), 678.45 + 0.05, 2.02, -0.6, 0.45, 0.56, { soft: true })); }
+        add(BZ.busby, 678.8, 0, -0.55, { f, expr: f >= 362 ? "scream" : "angry", look: 1, pose: "fists", pa: 1, talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.1) });
+        if (f >= 368) { const u = qt(((f - 368) % 14) / 14, 8); F.push(fx(`bzsteam${u}`, 240, 300, (p) => bzSteam(p, u), 678.85, 2.0, -0.55, 0.45, 0.56, { soft: true })); }
       }
       if (s.id === 209) {
         if (f < 432) { const u = qt((f - 393) / 39, 20); F.push(fx(`bzcloud${u}`, 400, 400, (p) => fxCloud(p, u), CHX + 0.15, 0.95, CHZ + 0.35, 1.5, 1.5, {}));
@@ -324,7 +327,7 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       if (s.id === 210) {
         const pt = f >= 500;
         add(BZ.busby, 677.98, 0, 2.55, { f, expr: f >= 560 ? "evil" : "angry", look: 1, pose: pt ? "point" : "fists", pa: pt ? poseIn(f, 500, 4) : 1, talk: talkV(f, 508, 578), tilt: pt ? -4 : 0 });
-        add(BZ.constable, 677.62, 0, 2.85, { f, expr: "stern", look: 1, pose: "reach", pa: 1 });
+        add(BZ.constable, 677.72, 0, 2.8, { f, expr: "stern", look: 1, pose: "reach", pa: 1 });
         if (f >= 570) F.push(fx(`bzcurse${qt((f - 570) / 24, 12)}`, 256, 256, (p) => fxCurse(p, qt((f - 570) / 24, 12)), 677.12, 0.73, -2.33, 0.9, 0.9, { soft: true, glow: 2.2 }));
       }
       break;
@@ -336,21 +339,21 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
     case 211: { // 200 years in one orbit: candles -> oil lamps -> bulbs, tricorns -> top hats -> flat caps, everyone laughing at it
       const era = f < 640 ? 0 : f < 690 ? 1 : 2; PUB.era = era; props.pools = era === 0 ? CPOOLS : PPOOLS;
       const C = era === 0 ? [BZ.old1, BZ.old2] : era === 1 ? [BZ.vic1, BZ.vic2] : [BZ.local1, BZ.local2];
-      add(C[0], 677.85, 0, -2.55, { f, expr: "laugh", look: -1, pose: "point", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
-      add(C[1], 676.85, 0, -1.75, { f, expr: "laugh", look: 1, pose: "belly", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.45 + 1)) });
+      add(C[0], 677.72, 0, -2.66, { f, expr: "laugh", look: -1, pose: "point", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
+      add(C[1], 676.88, 0, -2.5, { f, expr: "laugh", look: 1, pose: "belly", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.45 + 1)) });
       break;
     }
     case 212: { props.pools = PPOOLS; // "Go on, sit in the dead man's chair!"
-      add(BZ.local1, 679.3, 0, -0.75, { f, expr: "laugh", look: -1, pose: f < 770 ? "point" : "hips", pa: 1, talk: talkV(f, 740, 806) });
+      if (f < 772) add(BZ.local1, 679.3, 0, -0.75, { f, expr: "laugh", look: -1, pose: "point", pa: 1, talk: talkV(f, 740, 806) });
       add(BZ.local2, 678.65, f >= 772 ? 0 : 0, -0.85 - (f >= 760 ? 0.08 * smooth((f - 760) / 8) : 0), { f, expr: f >= 772 ? "terrified" : "nervous", look: 1, pose: f >= 772 ? "cover" : undefined, pa: f >= 772 ? poseIn(f, 772, 3) : 0 });
       sweatFx({ x: 678.65, y: 0, z: -0.85, b: "adult" }, 745, -1, 20);
       break; }
     case 213: props.pools = PPOOLS; break;
-    case 214: { props.pools = PPOOLS; add(BZ.landlord, 681.75, 0, -2.45, { f, expr: "suspicious", look: 0, browUp: 14, pose: "chin", pa: 1 }); break; }
+    case 214: { props.pools = PPOOLS; add(BZ.landlord, 681.75, 0, -2.69, { f, expr: "suspicious", look: 0, browUp: 14, pose: "chin", pa: 1 }); break; }
     case 215: { props.pools = PPOOLS;
       sitOn(BZ.airman, "grin", { pose: "up", pa: poseIn(f, 912, 5), sy: stretch(f, 912, 0.08) });
-      add(BZ.airman2, 678.15, hop(f, 930, 0.07, 10) + hop(f, 948, 0.07, 10), -1.75, { f, expr: "laugh", look: -1, pose: "fists", pa: 1 });
-      add(BZ.local1, 678.75, 0, -1.25, { f, expr: "grin", look: -1, pose: "hips", pa: 1 }); break; }
+      add(BZ.airman2, 678.0, hop(f, 930, 0.07, 10) + hop(f, 948, 0.07, 10), -1.75, { f, expr: "laugh", look: -1, pose: "fists", pa: 1 });
+      break; }
     case 216: { PUB.out = 2; PUB.night = 1; props.pools = CPOOLS; // the empty seat, the unfinished pints, the helmet; a bomber crosses the moon
       F.push(fx(`bzbub${qt(((f - 975) % 30) / 30, 10)}`, 200, 200, (p) => fxBubbles(p, qt(((f - 975) % 30) / 30, 10)), 677.91, 0.72, -2.16, 0.1, 0.1, { soft: true }));
       F.push(fx("bzhelmet", 300, 300, (p) => v3Hat(p, BZ.airman.o, 150, 190, 200, 0, -0.8), 677.62, 0.7, -2.0, 0.24, 0.24, {}));
@@ -359,12 +362,12 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       sitOn(BZ.sweep, f >= 1070 ? "smile_closed" : "smile", { pose: "hold", pa: 1 });
       F.push(fx("bzpint2", 160, 220, (p) => fxPint(p), CHX + 0.19, 0.93 + 0.04 * smooth((f - 1065) / 6) * (1 - smooth((f - 1082) / 6)), CHZ + 0.1, 0.12, 0.17, {})); break; }
     case 218: { props.pools = PPOOLS; // next morning: through the window, the top hat and the brush fall past
-      add(BZ.local1, 676.95, 0, 0.9, { f, side: true, so: { mode: "stand", expr: f >= 1122 ? "shock" : "neutral" }, mirror: true });
-      add(BZ.local2, 676.95, 0, 2.2, { f, side: true, so: { mode: "stand", expr: f >= 1124 ? "terrified" : "neutral" }, mirror: true });
+      add(BZ.local1, 677.25, 0, 1.05, { f, side: true, so: { mode: "stand", expr: f >= 1122 ? "shock" : "neutral" }, mirror: true });
+      add(BZ.local2, 677.25, 0, 2.05, { f, side: true, so: { mode: "stand", expr: f >= 1124 ? "terrified" : "neutral" }, mirror: true });
       if (f >= 1110 && f < 1126) { const u = (f - 1110) / 16; F.push(fx(`bzhat${qt(u, 16)}`, 300, 300, (p) => fxSweepHat(p, qt(u, 16)), 676.32, 2.3 - 1.5 * u * u, 1.45, 0.3, 0.3, {})); }
       if (f >= 1116 && f < 1132) { const u = (f - 1116) / 16; F.push(fx(`bzbrush${qt(u, 16)}`, 300, 300, (p) => fxBrush(p, qt(u, 16)), 676.32, 2.4 - 1.6 * u * u, 1.7, 0.34, 0.34, {})); }
       if (f >= 1128 && f < 1150) { const u = (f - 1128) / 22; F.push(fx(`bzsoot${qt(u, 11)}`, 300, 300, (p) => fxSoot(p, qt(u, 11)), 676.32, 1.15, 1.55, 0.7, 0.7, { soft: true })); }
-      if (f >= 1122) emoteFx({ x: 676.95, y: 0, z: 0.9, b: "adult" }, "bang", 1122, 16, 1);
+      if (f >= 1122) emoteFx({ x: 677.25, y: 0, z: 1.05, b: "adult" }, "bang", 1122, 16, 1);
       break; }
     case 219: { props.pools = PPOOLS; // two pilots, one chair
       sitOn(BZ.pilot, "laugh", { pose: "belly", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
@@ -376,15 +379,15 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       break; }
     case 221: { PUB.out = 2; PUB.night = 1; PUB.lamps = 0; PUB.fire = 0; props.pools = [[676.3, 1.8, -0.55], [676.3, 1.8, 1.75]]; break; }
     case 222: { props.pools = PPOOLS; // frozen, all staring at the chair (at us)
-      add(BZ.local1, 679.25, 0, -0.1, { f, expr: "shock", look: -1 }); add(BZ.local2, 679.85, 0, 0.35, { f, expr: "terrified", look: -1, pose: "cover", pa: 1 });
-      add(BZ.pilot2, 680.45, 0, -0.05, { f, expr: "dazed", look: -1 }); add(BZ.landlord, 681.0, 0, -2.45, { f, expr: "nervous", look: -1 }); break; }
+      add(BZ.local1, 678.9, 0, -0.35, { f, expr: "shock", look: -1 }); add(BZ.local2, 679.45, 0, -0.05, { f, expr: "terrified", look: -1, pose: "cover", pa: 1 });
+      add(BZ.pilot2, 679.7, 0, -0.15, { f, expr: "dazed", look: -1 }); add(BZ.landlord, 680.2, 0, -0.15, { f, expr: "nervous", look: -1 }); break; }
     case 223: { props.pools = PPOOLS; // the landlord hauls it out
-      const u = clamp01((f - 1386) / 58); PUB.dx = 0.75 * u; PUB.dz = 4.6 * u; PUB.tilt = -0.32 * smooth((f - 1383) / 6);
-      add(BZ.landlord, 677.95 + 0.75 * u, 0, -1.35 + 4.6 * u, { f, side: true, so: { mode: "march", phase: (f - 1383) * 0.07, stride: 0.8, expr: "pained" }, mirror: false, tilt: 6 });
-      sweatFx({ x: 677.95 + 0.75 * u, y: 0, z: -1.35 + 4.6 * u, b: "adult" }, 1395, 1, 18); break; }
+      const u = clamp01((f - 1386) / 58); PUB.dx = 0.2 + 0.1 * u; PUB.dz = -0.1 + 3.9 * u; PUB.tilt = -0.32 * smooth((f - 1383) / 6);
+      add(BZ.landlord, 677.45 + 0.1 * u, 0, -1.55 + 3.9 * u, { f, side: true, so: { mode: "march", phase: (f - 1383) * 0.07, stride: 0.8, expr: "pained" }, mirror: false, tilt: 6 });
+      sweatFx({ x: 677.45 + 0.1 * u, y: 0, z: -1.55 + 3.9 * u, b: "adult" }, 1395, 1, 18); break; }
     case 224: { props.pools = MPOOLS; MUS.dy = -1.94; MUS.dz = 1.05; // the chair arrives (on the floor); the curator points up
-      add(BZ.curator, 599.7, 0, -1.55, { f, expr: "stern", look: 1, pose: "up", pa: poseIn(f, 1452, 6), talk: talkV(f, 1448, 1494) });
-      add(BZ.landlord, 600.5, 0, -1.65, { f, expr: "relief", look: -1, pose: "hips", pa: 1 }); break; }
+      add(BZ.curator, 599.8, 0, -1.55, { f, expr: "stern", look: 1, pose: "up", pa: poseIn(f, 1452, 6), talk: talkV(f, 1448, 1494) });
+      add(BZ.landlord, 600.4, 0, -1.65, { f, expr: "relief", look: -1, pose: "hips", pa: 1 }); break; }
     case 225: { props.pools = MPOOLS; MUS.ladder = 1; // the expert on the ladder; through his lens
       add(BZ.expert, 600.62, 1.2, -2.58, { f, expr: "suspicious", look: -1, pose: "hold", pa: 1 });
       if (f < 1520) F.push(fx("bzlens", 300, 300, (p) => fxRing(p), 600.45, 2.62, -2.5, 0.22, 0.22, {}));
@@ -396,9 +399,9 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       if (f >= 1548) { const u = clamp01((f - 1548) / 60); F.push(fx(`bzdate${qt(u, 30)}`, 720, 420, (p) => fxDate(p, qt(u, 30)), 599.92, 2.62, -1.95, 0.52, 0.3, {})); }
       break; }
     case 227: { props.pools = MPOOLS; // who owns it? one big shrug
-      const sh = f >= 1688, L = [[BZ.curator, 598.85], [BZ.guard, 599.45], [BZ.expert, 600.05], [BZ.visitor, 600.65], [BZ.landlord, 601.25]] as const;
+      const sh = f >= 1688, L = [[BZ.curator, 599.0], [BZ.guard, 599.5], [BZ.expert, 600.0], [BZ.visitor, 600.5], [BZ.landlord, 601.0]] as const;
       L.forEach(([w, x], i) => add(w, x, sh ? hop(f, 1688 + i, 0.05, 8) : 0, -1.55 - (i % 2) * 0.15, { f, expr: sh ? "dazed" : "nervous", look: x < 600 ? 1 : -1, browUp: 10, pose: sh ? "shrug" : undefined, pa: sh ? poseIn(f, 1688 + i, 4) : 0 }));
-      if (sh) for (const [i, x] of [[0, 598.85], [2, 600.05], [4, 601.25]] as const) emoteFx({ x, y: 0, z: -1.55, b: "adult" }, "q", 1692 + i, 30, 1);
+      if (sh) for (const [i, x] of [[0, 599.0], [2, 600.0], [4, 601.0]] as const) emoteFx({ x, y: 0, z: -1.55, b: "adult" }, "q", 1692 + i, 30, 1);
       break; }
     case 901: case 902: props.pools = [[600, 2.75, -2.62], [600, 1.47, -2.9], [601.75, 2.42, -2.9]]; break; // BUSBY: the spot on the chair, the plaque, the portrait
     case 903: props.pools = [[639.55, 1.19, -0.25], [640.42, 1.03, 0.2]]; break; // BUSBY: candle + crucible

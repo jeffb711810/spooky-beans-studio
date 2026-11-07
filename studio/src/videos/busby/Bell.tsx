@@ -28,13 +28,13 @@ import "@fontsource/montserrat/800.css";
 export const BELL_FRAMES = TOTAL;
 
 // world ink (px at 1080x1920; ink.ts scales by output height). Shared base + per-light differences.
-const INK: InkOptions = { color: "#040305", widthNear: 4.2, widthFar: 2.6, distNear: 6, distFar: 90, creaseScale: 0.72,
+const INK: InkOptions = { color: "#0a0706", widthNear: 11, widthFar: 3, distNear: 1.6, distFar: 40, creaseScale: 0.72,
   depthLo: 0.01, depthHi: 0.03, angleLo: 35, angleHi: 50, farOpacity: 0.9 };
 // contact shadows (look round 10, user: "his style makes the world seem more 3D while the characters are 2D paper"):
 // soft ambient occlusion in corners, under furniture and where props meet the ground (ink.ts; never on the cards)
 const INK_LIGHT: Record<"night" | "candle", InkOptions> = {
   night: { ...INK, concaveGain: 0.6, ao: 0.7, aoRadius: 1.0 },                     // porch/fence/stones on the ground keep contact lines
-  candle: { ...INK, widthNear: 4.0, concaveGain: 0.3, ao: 0.75, aoRadius: 0.6 },  // rooms 1.5-6 m away: slightly finer, few shell folds
+  candle: { ...INK, widthNear: 11, concaveGain: 0.3, ao: 0.75, aoRadius: 0.6 },  // rooms 1.5-6 m away: slightly finer, few shell folds
 };
 
 const makeBloom = () => {

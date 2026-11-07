@@ -297,7 +297,7 @@ export const buildMuseum = (R: THREE.Object3D) => {
     inn: lam("bzInn", () => ({ map: innTex() })), busby: lam("bzBusby", () => ({ map: busbyTex() })),
     lamp: lam("bzLamp", () => ({ color: "#1c1d22" })),
   };
-  Object.assign(GLOSS_OF, { bzWoodV: 0.3, bzWoodT: 0.3, bzSeatM: 0.4, bzShelf: 0.4, bzIron: 0.6, bzBrass: 1, bzGilt: 0.9, bzPlaqueM: 0.8, bzFloor: 0.5, bzTrim: 0.25, bzPanel: 0.3, bzLamp: 0.7, bzRope: 0.15 });
+  Object.assign(GLOSS_OF, { bzWoodV: 0.7, bzWoodT: 0.7, bzSeatM: 0.8, bzShelf: 0.6, bzIron: 0.6, bzBrass: 1, bzGilt: 0.9, bzPlaqueM: 0.8, bzFloor: 0.75, bzTrim: 0.4, bzPanel: 0.55, bzLamp: 0.7, bzRope: 0.15 });
   const rb = (ax: number, ay: number, az: number, bx: number, by: number, bz: number, r = 0.01) => { const w = bx - ax, h = by - ay, d = bz - az; return new RoundedBoxGeometry(w, h, d, 2, Math.min(r, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4)).translate(x0 + (ax + bx) / 2, (ay + by) / 2, (az + bz) / 2); };
   // room shell: parquet floor, plaster wall above a panelled dado, crown moulding, ceiling
   b.add(new THREE.PlaneGeometry(12, 10).rotateX(-Math.PI / 2).translate(x0, 0, 2), M.floor);
@@ -378,7 +378,7 @@ export const buildBench = (R: THREE.Object3D) => {
     clay: lam("bzClay", () => ({ color: "#b8693a" })), leather: lam("bzLeather", () => ({ color: "#7a3f22" })), cord: lam("bzCord", () => ({ color: "#d9c08a" })),
     pewter: lam("bzPewter", () => ({ color: "#a9adb6", envMap: env, reflectivity: 0.3, combine: THREE.MixOperation })), wax: lam("bzWax", () => ({ color: "#f3ead2" })),
   };
-  Object.assign(GLOSS_OF, { bzCoinF0: 1, bzCoinF1: 1, bzCoinE: 1, bzIronB: 0.8, bzPewter: 0.9, bzBenchTop: 0.35, bzLeather: 0.35, bzClay: 0.2, bzWax: 0.3 });
+  Object.assign(GLOSS_OF, { bzCoinF0: 1, bzCoinF1: 1, bzCoinE: 1, bzIronB: 0.8, bzPewter: 0.9, bzBenchTop: 0.6, bzLeather: 0.35, bzClay: 0.2, bzWax: 0.3 });
   const rb = (ax: number, ay: number, az: number, bx: number, by: number, bz: number, r = 0.01) => { const w = bx - ax, h = by - ay, d = bz - az; return new RoundedBoxGeometry(w, h, d, 2, Math.min(r, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4)).translate(x0 + (ax + bx) / 2, (ay + by) / 2, (az + bz) / 2); };
   // room: flagstones, rough stone wall
   b.add(new THREE.PlaneGeometry(8, 6).rotateX(-Math.PI / 2).translate(x0, 0, 0), M.flag);

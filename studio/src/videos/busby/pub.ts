@@ -36,7 +36,7 @@ export const pubApply = () => {
 // ---------------------------------------------------------------- textures
 const plasterWarm = () => ctex("pbPlaster", 1024, 1024, (g) => {
   const S = 1024, r = R01(12);
-  g.fillStyle = "#ead39c"; g.fillRect(0, 0, S, S);
+  g.fillStyle = "#2f6a52"; g.fillRect(0, 0, S, S); // deep green upper walls (warm wood + green: the reference porch palette)
   for (let i = 0; i < 1400; i++) { const x = r() * S, y = r() * S, rr = 8 + r() * 70; g.fillStyle = r() < 0.55 ? "rgba(120,80,30,0.03)" : "rgba(255,250,230,0.05)"; g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill(); }
   g.strokeStyle = "rgba(90,60,30,0.35)"; g.lineWidth = 1.5; // hairline cracks
   for (let i = 0; i < 6; i++) { let x = r() * S, y = r() * S; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 7; k++) { x += (r() - 0.5) * 60; y += 10 + r() * 30; g.lineTo(x, y); } g.stroke(); }
@@ -156,8 +156,8 @@ export const buildPub = (R: THREE.Object3D) => {
     inn: lam("pbInnM", () => ({ map: innBoardTex() })), dare: lam("pbDareM", () => ({ map: dareTex() })), chalk: lam("pbChalkM", () => ({ map: chalkTex() })),
     mirror: lam("pbMirrorM", () => ({ map: mirrorTex() })), dart: lam("pbDartM", () => ({ map: dartTex() })), view: lam("pbViewM", () => ({ map: viewTex() })),
   };
-  Object.assign(GLOSS_OF, { pbFloor: 0.35, pbMahog: 0.75, pbMahogV: 0.7, pbBrass: 1, pbPewter: 0.9, pbPorc: 0.9, pbBeer: 0.8, pbStout: 0.8, pbGlassG: 1, pbGlassA: 1, pbGlassC: 1, pbGlassB: 1,
-    pbMirrorM: 1, pbBeam: 0.2, pbBeamT: 0.2, pbBoardsM: 0.35, pbIron: 0.5, pbGlassL: 0.8, pbShade: 0.6, pbDartM: 0.1 });
+  Object.assign(GLOSS_OF, { pbFloor: 0.7, pbMahog: 0.95, pbMahogV: 0.85, pbBrass: 1, pbPewter: 0.9, pbPorc: 0.9, pbBeer: 0.8, pbStout: 0.8, pbGlassG: 1, pbGlassA: 1, pbGlassC: 1, pbGlassB: 1,
+    pbMirrorM: 1, pbBeam: 0.45, pbBeamT: 0.45, pbBoardsM: 0.6, pbIron: 0.5, pbGlassL: 0.8, pbShade: 0.6, pbDartM: 0.1 });
   const rb = (ax: number, ay: number, az: number, bx: number, by: number, bz: number, rr = 0.012) => { const w = bx - ax, h = by - ay, d = bz - az; return new RoundedBoxGeometry(w, h, d, 2, Math.min(rr, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4)).translate(x0 + (ax + bx) / 2, (ay + by) / 2, (az + bz) / 2); };
   const lathe = (prof: number[][], x: number, y: number, z: number, seg = 24) => new THREE.LatheGeometry(prof.map(([a, c]) => new THREE.Vector2(a, c)), seg).translate(x0 + x, y, z);
   const W = 3.6, ZB = -3, ZF = 3.2, H = 3.0;

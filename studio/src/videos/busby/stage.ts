@@ -13,7 +13,7 @@ import { VENV } from "./voiceEnv";
 import { WORKER, CREW, PSYCHIC, GUY, HISTORIAN, TOURISTS, BZ } from "./cast";
 import { PUB } from "./pub";
 import { MUS, BENCH } from "./hero";
-import { fxCloud, fxCurse, fxSlipper, fxDate, fxSweepHat, fxBrush, fxSoot, fxBomber, fxBeam, fxHubcap, fxPint, fxBubbles, fxRing } from "./bzfx";
+import { fxSteamJet, fxCloud, fxCurse, fxSlipper, fxDate, fxSweepHat, fxBrush, fxSoot, fxBomber, fxBeam, fxHubcap, fxPint, fxBubbles, fxRing } from "./bzfx";
 import { fxSteam as bzSteam, fxDizzy as bzDizzy, fxSpeed as bzSpeed, fxSpecks as bzSpecks } from "./fxart";
 
 import { Who, john, johnBed, lucy, lucyBed, betsy, betsyBed, son, writer, fisher, folk, tier } from "./cast";
@@ -130,7 +130,7 @@ const stretch = (f: number, at: number, a = 0.13) => {
 };
 /** WINCHESTER acting layer (user: "more facial expression that matches the narrator talking", "fluid lip movements",
  *  "jumpy energetic emotions on top of the sad confused mad"): narrator-synced talk, hops, beat bounces, nods, trembles */
-const talkV = (f: number, a: number, b: number, g = 1.15) => (f >= a && f < b ? Math.min(1, (VENV[f - (f & 1)] ?? 0) * g) * smooth((f - a) / 3) * (1 - smooth((f - b + 4) / 4)) : 0);
+const talkV = (f: number, a: number, b: number, g = 1.15) => (f >= a && f < b ? Math.min(1, (VENV[f] ?? 0) * g) * smooth((f - a) / 3) * (1 - smooth((f - b + 4) / 4)) : 0);
 const hop = (f: number, at: number, h = 0.09, n = 10) => (f >= at && f < at + n ? h * Math.sin((Math.PI * (f - at)) / n) : 0);
 const bounce = (f: number, per: number, h: number, ph = 0) => h * Math.abs(Math.sin((Math.PI * (f + ph)) / per));
 const nod = (f: number) => 6 * Math.min(0.6, Math.max(0, (VENV[f] ?? 0) - (VENV[f - 3] ?? 0)));
@@ -211,7 +211,13 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
   // and her shadow under it, so the shadow flickered).
   const groundY = (x: number, z: number) => s.light !== "night" ? 0
     : Math.abs(x) < 3.6 && z > 3 && z < 4.8 ? 0.25 : Math.abs(x) < 0.95 && z > 5.25 && z < 11.55 ? 0.03 : Math.abs(x) < 6.05 && z > 4.75 && z < 6.05 ? 0.01 : 0;
-  const add = (who: Who, x: number, y0: number, z: number, o: PO) => {
+  const add = (who: Who, x: number, y0: number, z: number, o0: PO) => {
+    // HIS rule (the user's slide: "a new pose every single frame, no motion blur"): nobody is ever frozen. A slow sway in
+    // the head and body, a breath in the torso, and the brows redrawn every frame, so each frame carries a new pose.
+    const ph = Array.from(who.k).reduce((a, c) => a * 1.31 + c.charCodeAt(0), 7) % 97, fr = o0.f;
+    const nz = (w: number, k: number) => 0.6 * Math.sin(fr * w + ph * k) + 0.4 * Math.sin(fr * w * 2.3 + ph * k * 1.7);
+    const boil = Math.sin(fr * 12.9898 + ph * 78.233) * 43758.5453 % 1;
+    const o: PO = { ...o0, headTilt: (o0.headTilt ?? 0) + 2.2 * nz(0.11, 1.3), roll: (o0.roll ?? 0) + 0.01 * nz(0.07, 2.1), sy: (o0.sy ?? 1) * (1 + 0.012 * nz(0.19, 0.7)), browUp: (o0.browUp ?? 0) + 1.6 * boil };
     const y = y0 < 0.5 ? Math.max(y0, groundY(x, z)) : y0;
     P.push(person(cam, who, x, y, z, o));
     if (y < 0.5) {
@@ -318,8 +324,8 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
         if (f >= 330) emoteFx({ x: CHX, y: 0, z: CHZ, b: "adult", sit: true }, "bang", 330, 16, 1);
       }
       if (s.id === 208) {
-        add(BZ.busby, 678.8, hop(f, 360, 0.04, 6), -0.55, { f, flush: smooth((f - 364) / 12), expr: f >= 362 ? "scream" : "angry", look: 1, pose: f >= 362 ? "fists" : "point", pa: poseIn(f, 356, 4), talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.14), headTilt: f >= 362 ? 7 * Math.sin((f - 362) * 0.9) * Math.exp(-(f - 362) / 14) : 0 });
-        if (f >= 368) { const u = qt(((f - 368) % 14) / 14, 8); F.push(fx(`bzsteam${u}`, 240, 300, (p) => bzSteam(p, u), 678.85, 2.0, -0.55, 0.45, 0.56, { soft: true })); }
+        add(BZ.busby, 678.8, hop(f, 360, 0.04, 6), -0.55, { f, flush: smooth((f - 364) / 12), expr: "angry", look: 1, pose: f >= 362 ? "fists" : "point", pa: poseIn(f, 356, 4), talk: talkV(f, 360, 392), sy: stretch(f, 362, 0.14), headTilt: f >= 362 ? 7 * Math.sin((f - 362) * 0.9) * Math.exp(-(f - 362) / 14) : 0 });
+        if (f >= 368) { const u = qt(((f - 368) % 14) / 14, 14); for (const d of [-1, 1]) F.push(fx(`bzjet${d}_${u}`, 300, 220, (p) => fxSteamJet(p, u, d), 678.8 + d * 0.58, 1.72, -0.5, 0.52, 0.38, {})); } // his steam: out of both sides of the head
       }
       if (s.id === 209) {
         if (f < 432) { const u = qt((f - 393) / 39, 20); F.push(fx(`bzcloud${u}`, 400, 400, (p) => fxCloud(p, u), CHX + 0.15, 0.95, CHZ + 0.35, 1.5, 1.5, {}));

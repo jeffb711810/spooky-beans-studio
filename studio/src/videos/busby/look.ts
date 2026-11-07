@@ -56,7 +56,8 @@ export const MOODS: Record<Mood, LookOv> = {
     "pools": {"k": 0.6, "floor": 0.78, "floorCol": [0.85, 0.88, 0.95], "r": [1.0, 3.8], "col": [1.35, 1.25, 1.08], "cardK": 0.25, "sat": 0.98, "satDark": 0.9},
     "shineCandle": {"k": 1.6, "sheen": 0.32, "specCol": [1.7, 1.5, 1.2], "poolSpecCol": [1.8, 1.45, 1.0], "sheenCol": [0.5, 0.4, 0.28]},
     "gradeCandle": {"ky": [0.08, 0.26, 0.45, 0.78, 0.96, 0.995, 1], "sat": [0.95, 1.0, 0.95], "tintS": [0, 0.01], "tintM": [0, 0], "tintH": [0, 0], "vig": [0.3, 0.32]}, "ink": {"candle": {"ao": 0.5, "aoRadius": 0.7}}},
-  candle: { candle: { lit: [2.0, 1.7, 1.2], shade: [0.78, 0.84, 1.0], lift: [0.04, 0.05, 0.07], term: 0.45 }, pools: { k: 1, floor: 0.82, floorCol: [0.7, 0.76, 0.92], r: [1.2, 4.4], col: [1.6, 1.38, 1.05], cardK: 0.5, sat: 1.0 }, shineCandle: { k: 1.6, sheen: 0.3 }, gradeCandle: { ky: [0.08, 0.25, 0.43, 0.76, 0.95, 0.99, 1], sat: [0.98, 1.02, 0.96], vig: [0.34, 0.3] } },
+  // (user: "why is the lighting bad again"): his candle-lit rooms: warm pools, deep blue-grey shadow, dark corners, rich colour
+  candle: { candle: { lit: [2.05, 1.72, 1.18], shade: [0.42, 0.5, 0.78], lift: [0.03, 0.04, 0.07], term: 0.45 }, pools: { k: 1, floor: 0.6, floorCol: [0.55, 0.62, 0.86], r: [1.2, 4.4], col: [1.7, 1.42, 1.02], cardK: 0.5, sat: 1.0 }, shineCandle: { k: 1.6, sheen: 0.3 }, gradeCandle: { ky: [0.035, 0.19, 0.41, 0.75, 0.945, 0.99, 1], sat: [1.08, 1.1, 1.0], vig: [0.44, 0.3] } },
 };
 const merge = (a: LookOv, b: LookOv): LookOv => {
   const o: Record<string, unknown> = { ...a };

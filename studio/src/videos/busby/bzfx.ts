@@ -1,33 +1,70 @@
 // BUSBY story effects (2D cards, drawn in card pixels like fxart.ts): the fight cloud, the curse glow, the slipper,
 // the date slam, the sweep's falling top hat + brush, the bomber over the moon, headlight sweep, the hubcap, a pint.
-import { Pen } from "../bridge/toon";
+import { Pen, ellPts } from "../bridge/toon";
 
 const INKC = "#231810", TAU = Math.PI * 2;
 const sm = (x: number) => { const u = Math.max(0, Math.min(1, x)); return u * u * (3 - 2 * u); };
 const withA = (p: Pen, a: number, f: () => void) => { const g = p.g, o = g.globalAlpha; g.globalAlpha = o * Math.max(0, Math.min(1, a)); f(); g.globalAlpha = o; };
 
-/** the cartoon fight: a boiling dust ball with fists, a boot, stars and a flying slipper poking out (400 x 400) */
+/** the cartoon fight (400 x 400), his finish: a boiling two-tone dust cloud (shaded puffs, heavy ink), Busby's red
+ *  sleeves and Auty's blue ones punching out with solid fists and boots, the two faces popping out, both hats flying,
+ *  stars and dust. The layout re-boils every step (on twos). */
 export const fxCloud = (p: Pen, t: number) => {
-  const g = p.g, k = Math.floor(t * 24);
-  for (let i = 0; i < 11; i++) { // the puffs boil (new layout every 2 frames)
-    const a = (i / 11) * TAU + k * 0.37, r = 110 + 22 * Math.sin(i * 2.3 + k), x = 200 + Math.cos(a) * r * 0.9, y = 205 + Math.sin(a) * r * 0.75;
-    p.ell(x, y, 62 + 10 * Math.sin(i + k), 54 + 8 * Math.cos(i * 1.7 + k), "#efe6d6", 7);
-  }
-  p.ell(200, 205, 120, 100, "#f6efe2", 0);
-  const pokes = [[0.2, "fist"], [2.1, "boot"], [3.6, "fist"], [5.0, "hat"]] as const;
-  pokes.forEach(([a0, kind], i) => {
-    const a = a0 + 0.35 * Math.sin(k * 1.3 + i), x = 200 + Math.cos(a) * 150, y = 205 + Math.sin(a) * 125;
-    p.stroke([[200 + Math.cos(a) * 100, 205 + Math.sin(a) * 85], [x, y]], 9);
-    if (kind === "fist") p.ell(x, y, 17, 17, INKC, 0);
-    else if (kind === "boot") p.ell(x, y, 26, 14, INKC, 0, 0, 360, (a * 180) / Math.PI);
-    else { p.poly([[x - 30, y + 8], [x + 30, y + 8], [x + 18, y - 12], [x - 18, y - 12]], "#2a2420", 5); }
+  const g = p.g, k = Math.round(t * 20), R = (i: number) => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return v - Math.floor(v); };
+  const C = 200, sc = 1 + 0.035 * Math.sin(k * 1.9);
+  g.save(); g.translate(C, C); g.scale(sc, sc * (1 - 0.03 * Math.sin(k * 1.9))); g.translate(-C, -C);
+  const puff = (x: number, y: number, r: number, col: string, shade: string, ol: number) => {
+    p.ell(x, y, r, r * 0.88, col, 0);
+    g.save(); p.path(ellPts(x, y, r, r * 0.88), true); g.clip(); p.ell(x + r * 0.28, y + r * 0.42, r * 0.95, r * 0.6, shade, 0); g.restore();
+    p.ell(x, y, r, r * 0.88, null, ol);
+  };
+  // back ring of darker puffs
+  // a layer of puffs: ink pass first, then the fills on top, so the ink only shows round the cloud's outside
+  const layer = (P: [number, number, number][], col: string, shade: string, ol: number) => {
+    for (const [x, y, r] of P) p.ell(x, y, r + ol * 0.5, r * 0.88 + ol * 0.5, INKC, 0);
+    for (const [x, y, r] of P) puff(x, y, r, col, shade, 0);
+  };
+  const back: [number, number, number][] = [];
+  for (let i = 0; i < 10; i++) { const a = (i / 10) * TAU + k * 0.31, r = 112 + 16 * R(i); back.push([C + Math.cos(a) * r * 0.92, C + 8 + Math.sin(a) * r * 0.74, 50 + 12 * R(i + 20)]); }
+  layer(back, "#e2d8c6", "rgba(150,140,128,0.35)", 12);
+  // limbs punching out (sleeve + solid fist / trouser + boot), alternating the two men's colours
+  const limbs: [number, string, "fist" | "boot"][] = [[0.15, "#8a2e24", "fist"], [1.35, "#4f73a6", "fist"], [2.45, "#3a2a22", "boot"], [3.5, "#8a2e24", "fist"], [4.55, "#ece4d2", "boot"], [5.55, "#4f73a6", "fist"]];
+  limbs.forEach(([a0, col, kind], i) => {
+    const a = a0 + 0.45 * Math.sin(k * 1.7 + i * 2.1), out = 150 + 18 * Math.sin(k * 2.3 + i), x0 = C + Math.cos(a) * 70, y0 = C + Math.sin(a) * 60, x1 = C + Math.cos(a) * out, y1 = C + Math.sin(a) * out * 0.84;
+    p.stroke([[x0, y0], [x1, y1]], 30); p.stroke([[x0, y0], [x1, y1]], 20, col);
+    if (kind === "fist") { p.ell(x1, y1, 19, 19, INKC, 0); p.ell(x1 - 6, y1 - 7, 5, 4, "rgba(255,255,255,0.35)", 0); }
+    else { const ang = (a * 180) / Math.PI; p.ell(x1 + Math.cos(a) * 8, y1 + Math.sin(a) * 8, 26, 15, "#1e1814", 5, 0, 360, ang); }
   });
-  for (let s = 0; s < 4; s++) { // stars
-    const a = s * 1.6 + k * 0.5, x = 200 + Math.cos(a) * 165, y = 120 + Math.sin(a) * 60, r = 16;
+  // front puffs (lighter, bigger), boiling
+  const front: [number, number, number][] = [[C, C + 12, 78]];
+  for (let i = 0; i < 6; i++) { const a = (i / 6) * TAU - k * 0.23, r = 62 + 14 * R(i + 40); front.push([C + Math.cos(a) * r, C + 12 + Math.sin(a) * r * 0.78, 50 + 12 * R(i + 60)]); }
+  layer(front, "#f8f2e6", "rgba(190,176,156,0.4)", 13);
+  // the two faces popping out (on alternate steps): Busby furious (red), Auty shocked under his nightcap
+  const head = (x: number, y: number, furious: boolean) => {
+    p.ell(x, y, 34, 31, furious ? "#e65a40" : "#fbf7f0", 0); p.ell(x, y, 34, 31, null, 5);
+    if (furious) { p.stroke([[x - 20, y - 14], [x - 6, y - 8]], 5); p.stroke([[x + 20, y - 14], [x + 6, y - 8]], 5); p.ell(x - 11, y - 2, 4, 5, INKC, 0); p.ell(x + 11, y - 2, 4, 5, INKC, 0); p.poly([[x - 13, y + 10], [x + 13, y + 10], [x + 13, y + 19], [x - 13, y + 19]], "#ffffff", 3); for (const dx of [-6, 0, 6]) p.stroke([[x + dx, y + 10], [x + dx, y + 19]], 2); }
+    else { for (const s of [-1, 1]) { p.ell(x + s * 11, y - 3, 9, 9, "#ffffff", 3); p.ell(x + s * 11, y - 2, 3, 3, INKC, 0); } p.ell(x, y + 15, 5, 6, INKC, 0); p.poly([[x - 30, y - 18], [x + 26, y - 26], [x + 52, y - 4], [x + 18, y - 30]], "#e0b04a", 4); }
+  };
+  if (k % 4 < 2) head(C - 70, C - 84, true); else head(C + 76, C - 70, false);
+  // both hats flying round the outside
+  { const a = k * 0.62, x = C + Math.cos(a) * 170, y = C - 40 + Math.sin(a) * 120; g.save(); g.translate(x, y); g.rotate(k * 0.7); p.poly([[-34, 4], [34, 4], [22, -14], [0, -8], [-22, -14]], "#2a2420", 5); p.stroke([[-30, 2], [30, 2]], 4, "#d9a83a"); g.restore(); }
+  { const a = k * 0.62 + Math.PI, x = C + Math.cos(a) * 168, y = C - 30 + Math.sin(a) * 110; g.save(); g.translate(x, y); g.rotate(-k * 0.8); p.poly([[-26, 10], [24, 10], [8, -22], [30, -34]], "#e0b04a", 5); p.ell(32, -36, 9, 9, "#f4efe2", 4); g.restore(); }
+  // stars + dust specks
+  for (let s = 0; s < 4; s++) {
+    const a = s * 1.57 + k * 0.5, x = C + Math.cos(a) * 178, y = C - 70 + Math.sin(a) * 60, r = 15 + 4 * Math.sin(k + s);
     const pts: [number, number][] = []; for (let i = 0; i < 10; i++) { const q = (i / 10) * TAU - Math.PI / 2, rr = i % 2 ? r * 0.45 : r; pts.push([x + Math.cos(q) * rr, y + Math.sin(q) * rr]); }
     p.poly(pts, "#ffd84a", 4);
   }
-  void g;
+  for (let i = 0; i < 14; i++) { const a = R(i + 80) * TAU, r = 150 + 40 * R(i + 90); p.ell(C + Math.cos(a) * r, C + Math.sin(a) * r * 0.8, 4 + 3 * R(i), 4 + 3 * R(i), "#cbbfa8", 2); }
+  g.restore();
+};
+/** HIS steam: solid white puffs with a heavy outline jetting sideways out of the head, then rising (300 x 220; dir 1 =
+ *  to the right, the head is at the near edge) */
+export const fxSteamJet = (p: Pen, t: number, dir: number) => {
+  const P: [number, number, number][] = [];
+  for (let i = 0; i < 3; i++) { const u = (t + i / 3) % 1; if (u > 0.9) continue; P.push([(dir > 0 ? 24 : 276) + dir * 210 * u, 168 - 130 * u * u, 14 + 34 * Math.sin(Math.PI * Math.min(1, u * 1.1))]); }
+  for (const [x, y, r] of P) { p.ell(x, y, r + 5, r * 0.86 + 5, INKC, 0); p.ell(x + r * 0.5, y - r * 0.4, r * 0.62 + 5, r * 0.55 + 5, INKC, 0); }
+  for (const [x, y, r] of P) { p.ell(x, y, r, r * 0.86, "#fbf8f2", 0); p.ell(x + r * 0.5, y - r * 0.4, r * 0.62, r * 0.55, "#fbf8f2", 0); p.ell(x + r * 0.2, y + r * 0.3, r * 0.6, r * 0.3, "rgba(190,184,176,0.45)", 0); }
 };
 /** the curse: a red glow (soft, additive) */
 export const fxCurse = (p: Pen, t: number) => {

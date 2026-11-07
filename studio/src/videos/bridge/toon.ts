@@ -333,7 +333,7 @@ export class Pen {
  *  ellipse / arc gets a soft radial wobble (2, 3, 5 lobes, ~5 %), phased per person and per feature position. Seeded,
  *  so a feature keeps its own shape from frame to frame (no line boil). WOB = 0 everywhere else. */
 let WOB = 0, WOB_SEED = 0;
-const ellPts = (cx: number, cy: number, rx: number, ry: number, a0 = 0, a1 = 360, rot = 0, n = 48): P2[] => {
+export const ellPts = (cx: number, cy: number, rx: number, ry: number, a0 = 0, a1 = 360, rot = 0, n = 48): P2[] => {
   const r = rad(rot), pts: P2[] = [], ph = (cx - 300) * 0.045 + (cy % 97) * 0.01;
   const q1 = rnd(WOB_SEED, 31) * 6.283 + ph, q2 = rnd(WOB_SEED, 32) * 6.283 - ph, q3 = rnd(WOB_SEED, 33) * 6.283 + 2 * ph;
   for (let i = 0; i <= n; i++) {

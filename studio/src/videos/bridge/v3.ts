@@ -152,6 +152,12 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
     if (teethBand) { const g = p.g; g.save(); p.path(q.map(([u, v]) => F(u, v)), true); g.clip(); fill([[-w / 2, y0 - 0.01], [w / 2, y0 - 0.01], [w / 2, y0 + h * 0.26], [-w / 2, y0 + h * 0.26]], WHITE); g.restore(); }
   };
   const lozenge = (mx: number, my: number, w: number, h: number) => fill([...arc(16, -1, 1).map((u) => [mx + (w / 2) * u, my - (h / 2) * Math.pow(1 - u * u, 0.45)] as P2), ...arc(16, 1, -1).map((u) => [mx + (w / 2) * u, my + (h / 2) * Math.pow(1 - u * u, 0.45)] as P2)], V3_INK);
+  const shoutMouth = (w: number, h: number, y0: number) => { // HIS angry shout: arched top, corners pulled DOWN, upper teeth (never a smile)
+    const top: P2[] = arc(20, -1, 1).map((u) => [(w / 2) * u, y0 + h * 0.15 - h * 0.6 * Math.sqrt(Math.max(0, 1 - u * u))] as P2);
+    const bot: P2[] = arc(20, 1, -1).map((u) => [(w / 2) * u * 0.9, y0 + h * 0.42 + h * 0.06 * (1 - u * u)] as P2);
+    const q = [...top, ...bot]; fill(q, MOUTH_IN, 0.024);
+    const g = p.g; g.save(); p.path(q.map(([u, v]) => F(u, v)), true); g.clip(); fill([[-w / 2, y0 - h], [w / 2, y0 - h], [w / 2, y0 - h * 0.18], [-w / 2, y0 - h * 0.18]], WHITE); g.restore();
+  };
   const sweat: [number, number, number][] = [];
   const vein = (vx: number, vy: number, s = 0.075) => { for (const a of [-0.5, 0.6, 2.1]) line(bez2([vx, vy], [vx + 0.55 * s * Math.cos(a + 0.6), vy - 0.55 * s * Math.sin(a + 0.6)], [vx + s * Math.cos(a), vy - s * Math.sin(a)], 10), 0.02); };
   const blush = (ey: number) => { if (RK || (o.small ?? 1) < 1) return; for (const s of [-1, 1]) if (vis(s * 0.21)) fill(arc(24).map((t) => [s * 0.225 + 0.065 * Math.cos(t), ey + 0.105 + 0.035 * Math.sin(t)]), BLUSH); };
@@ -209,7 +215,7 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
       for (const s of S) eyeRing(s * 0.129, EY - 0.01, 0.112, [o.look, 0], 0.026);
       brow(-0.142, EY - 0.2, 0.18, 0.02, 0.095, 0.046, 0.012); brow(0.142, EY - 0.215, -0.1, 0.03, 0.095, 0.046, 0.016);
       if (e === "terrified") { M(() => teeth(0.15, 0.085, 0.215, 0, "box", 5, true)); for (const s of S) line(bez2([s * 0.09, 0.3], [s * 0.115, 0.33], [s * 0.08, 0.36], 8), 0.016); }
-      else { M(() => openMouth(0.2, 0.15, 0.2, true)); mouthDone = true; }
+      else { M(() => openMouth(0.2, 0.15, 0.2, true)); if (!talking) mouthDone = true; } // talking: the shout's own mouth shapes below
       vein(-0.3, -0.12); sweat.push([-35, 0.68, 0.075], [-5, 0.72, 0.06], [195, 0.68, 0.07], [160, 0.7, 0.055]);
       break;
     case "laugh":
@@ -247,7 +253,10 @@ export const v3Face = (p: Pen, cx: number, cy: number, D: number, e: string, o: 
   }
   // talking: the mouth changes on twos (the stage samples the voice envelope); 3 sizes, dark inside
   if (talking && !mouthDone && RK) { // HIS talking mouths (studied frame by frame): small dark shapes swapped on twos; only a shout opens wide with teeth
-    if (talk < 0.35) openMouth(0.075, 0.035, 0.225);
+    const loud = e === "scream" || e === "yell" || e === "angry" || e === "evil" || e === "terrified";
+    if (e === "angry" || e === "evil" || e === "yell") { if (talk < 0.35) shoutMouth(0.15, 0.085, 0.225); else if (talk < 0.7) shoutMouth(0.2, 0.115, 0.225); else shoutMouth(0.25, 0.145, 0.225); }
+    else if (loud) { if (talk < 0.35) openMouth(0.12, 0.07, 0.215, true); else if (talk < 0.7) openMouth(0.17, 0.11, 0.205, true); else openMouth(0.22, 0.15, 0.2, true); }
+    else if (talk < 0.35) openMouth(0.075, 0.035, 0.225);
     else if (talk < 0.6) openMouth(0.1, 0.055, 0.22);
     else if (talk < 0.85) openMouth(0.13, 0.08, 0.215, true);
     else openMouth(0.19, 0.12, 0.205, true);

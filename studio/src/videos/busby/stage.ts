@@ -379,8 +379,12 @@ const stage0 = (f: number, s: Shot, cam: CamInfo): Stage => {
       if (f >= 1122) emoteFx({ x: 677.25, y: 0, z: 1.05, b: "adult" }, "bang", 1122, 16, 1);
       break; }
     case 219: { props.pools = PPOOLS; // two pilots, one chair
+      // (user: one pilot's arm went through the other's head): squeezed side by side, each in his own space, hands on
+      // their own bellies, leaning AWAY from each other as they laugh
+      // (user: a foot went through the chair's wood): one sits, his mate stands on the floor beside the chair, clear of
+      // its legs and of the little table, doubled over laughing
       sitOn(BZ.pilot, "laugh", { pose: "belly", pa: 1, sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5)) });
-      add(BZ.pilot2, CHX + 0.24, 0.16, CHZ + 0.12, { f, mode: "sit", seatM: 0.52, expr: "laugh", look: -1, pose: f >= 1175 ? "up" : "belly", pa: poseIn(f, f >= 1175 ? 1175 : 1155, 5), roll: -0.12 + 0.05 * Math.sin(f * 0.3), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5 + 1)) }); break; }
+      add(BZ.pilot2, CHX - 0.52, 0, CHZ + 0.28, { f, expr: "laugh", look: 1, pose: "belly", pa: poseIn(f, 1155, 5), roll: 0.05 + 0.03 * Math.sin(f * 0.3), sy: 1 + 0.02 * Math.abs(Math.sin(f * 0.5 + 1)) }); break; }
     case 220: { PUB.out = 2; PUB.night = 1; props.pools = CPOOLS; // headlights sweep the wall... crash (black)... a hubcap rolls in
       if (f >= 1225 && f < 1257) { const u = (f - 1225) / 32; F.push(fx("bzbeam", 512, 256, (p) => fxBeam(p), 676.0 + 4.6 * u, 1.55, -2.92, 2.4 * (0.6 + u), 1.2 * (0.6 + u), { soft: true, glow: 1.6 })); }
       if (f >= 1266) { const u = clamp01((f - 1266) / 15), x = 678.0 - 0.55 * u, z = 2.8 - 3.9 * u;

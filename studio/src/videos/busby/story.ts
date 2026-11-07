@@ -100,7 +100,7 @@ export const SHOTS: Shot[] = [
   { id: 217, a: 1035, b: 1098, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 1035, pos: PB(-1.55, 1.2, -0.85), look: PB(-2.75, 1.05, -2.2), fov: 72 }, { f: 1070, glide: 18, ease: "out", pos: PB(-1.8, 1.17, -1.12), look: PB(-2.75, 1.05, -2.2), fov: 72 }] },
   { id: 218, a: 1098, b: 1155, light: "candle", mood: "pubDay", cInf: 6, focus: PB(-3.4, 1.5, 1.55), keys: [{ f: 1098, pos: PB(0.2, 1.45, 1.6), look: PB(-3.55, 1.45, 1.55), fov: 58 }] },
   // 13 "Two pilots sit in it for a laugh. On the drive home... crash."
-  { id: 219, a: 1155, b: 1221, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 1155, pos: PB(-0.85, 1.3, 0.05), look: PB(-2.5, 1.0, -2.0), fov: 52 }] },
+  { id: 219, a: 1155, b: 1221, light: "candle", mood: "pubDay", cInf: 8, keys: [{ f: 1155, pos: PB(-0.75, 1.3, 0.25), look: PB(-2.8, 1.0, -1.9), fov: 64 }] },
   { id: 220, a: 1221, b: 1281, light: "candle", mood: "candle", cInf: 4, keys: [{ f: 1221, pos: PB(-0.3, 1.25, 1.6), look: PB(-2.4, 1.0, -1.2), fov: 38 }] },
   // 14 "And the chair just sits there. Waiting.": night, the lamps out, moonlight; the slowest push in the film
   { id: 221, a: 1281, b: 1350, light: "candle", mood: "pubNight", cInf: 8, keys: [{ f: 1281, pos: PB(-1.85, 0.95, -1.15), look: PB(-2.86, 0.75, -2.33), fov: 34 },

@@ -1,0 +1,11 @@
+node_modules/
+out/
+*.mp4
+*.mov
+audio/**/music*.wav
+audio/**/sfx*.wav
+audio/**/mix*.wav
+audio/**/voice.wav
+audio/**/_*.wav
+audio/**/_seg.raw
+.remotion/

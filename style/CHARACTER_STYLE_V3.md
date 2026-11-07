@@ -54,5 +54,15 @@ Unit: 1 D = head width. Everything measured in D.
 - orbit(center, { az0: -44, az1: 55, el: 17.5 })   -> azimuth -44 deg to +55 deg (= 99 deg arc), elevation 17.5 deg
 - if (K[i].stop) return 0;  // whip lands: hard stop (zero velocity in 1 frame)
 - shake: nz = sin(t*4.59)*.5 + sin(t*8.61)*.3 + ...  (sum of incommensurate sines = handheld noise)
-## 5 camera styles (built on top of the 3 moves) - details TBD from user
-1. Dread Cuts  2. One Take  3. Found Footage  4. The Watcher  5. Through the Steel
+## 5 camera styles (built on top of the 3 moves; our own definitions - Rick's exact versions unknown)
+Pick ONE style per story beat; all keep fov 26, push-in 1.9x outCubic, orbit ~98 deg, whip hard stop, still <= 4.5%.
+1. DREAD CUTS - tension beats: short shots (12-24 frames), each a slow push-in on a detail (door, stair, eyes), hard cut
+   to the next, getting tighter each cut; ends on a whip that hard-stops on the reveal. No shake.
+2. ONE TAKE - storytelling runs: one continuous shot (3-8 s) chaining push-in -> orbit -> whip-to-next-subject without
+   cutting; the camera travels through the set from beat to beat.
+3. FOUND FOOTAGE - "evidence"/modern tourist/ghost-hunter beats: handheld shake on (nz sines x2 strength), slight
+   lag/overshoot on pans, eye-height camera, quick reframes; can add a REC dot / timecode overlay.
+4. THE WATCHER - something is watching: camera hides behind foreground objects (doorframes, banisters, plants, windows)
+   far from the subject, very slow push-in, no shake, long-lens voyeur framing; the subject is small in frame.
+5. THROUGH THE STEEL - travel/structure beats: camera skims low and fast THROUGH structures (stair balusters, scaffolding,
+   rafters, fences, railings) with foreground bars whipping past the lens, ending in a whip that hard-stops on the subject.
